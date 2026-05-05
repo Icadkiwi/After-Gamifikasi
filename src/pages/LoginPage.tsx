@@ -1,0 +1,89 @@
+import { useState, type FormEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { PageContainer } from '../components/PageContainer'
+import { PasswordInput } from '../components/PasswordInput'
+import { useAuth } from '../contexts/AuthContext'
+
+export function LoginPage() {
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setError('')
+    setIsSubmitting(true)
+
+    try {
+      const user = await login(email, password)
+      navigate(user.emailVerified ? '/game' : '/verify-email')
+    } catch {
+      setError('Email atau password tidak valid.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <PageContainer
+      title="Login"
+      description="Halaman awal untuk alur masuk pengguna."
+    >
+      <form
+        className="grid max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-6 shadow-sm"
+        onSubmit={handleSubmit}
+      >
+        <label className="grid gap-2 text-sm font-medium text-zinc-800">
+          Email
+          <input
+            type="email"
+            name="email"
+            placeholder="nama@email.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            className="rounded-md border border-zinc-300 px-3 py-2 text-base font-normal outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+          />
+        </label>
+
+        <div className="grid gap-2 text-sm font-medium text-zinc-800">
+          <label htmlFor="login-password">Password</label>
+          <PasswordInput
+            id="login-password"
+            name="password"
+            placeholder="Masukkan password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            className="rounded-md border border-zinc-300 px-3 py-2 text-base font-normal outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+          />
+        </div>
+
+        <Link
+          className="justify-self-start text-sm font-medium text-emerald-700"
+          to="/forgot-password"
+        >
+          Lupa password?
+        </Link>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+        >
+          {isSubmitting ? 'Memproses...' : 'Masuk'}
+        </button>
+
+        <Link className="text-sm font-medium text-emerald-700" to="/register">
+          Buat akun baru
+        </Link>
+      </form>
+    </PageContainer>
+  )
+}
