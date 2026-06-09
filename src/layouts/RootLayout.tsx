@@ -3,7 +3,6 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const navItems = [
-  { to: '/', label: 'Home' },
   { to: '/login', label: 'Login' },
   { to: '/register', label: 'Register' },
 ]
@@ -13,9 +12,6 @@ export function RootLayout() {
   const navigate = useNavigate()
   const isLoggedIn = Boolean(user)
   const displayName = user?.displayName?.trim() || user?.email || 'User'
-  const visibleNavItems = isLoggedIn
-    ? navItems.filter((item) => item.to === '/')
-    : navItems
 
   async function handleLogout() {
     await logout()
@@ -31,23 +27,23 @@ export function RootLayout() {
           </NavLink>
 
           <div className="flex min-w-0 items-center justify-end gap-2">
-            {visibleNavItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                className={({ isActive }) =>
-                  [
-                    'rounded-md px-3 py-2 text-sm font-medium transition',
-                    isActive
-                      ? 'bg-zinc-950 text-white'
-                      : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950',
-                  ].join(' ')
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            {!isLoggedIn &&
+              navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    [
+                      'rounded-md px-3 py-2 text-sm font-medium transition',
+                      isActive
+                        ? 'bg-zinc-950 text-white'
+                        : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950',
+                    ].join(' ')
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
 
             {isLoggedIn && !loading && (
               <>

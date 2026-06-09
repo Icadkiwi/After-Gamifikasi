@@ -24,7 +24,7 @@ export function GameCanvas({ className = '' }: GameCanvasProps) {
   }, [])
 
   return (
-    <div className={`overflow-hidden bg-sky-100 ${className}`}>
+    <div className={`game-canvas-root overflow-hidden bg-sky-100 ${className}`}>
       <div
         ref={containerRef}
         className="relative h-full w-full bg-cover bg-center [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full"
