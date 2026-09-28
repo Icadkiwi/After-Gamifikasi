@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { toast } from 'sonner'
 
 import {
   ACHIEVEMENT_UNLOCKED_EVENT,
+  type Achievement,
   type AchievementUnlockedPayload,
 } from '../../game/achievementService'
 
@@ -10,14 +12,11 @@ type AchievementToastProps = {
 }
 
 export function AchievementToast({ uid }: AchievementToastProps) {
-  const [message, setMessage] = useState('')
-
   useEffect(() => {
     if (!uid) {
       return undefined
     }
 
-    let timeoutId = 0
     const handleAchievementUnlocked = (event: Event) => {
       const detail = (event as CustomEvent<AchievementUnlockedPayload>).detail
 
@@ -25,9 +24,7 @@ export function AchievementToast({ uid }: AchievementToastProps) {
         return
       }
 
-      window.clearTimeout(timeoutId)
-      setMessage(`Achievement Unlocked: ${detail.achievement.title}`)
-      timeoutId = window.setTimeout(() => setMessage(''), 4200)
+      showAchievementToast(detail.achievement)
     }
 
     window.addEventListener(
@@ -36,7 +33,6 @@ export function AchievementToast({ uid }: AchievementToastProps) {
     )
 
     return () => {
-      window.clearTimeout(timeoutId)
       window.removeEventListener(
         ACHIEVEMENT_UNLOCKED_EVENT,
         handleAchievementUnlocked,
@@ -44,15 +40,19 @@ export function AchievementToast({ uid }: AchievementToastProps) {
     }
   }, [uid])
 
-  if (!uid || !message) {
-    return null
-  }
+  return null
+}
 
-  return (
-    <div className="pointer-events-none fixed inset-x-0 top-20 z-[1100] flex justify-center px-4">
-      <div className="max-w-[min(28rem,calc(100vw-2rem))] rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-950 shadow-2xl shadow-slate-950/20">
-        {message}
-      </div>
-    </div>
-  )
+function showAchievementToast(achievement: Achievement) {
+  toast.success('Pencapaian Terbuka!', {
+    description: achievement.title,
+    icon: (
+      <img
+        src={achievement.badgeImage}
+        alt={achievement.title}
+        className="size-10 object-contain"
+      />
+    ),
+    duration: 4200,
+  })
 }

@@ -1,7 +1,12 @@
+import { ChevronUp } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+
 type DailyMissionFloatingButtonProps = {
   completedCount: number
   totalMissions: number
   hasClaimableReward: boolean
+  mentorImageUrl: string
   onExpand: () => void
 }
 
@@ -9,31 +14,38 @@ export function DailyMissionFloatingButton({
   completedCount,
   totalMissions,
   hasClaimableReward,
+  mentorImageUrl,
   onExpand,
 }: DailyMissionFloatingButtonProps) {
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       onClick={onExpand}
-      className={`flex min-h-14 w-full items-center gap-3 rounded-xl border border-white/70 bg-white/90 px-3.5 py-2.5 text-left shadow-xl backdrop-blur-md transition duration-200 hover:-translate-y-0.5 hover:bg-white active:translate-y-0 ${
-        hasClaimableReward ? 'motion-safe:animate-[rewardPulse_1.8s_ease-in-out_infinite]' : ''
+      aria-label="Buka misi harian"
+      className={`glass-panel h-auto w-full justify-start gap-3 border-border bg-card/90 px-3.5 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-card ${
+        hasClaimableReward
+          ? 'motion-safe:animate-[rewardPulse_1.8s_ease-in-out_infinite]'
+          : ''
       }`}
-      aria-label="Buka daily mission"
     >
-      <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-sm font-black text-emerald-700">
-        M
+      <span className="relative flex h-10 w-10 shrink-0 items-end justify-center rounded-lg bg-accent px-1.5 pb-1">
+        <img
+          src={mentorImageUrl}
+          alt="Taksi mentor"
+          className="max-h-7 max-w-full object-contain"
+        />
         {hasClaimableReward && (
-          <span className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-red-500" />
+          <span className="absolute -right-1 -top-1 size-3.5 rounded-full border-2 border-card bg-destructive" />
         )}
       </span>
-      <span className="min-w-0">
-        <span className="block text-sm font-bold text-zinc-950">
-          Daily Mission
-        </span>
-        <span className="block text-xs font-semibold text-zinc-500">
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold text-foreground">Misi Harian</span>
+        <span className="block text-xs font-semibold text-muted-foreground">
           {completedCount} / {totalMissions} selesai
         </span>
       </span>
-    </button>
+      <ChevronUp className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+    </Button>
   )
 }

@@ -1,3 +1,19 @@
+import { Info } from 'lucide-react'
+
+import { Progress } from '@/components/ui/progress'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
 import type { DailyLimitState } from '../../game/gamificationService'
 
 type DailyRewardLimitCardProps = {
@@ -7,7 +23,7 @@ type DailyRewardLimitCardProps = {
 }
 
 const dailyRewardLimitTooltip =
-  'Reward harian maksimum yang bisa diperoleh hari ini dari misi, NPC, dan bonus reward. Ini bukan total EXP level atau total Coin user.'
+  'Hadiah harian maksimum yang bisa diperoleh hari ini dari misi, NPC, dan bonus. Ini bukan total EXP level atau total Koin pengguna.'
 
 export function DailyRewardLimitCard({
   dailyLimit,
@@ -18,51 +34,50 @@ export function DailyRewardLimitCard({
     dailyLimit.expEarnedToday > 0 || dailyLimit.coinEarnedToday > 0
 
   return (
-    <section
-      className={`rounded-xl border border-zinc-200 bg-white/92 p-3 shadow-sm backdrop-blur ${className}`}
-      title={dailyRewardLimitTooltip}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold text-zinc-950">
-            Today's Reward Progress
+    <Card size="sm" className={`glass-panel gap-2 py-3 ${className}`}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-xs font-bold">
+          Progres Hadiah Hari Ini
+          <Tooltip>
+            <TooltipTrigger
+              aria-label={dailyRewardLimitTooltip}
+              className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-black text-muted-foreground"
+            >
+              <Info className="size-3" aria-hidden="true" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-60 text-xs">
+              {dailyRewardLimitTooltip}
+            </TooltipContent>
+          </Tooltip>
+        </CardTitle>
+        {!compact && (
+          <CardDescription className="text-[11px] leading-snug">
+            Batas hadiah harian dari misi dan bonus.
+          </CardDescription>
+        )}
+      </CardHeader>
+
+      <CardContent className="grid gap-2">
+        {!hasEarnedRewardToday && (
+          <p className="rounded-lg bg-muted px-2.5 py-2 text-[11px] font-semibold text-muted-foreground">
+            Belum ada hadiah yang diklaim hari ini.
           </p>
-          {!compact && (
-            <p className="mt-0.5 text-[11px] leading-snug text-zinc-500">
-              Limit reward harian dari misi dan bonus.
-            </p>
-          )}
-        </div>
-        <span
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[11px] font-black text-zinc-500"
-          title={dailyRewardLimitTooltip}
-          aria-label={dailyRewardLimitTooltip}
-        >
-          ?
-        </span>
-      </div>
+        )}
 
-      {!hasEarnedRewardToday && (
-        <p className="mt-2 rounded-lg bg-zinc-50 px-2.5 py-2 text-[11px] font-semibold text-zinc-500">
-          Belum ada reward yang diklaim hari ini.
-        </p>
-      )}
-
-      <div className="mt-3 grid gap-2">
         <RewardLimitRow
-          label="EXP Earned"
+          label="EXP Didapat"
           value={dailyLimit.expEarnedToday}
           limit={dailyLimit.maxDailyExpReward}
-          barClassName="bg-emerald-500"
+          barClassName="[&_[data-slot=progress-indicator]]:bg-primary"
         />
         <RewardLimitRow
-          label="Coin Earned"
+          label="Koin Didapat"
           value={dailyLimit.coinEarnedToday}
           limit={dailyLimit.maxDailyCoinReward}
-          barClassName="bg-amber-400"
+          barClassName="[&_[data-slot=progress-indicator]]:bg-amber-400"
         />
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -82,19 +97,18 @@ function RewardLimitRow({
   const percent = limit > 0 ? Math.min((value / limit) * 100, 100) : 0
 
   return (
-    <div title={dailyRewardLimitTooltip}>
-      <div className="flex items-center justify-between gap-3 text-[11px] font-bold text-zinc-600">
+    <div>
+      <div className="flex items-center justify-between gap-3 text-[11px] font-bold text-muted-foreground">
         <span className="min-w-0 truncate">{label}</span>
-        <span className="shrink-0 text-zinc-950">
+        <span className="shrink-0 text-foreground">
           {formatNumber(value)} / {formatNumber(limit)}
         </span>
       </div>
-      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-zinc-100">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${barClassName}`}
-          style={{ width: `${percent}%` }}
-        />
-      </div>
+      <Progress
+        value={percent}
+        className={`mt-1.5 h-1.5 ${barClassName}`}
+        aria-label={`${label} ${Math.round(percent)}%`}
+      />
     </div>
   )
 }

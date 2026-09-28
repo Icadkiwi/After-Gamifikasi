@@ -22,7 +22,7 @@ export function RegisterPage() {
       await register(email, password)
       navigate('/verify-email')
     } catch {
-      setError('Register gagal. Pastikan email valid dan password minimal 6 karakter.')
+      setError('Pendaftaran gagal. Pastikan email valid dan kata sandi minimal 6 karakter.')
     } finally {
       setIsSubmitting(false)
     }
@@ -30,11 +30,11 @@ export function RegisterPage() {
 
   return (
     <PageContainer
-      title="Register"
+      title="Daftar"
       description="Halaman awal untuk alur pendaftaran akun baru."
     >
       <form
-        className="grid max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-6 shadow-sm"
+        className="grid w-full max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-6"
         onSubmit={handleSubmit}
       >
         <label className="grid gap-2 text-sm font-medium text-zinc-800">
@@ -46,21 +46,21 @@ export function RegisterPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
-            className="rounded-md border border-zinc-300 px-3 py-2 text-base font-normal outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-h-11 rounded-md border border-zinc-300 bg-white px-3 py-2 text-base font-normal text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
           />
         </label>
 
         <div className="grid gap-2 text-sm font-medium text-zinc-800">
-          <label htmlFor="register-password">Password</label>
+          <label htmlFor="register-password">Kata Sandi</label>
           <PasswordInput
             id="register-password"
             name="password"
-            placeholder="Buat password"
+            placeholder="Buat kata sandi"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
             minLength={6}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-base font-normal outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-h-11 rounded-md border border-zinc-300 bg-white px-3 py-2 text-base font-normal text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
           />
         </div>
 
@@ -69,7 +69,7 @@ export function RegisterPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+          className="min-h-11 rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
         >
           {isSubmitting ? 'Memproses...' : 'Daftar'}
         </button>

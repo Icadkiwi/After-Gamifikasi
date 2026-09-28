@@ -24,6 +24,44 @@ export type ShopAssetEntry = {
 }
 
 export const DEFAULT_SHOP_PRICE = 1000
+export const DECORATION_SHOP_PRICE = 50
+export const SHOP_ITEM_SELL_RATE = 0.5
+export const BUILDING_SHOP_PRICES: Record<string, number> = {
+  bank: 0,
+  barber_shop: 2500,
+  coffee_shop: 2000,
+  donut_shop: 2000,
+  mini_mart: 2500,
+  pizzeria: 3000,
+  gas_station: 3500,
+  hospital: 4500,
+  building_xl_white: 4000,
+  fire_station: 4000,
+  building_small_green: 500,
+  building_small_red: 500,
+  building_small__yellow: 500,
+  building_medium_blue: 1000,
+  building_medium_gray: 1000,
+  building_medium_orange: 1000,
+  building_large_brown: 1800,
+  building_large_teal: 1800,
+  building_large_yellow: 1800,
+  house_small_brown: 600,
+  house_small_red: 600,
+  house_small_yellow: 600,
+  house_medium_blue: 1200,
+  house_medium_brown: 1200,
+  house_medium_white: 1200,
+  house_large_green: 2000,
+  house_large_lavender: 2000,
+  house_large_orange: 2000,
+  warehouse_brown: 1500,
+  warehouse_red: 1500,
+}
+
+export function getShopItemSellPrice(item: Pick<ShopItem, 'price'>) {
+  return Math.floor(Math.max(item.price, 0) * SHOP_ITEM_SELL_RATE)
+}
 
 const buildingAssets = import.meta.glob<string>(
   [
@@ -82,7 +120,48 @@ function toKebabCase(value: string) {
 
 function toTitleCase(value: string) {
   const buildingNameOverrides: Record<string, string> = {
-    building_medium_blue: 'Police Station',
+    barber_shop: 'Toko Cukur',
+    building_large_brown: 'Bangunan Besar Cokelat',
+    building_large_teal: 'Bangunan Besar Toska',
+    building_large_yellow: 'Bangunan Besar Kuning',
+    building_medium_blue: 'Bangunan Sedang Biru',
+    building_medium_gray: 'Bangunan Sedang Abu-abu',
+    building_medium_orange: 'Bangunan Sedang Oranye',
+    building_small_green: 'Bangunan Kecil Hijau',
+    building_small_red: 'Bangunan Kecil Merah',
+    building_small__yellow: 'Bangunan Kecil Kuning',
+    building_xl_white: 'Kantor Polisi',
+    coffee_shop: 'Kedai Kopi',
+    donut_shop: 'Toko Donat',
+    fire_station: 'Pos Pemadam',
+    gas_station: 'Pom Bensin',
+    hospital: 'Rumah Sakit',
+    house_large_green: 'Rumah Besar Hijau',
+    house_large_lavender: 'Rumah Besar Lavender',
+    house_large_orange: 'Rumah Besar Oranye',
+    house_medium_blue: 'Rumah Sedang Biru',
+    house_medium_brown: 'Rumah Sedang Cokelat',
+    house_medium_white: 'Rumah Sedang Putih',
+    house_small_brown: 'Rumah Kecil Cokelat',
+    house_small_red: 'Rumah Kecil Merah',
+    house_small_yellow: 'Rumah Kecil Kuning',
+    mini_mart: 'Minimarket',
+    pizzeria: 'Restoran Pizza',
+    warehouse_brown: 'Gudang Cokelat',
+    warehouse_red: 'Gudang Merah',
+    water_tower: 'Menara Air',
+    fence_garden_brown: 'Pagar Taman Cokelat',
+    fence_garden_gray: 'Pagar Taman Abu-abu',
+    fence_garden_white: 'Pagar Taman Putih',
+    fence_wire: 'Pagar Kawat',
+    fence_wood: 'Pagar Kayu',
+    light_pole_1: 'Tiang Lampu 1',
+    light_pole_2: 'Tiang Lampu 2',
+    light_pole_3: 'Tiang Lampu 3',
+    light_post: 'Lampu Jalan',
+    road_brick_green: 'Jalan Bata Hijau',
+    road_brick_red: 'Jalan Bata Merah',
+    water_hydrant: 'Hidran Air',
   }
 
   if (buildingNameOverrides[value]) {
@@ -138,13 +217,20 @@ function createShopItems(
         key,
         name: toTitleCase(key),
         type,
-        price: DEFAULT_SHOP_PRICE,
+        price: getDefaultShopItemPrice(type, key),
         assetKey: getShopAssetKey(type, key),
         imageUrl,
       }
     })
-    .filter((item) => !isHiddenShopAsset(item.key))
     .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+function getDefaultShopItemPrice(type: ShopItemType, key: string) {
+  if (type === 'building') {
+    return BUILDING_SHOP_PRICES[key] ?? DEFAULT_SHOP_PRICE
+  }
+
+  return type === 'decoration' ? DECORATION_SHOP_PRICE : DEFAULT_SHOP_PRICE
 }
 
 function getShopAssetKey(type: ShopItemType, key: string) {
@@ -166,7 +252,7 @@ export const shopItems: ShopItem[] = [
       name: vehicle.name,
       type: 'vehicle',
       price: vehicle.price,
-      currencyType: 'coin',
+      currencyType: vehicle.currencyType ?? 'coin',
       assetKey: vehicle.assetKey,
       imageUrl: vehicle.imageUrl,
       description: vehicle.description,

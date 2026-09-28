@@ -15,11 +15,11 @@ export function FinanceCategories() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-zinc-950">Categories</h3>
-          <p className="text-sm text-zinc-500">
-            Pisahkan kategori income dan expense untuk laporan yang lebih rapi.
+          <h3 className="text-lg font-semibold text-zinc-950">Kategori</h3>
+          <p className="text-sm text-zinc-950">
+            Pisahkan kategori pemasukan dan pengeluaran untuk laporan yang lebih rapi.
           </p>
         </div>
 
@@ -29,15 +29,15 @@ export function FinanceCategories() {
             setEditingCategory(null)
             setIsModalOpen(true)
           }}
-          className="rounded-md bg-green-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-600"
+          className="min-h-11 w-full rounded-md bg-green-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-green-600 sm:w-auto"
         >
-          Add Category
+          Tambah Kategori
         </button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <CategoryGroup
-          title="Income Categories"
+          title="Kategori Pemasukan"
           categories={groupedCategories.income}
           onEdit={(category) => {
             setEditingCategory(category)
@@ -46,7 +46,7 @@ export function FinanceCategories() {
           onDelete={deleteCategory}
         />
         <CategoryGroup
-          title="Expense Categories"
+          title="Kategori Pengeluaran"
           categories={groupedCategories.expense}
           onEdit={(category) => {
             setEditingCategory(category)
@@ -91,36 +91,36 @@ function CategoryGroup({
 
       <div className="mt-3 grid gap-2">
         {categories.length === 0 ? (
-          <p className="text-sm text-zinc-500">Belum ada kategori.</p>
+          <p className="text-sm text-zinc-950">Belum ada kategori.</p>
         ) : (
           categories.map((category) => (
             <div
               key={category.id}
-              className="flex items-center justify-between gap-3 rounded-md bg-zinc-50 p-3"
+              className="flex flex-col gap-3 rounded-md bg-zinc-50 p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-center gap-2">
                 <span
                   className="h-3 w-3 rounded-full"
                   style={{ backgroundColor: category.color }}
                 />
-                <span className="text-sm font-semibold text-zinc-800">
+                <span className="text-sm font-semibold text-zinc-950">
                   {category.name}
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:flex">
                 <button
                   type="button"
                   onClick={() => onEdit(category)}
-                  className="rounded-md bg-white px-2.5 py-1 text-sm font-semibold text-zinc-700"
+                  className="min-h-10 rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-950"
                 >
-                  Edit
+                  Ubah
                 </button>
                 <button
                   type="button"
                   onClick={() => onDelete(category.id)}
-                  className="rounded-md bg-red-500 px-2.5 py-1 text-sm font-semibold text-white"
+                  className="min-h-10 rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-zinc-950"
                 >
-                  Delete
+                  Hapus
                 </button>
               </div>
             </div>

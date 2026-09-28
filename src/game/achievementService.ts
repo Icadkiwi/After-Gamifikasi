@@ -1,4 +1,5 @@
 import {
+  achievementCategories,
   achievementDefinitions,
   achievementTierOrder,
   type AchievementCategory,
@@ -121,6 +122,13 @@ function normalizeProgressData(
   }
 }
 
+function cloneProgressData(data: AchievementProgressData): AchievementProgressData {
+  return {
+    progressItems: { ...data.progressItems },
+    achievements: { ...data.achievements },
+  }
+}
+
 function emitAchievementUpdate(uid: string) {
   if (typeof window === 'undefined') {
     return
@@ -217,6 +225,46 @@ function isAchievementActive(
     : true
 }
 
+function clearAchievementState(
+  data: AchievementProgressData,
+  achievement: AchievementDefinition,
+) {
+  delete data.achievements[achievement.id]
+  achievement.progressItems.forEach((item) => {
+    delete data.progressItems[item.id]
+  })
+}
+
+function sanitizeAchievementTierLocks(
+  data: AchievementProgressData,
+): AchievementProgressData {
+  const sanitizedData = cloneProgressData(data)
+
+  achievementCategories.forEach((category) => {
+    let previousTierUnlocked = true
+
+    achievementTierOrder.forEach((tier) => {
+      const achievement = getAchievementByCategoryAndTier(category.id, tier)
+
+      if (!achievement) {
+        return
+      }
+
+      if (!previousTierUnlocked) {
+        clearAchievementState(sanitizedData, achievement)
+        return
+      }
+
+      previousTierUnlocked = isAchievementUnlocked(
+        sanitizedData,
+        achievement.id,
+      )
+    })
+  })
+
+  return sanitizedData
+}
+
 function isProgressItemCompleted(
   state: AchievementProgressItemState | undefined,
   definition: AchievementProgressItemDefinition,
@@ -268,8 +316,8 @@ function toAchievement(
     0,
   )
   const unlockState = data.achievements[definition.id]
-  const unlocked = Boolean(unlockState?.unlocked)
   const active = isAchievementActive(data, definition)
+  const unlocked = active && Boolean(unlockState?.unlocked)
 
   return {
     ...definition,
@@ -305,11 +353,13 @@ function saveAndCheck(uid: string, data: AchievementProgressData) {
 
 export function getAchievementProgress(uid: string): AchievementProgressData {
   if (!uid) {
-    return defaultProgressData
+    return cloneProgressData(defaultProgressData)
   }
 
-  return normalizeProgressData(
-    readJson<Partial<AchievementProgressData>>(getAchievementStorageKey(uid)),
+  return sanitizeAchievementTierLocks(
+    normalizeProgressData(
+      readJson<Partial<AchievementProgressData>>(getAchievementStorageKey(uid)),
+    ),
   )
 }
 
@@ -321,7 +371,9 @@ export function saveAchievementProgress(
     return
   }
 
-  const normalizedData = normalizeProgressData(data)
+  const normalizedData = sanitizeAchievementTierLocks(
+    normalizeProgressData(data),
+  )
 
   try {
     localStorage.setItem(
@@ -332,6 +384,113 @@ export function saveAchievementProgress(
   } catch {
     // Achievement persistence is optional; core finance/game flows should continue.
   }
+}
+
+export function resetAchievementProgress(uid: string) {
+  if (!uid || typeof localStorage === 'undefined') {
+    return
+  }
+
+  try {
+    localStorage.removeItem(getAchievementStorageKey(uid))
+    emitAchievementUpdate(uid)
+  } catch {
+    saveAchievementProgress(uid, defaultProgressData)
+  }
+}
+
+export function forceUnlockAchievement(uid: string, achievementId: string) {
+  const definition = achievementDefinitions.find(
+    (achievement) => achievement.id === achievementId,
+  )
+
+  if (!definition) {
+    return null
+  }
+
+  const data = getAchievementProgress(uid)
+  const now = getNowIso()
+
+  if (!isAchievementActive(data, definition)) {
+    return null
+  }
+
+  definition.progressItems.forEach((item) => {
+    data.progressItems[item.id] = {
+      count: getRequiredCount(item),
+      completed: true,
+      completedAt: now,
+      updatedAt: now,
+      dates: item.tracksUniqueDays ? uniqueValues([getTodayKey()]) : undefined,
+    }
+  })
+  data.achievements[achievementId] = {
+    unlocked: true,
+    unlockedAt: data.achievements[achievementId]?.unlockedAt ?? now,
+  }
+
+  saveAchievementProgress(uid, data)
+
+  const achievement = toAchievement(definition, getAchievementProgress(uid))
+
+  if (achievement.unlocked) {
+    emitAchievementUnlocked(uid, achievement)
+  }
+
+  return achievement
+}
+
+export function forceUnlockAllAchievements(uid: string) {
+  const data = getAchievementProgress(uid)
+  const now = getNowIso()
+
+  achievementDefinitions.forEach((achievement) => {
+    achievement.progressItems.forEach((item) => {
+      data.progressItems[item.id] = {
+        count: getRequiredCount(item),
+        completed: true,
+        completedAt: now,
+        updatedAt: now,
+        dates: item.tracksUniqueDays
+          ? uniqueValues([getTodayKey()])
+          : undefined,
+      }
+    })
+    data.achievements[achievement.id] = {
+      unlocked: true,
+      unlockedAt: data.achievements[achievement.id]?.unlockedAt ?? now,
+    }
+  })
+
+  saveAchievementProgress(uid, data)
+}
+
+export function resetSingleAchievement(uid: string, achievementId: string) {
+  const definition = achievementDefinitions.find(
+    (achievement) => achievement.id === achievementId,
+  )
+
+  if (!definition) {
+    return
+  }
+
+  const data = getAchievementProgress(uid)
+  const targetTierIndex = achievementTierOrder.indexOf(definition.tier)
+
+  achievementDefinitions
+    .filter((achievement) => {
+      const tierIndex = achievementTierOrder.indexOf(achievement.tier)
+
+      return (
+        achievement.category === definition.category &&
+        tierIndex >= targetTierIndex
+      )
+    })
+    .forEach((achievement) => {
+      clearAchievementState(data, achievement)
+    })
+
+  saveAchievementProgress(uid, data)
 }
 
 export function updateAchievementProgress(
@@ -528,10 +687,6 @@ export function syncFinanceAchievementProgress(
     (total, transaction) => total + transaction.amount,
     0,
   )
-
-  if (transactions.length >= 1) {
-    updateAchievementProgress(uid, 'finance_bronze_first_transaction')
-  }
 
   setAchievementProgressCount(
     uid,

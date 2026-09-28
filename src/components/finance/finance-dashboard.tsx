@@ -1,7 +1,5 @@
-import { useAuth } from '../../contexts/AuthContext'
 import { useFinance } from '../../contexts/finance-context'
 import { useCityProgress } from '../../game/useCityProgress'
-import { useGamification } from '../../game/useGamification'
 import {
   formatDate,
   formatRupiah,
@@ -11,18 +9,15 @@ import { CitySummary } from './dashboard/CitySummary'
 import { DashboardChart } from './dashboard/DashboardChart'
 import { ExpenseCategoryPreview } from './dashboard/ExpenseCategoryPreview'
 import { FinancialOverview } from './dashboard/FinancialOverview'
-import { GamificationSummary } from './dashboard/GamificationSummary'
 
 export function FinanceDashboard() {
-  const { user } = useAuth()
   const { transactions, categories, loading, error } = useFinance()
-  const gamification = useGamification(user?.uid)
   const cityProgress = useCityProgress()
   const recentTransactions = getRecentTransactions(transactions)
   const hasTransactions = transactions.length > 0
 
   if (loading) {
-    return <p className="text-sm text-zinc-500">Memuat data finance...</p>
+    return <p className="text-sm text-zinc-950">Memuat data keuangan...</p>
   }
 
   return (
@@ -41,7 +36,7 @@ export function FinanceDashboard() {
         </div>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,1fr)] xl:items-start">
+      <div className="grid gap-4">
         <div className="grid gap-4">
           <DashboardChart transactions={transactions} />
 
@@ -53,8 +48,6 @@ export function FinanceDashboard() {
             <CitySummary cityProgress={cityProgress} />
           </div>
         </div>
-
-        <GamificationSummary gamification={gamification} />
       </div>
 
       <RecentTransactions transactions={recentTransactions} />
@@ -69,12 +62,12 @@ type RecentTransactionsProps = {
 function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
     <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
-      <h3 className="font-semibold text-zinc-950">Recent Transactions</h3>
+      <h3 className="font-semibold text-zinc-950">Transaksi Terbaru</h3>
       <div className="mt-3 overflow-hidden rounded-md border border-zinc-200">
         {transactions.length === 0 ? (
-          <p className="p-4 text-sm text-zinc-500">
+          <p className="p-4 text-sm text-zinc-950">
             Belum ada transaksi. Tambahkan transaksi pertama dari tab
-            Transactions.
+            Transaksi.
           </p>
         ) : (
           transactions.map((transaction) => (
@@ -86,7 +79,7 @@ function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 <p className="truncate font-semibold text-zinc-950">
                   {transaction.title}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-zinc-950">
                   {transaction.categoryName} | {formatDate(transaction.date)}
                 </p>
               </div>

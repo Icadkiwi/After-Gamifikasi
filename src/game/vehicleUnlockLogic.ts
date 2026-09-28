@@ -22,9 +22,10 @@ type StoredEconomy = {
 }
 
 export type VehicleUnlockState = {
-  status: 'locked' | 'available' | 'owned'
+  status: 'locked' | 'available' | 'owned' | 'sold'
   canBuy: boolean
   isOwned: boolean
+  isSold: boolean
   requirementLabel: string
   statusLabel: string
   disabledReason?: string
@@ -33,17 +34,20 @@ export type VehicleUnlockState = {
 export function getVehicleUnlockState(
   item: ShopItem,
   purchasedItemKeys: string[],
+  soldItemKeys: string[] = [],
 ): VehicleUnlockState {
   const definition = getVehicleDefinitionByKey(item.key)
   const isOwned = purchasedItemKeys.includes(item.key)
+  const isSold = soldItemKeys.includes(item.key)
 
   if (!definition || item.type !== 'vehicle') {
     return {
       status: 'available',
       canBuy: true,
       isOwned: false,
-      requirementLabel: 'Available',
-      statusLabel: 'Available',
+      isSold: false,
+      requirementLabel: 'Tersedia',
+      statusLabel: 'Tersedia',
     }
   }
 
@@ -52,8 +56,21 @@ export function getVehicleUnlockState(
       status: 'owned',
       canBuy: false,
       isOwned: true,
+      isSold: false,
       requirementLabel: definition.unlockRequirement.label,
-      statusLabel: 'Owned',
+      statusLabel: 'Dimiliki',
+    }
+  }
+
+  if (isSold) {
+    return {
+      status: 'sold',
+      canBuy: false,
+      isOwned: false,
+      isSold: true,
+      requirementLabel: definition.unlockRequirement.label,
+      statusLabel: 'Terjual',
+      disabledReason: 'Kendaraan ini sudah pernah dibeli dan dijual.',
     }
   }
 
@@ -62,8 +79,9 @@ export function getVehicleUnlockState(
       status: 'locked',
       canBuy: false,
       isOwned: false,
+      isSold: false,
       requirementLabel: definition.unlockRequirement.label,
-      statusLabel: 'Locked',
+      statusLabel: 'Terkunci',
       disabledReason: definition.unlockRequirement.label,
     }
   }
@@ -80,9 +98,10 @@ export function getVehicleUnlockState(
         status: 'locked',
         canBuy: false,
         isOwned: false,
-        requirementLabel: `1 vehicle limit for ${definition.unlockRequirement.label.replace('Requires ', '')}`,
-        statusLabel: 'Locked',
-        disabledReason: 'Vehicle limit sudah tercapai.',
+        isSold: false,
+        requirementLabel: `Batas 1 kendaraan untuk ${definition.unlockRequirement.label.toLowerCase()}`,
+        statusLabel: 'Terkunci',
+        disabledReason: 'Batas kendaraan sudah tercapai.',
       }
     }
   }
@@ -94,8 +113,9 @@ export function getVehicleUnlockState(
       status: 'locked',
       canBuy: false,
       isOwned: false,
+      isSold: false,
       requirementLabel: definition.unlockRequirement.label,
-      statusLabel: 'Locked',
+      statusLabel: 'Terkunci',
       disabledReason: definition.unlockRequirement.label,
     }
   }
@@ -104,8 +124,9 @@ export function getVehicleUnlockState(
     status: 'available',
     canBuy: true,
     isOwned: false,
+    isSold: false,
     requirementLabel: definition.unlockRequirement.label,
-    statusLabel: 'Available',
+    statusLabel: 'Tersedia',
   }
 }
 
@@ -197,15 +218,15 @@ export function isMatchingBuilding(
   const key = placeable.shopKey ?? placeable.key ?? ''
   const buildingType = placeable.buildingType ?? ''
 
-  if (buildingKey === 'large_house') {
+  if (buildingKey === 'large_house' || buildingKey === 'house_large') {
     return key.startsWith('house_large') || buildingType === 'large_house'
   }
 
   if (buildingKey === 'police_station') {
     return (
       key === 'police_station' ||
-      key === 'building_medium_blue' ||
-      buildingType === 'police_station'
+      key === 'building_xl_white' ||
+      (key !== 'building_medium_blue' && buildingType === 'police_station')
     )
   }
 

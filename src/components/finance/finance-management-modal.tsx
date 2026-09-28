@@ -12,10 +12,10 @@ type FinanceManagementModalProps = {
 }
 
 const financeTabs: Array<{ id: FinanceTab; label: string }> = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'transactions', label: 'Transactions' },
-  { id: 'categories', label: 'Categories' },
-  { id: 'statistics', label: 'Statistics' },
+  { id: 'dashboard', label: 'Dasbor' },
+  { id: 'transactions', label: 'Transaksi' },
+  { id: 'categories', label: 'Kategori' },
+  { id: 'statistics', label: 'Mutasi' },
 ]
 
 export function FinanceManagementModal({
@@ -25,15 +25,15 @@ export function FinanceManagementModal({
     useState<FinanceTab>('dashboard')
 
   return (
-    <div className="finance-overlay fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/45 px-4 backdrop-blur-md">
+    <div className="finance-overlay fixed inset-0 z-[999] flex items-stretch justify-center bg-slate-900/45 p-2 backdrop-blur-md sm:items-center sm:p-4">
       <FinanceProvider>
-        <div className="finance-modal flex max-h-[86vh] w-[min(1100px,92vw)] flex-col overflow-hidden rounded-[18px] bg-white shadow-2xl">
-          <div className="finance-modal-header flex shrink-0 items-center justify-between gap-4 border-b border-zinc-200 px-6 py-5">
+        <div className="finance-modal flex h-[calc(100dvh-1rem)] w-full flex-col overflow-hidden rounded-xl bg-white shadow-2xl sm:h-[86vh] sm:w-[min(1100px,92vw)] sm:rounded-[18px]">
+          <div className="finance-modal-header flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5">
             <div>
               <h2 className="text-xl font-semibold text-zinc-950">
-                Management Keuangan
+                Manajemen Keuangan
               </h2>
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-zinc-950">
                 Kelola transaksi, kategori, dan statistik keuangan.
               </p>
             </div>
@@ -41,22 +41,22 @@ export function FinanceManagementModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+              className="min-h-11 rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-red-600"
             >
-              Close
+              Tutup
             </button>
           </div>
 
-          <div className="finance-modal-tabs flex shrink-0 gap-2 overflow-x-auto border-b border-zinc-200 px-6 py-3">
+          <div className="finance-modal-tabs flex shrink-0 gap-2 overflow-x-auto border-b border-zinc-200 px-4 py-3 sm:px-6">
             {financeTabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveFinanceTab(tab.id)}
-                className={`whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold transition ${
+                className={`min-h-11 whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold transition ${
                   activeFinanceTab === tab.id
-                    ? 'bg-green-500 text-white'
-                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                    ? 'bg-green-500 text-zinc-950'
+                    : 'bg-zinc-100 text-zinc-950 hover:bg-zinc-200'
                 }`}
               >
                 {tab.label}
@@ -64,7 +64,7 @@ export function FinanceManagementModal({
             ))}
           </div>
 
-          <div className="finance-modal-content min-h-0 flex-1 overflow-y-auto p-6">
+          <div className="finance-modal-content min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
             {activeFinanceTab === 'dashboard' && <FinanceDashboard />}
             {activeFinanceTab === 'transactions' && <FinanceTransactions />}
             {activeFinanceTab === 'categories' && <FinanceCategories />}

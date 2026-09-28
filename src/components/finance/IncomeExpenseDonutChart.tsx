@@ -13,7 +13,7 @@ const incomeColor = '#10b981'
 const expenseColor = '#ef4444'
 
 export function IncomeExpenseDonutChart({
-  title = 'Income vs Expense',
+  title = 'Pemasukan vs Pengeluaran',
   description,
   income,
   expense,
@@ -25,14 +25,14 @@ export function IncomeExpenseDonutChart({
   const slices = [
     {
       id: 'income',
-      label: 'Income',
+      label: 'Pemasukan',
       amount: income,
       color: incomeColor,
       textClassName: 'text-emerald-700',
     },
     {
       id: 'expense',
-      label: 'Expense',
+      label: 'Pengeluaran',
       amount: expense,
       color: expenseColor,
       textClassName: 'text-red-700',
@@ -45,11 +45,11 @@ export function IncomeExpenseDonutChart({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="font-semibold text-zinc-950">{title}</h3>
-          <p className="text-sm text-zinc-500">{description}</p>
+          <p className="text-sm text-zinc-950">{description}</p>
         </div>
         {hasData && (
           <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
-            Balance {formatRupiah(balance)}
+            Saldo {formatRupiah(balance)}
           </span>
         )}
       </div>
@@ -59,6 +59,13 @@ export function IncomeExpenseDonutChart({
           <IncomeExpenseDonut slices={visibleSlices} total={total} />
 
           <div className="grid gap-3">
+            <div className="rounded-md border border-zinc-100 bg-zinc-50 p-3">
+              <p className="text-sm font-semibold text-zinc-950">Total</p>
+              <p className="mt-2 text-base font-semibold text-zinc-950">
+                {formatRupiah(total)}
+              </p>
+            </div>
+
             {slices.map((slice) => {
               const percentage = total > 0 ? (slice.amount / total) * 100 : 0
 
@@ -79,7 +86,7 @@ export function IncomeExpenseDonutChart({
                         {slice.label}
                       </span>
                     </div>
-                    <span className="shrink-0 text-xs font-semibold text-zinc-500">
+                    <span className="shrink-0 text-xs font-semibold text-zinc-950">
                       {formatPercentage(percentage)}
                     </span>
                   </div>
@@ -92,7 +99,7 @@ export function IncomeExpenseDonutChart({
           </div>
         </div>
       ) : (
-        <div className="mt-5 rounded-md border border-dashed border-zinc-300 bg-zinc-50 p-5 text-center text-sm text-zinc-500">
+        <div className="mt-5 rounded-md border border-dashed border-zinc-300 bg-zinc-50 p-5 text-center text-sm text-zinc-950">
           {emptyMessage}
         </div>
       )}
@@ -119,7 +126,7 @@ function IncomeExpenseDonut({ slices, total }: IncomeExpenseDonutProps) {
       <svg
         viewBox="0 0 200 200"
         role="img"
-        aria-label="Income and expense doughnut chart"
+        aria-label="Grafik donat pemasukan dan pengeluaran"
         className="h-full w-full"
       >
         <circle
@@ -160,14 +167,6 @@ function IncomeExpenseDonut({ slices, total }: IncomeExpenseDonutProps) {
         })}
       </svg>
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
-        <span className="text-xs font-semibold uppercase text-zinc-500">
-          Total
-        </span>
-        <span className="mt-1 text-lg font-semibold text-zinc-950">
-          {formatRupiah(total)}
-        </span>
-      </div>
     </div>
   )
 }

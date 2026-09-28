@@ -13,9 +13,9 @@ export function GamificationSummary({
   if (!gamification) {
     return (
       <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
-        <h3 className="font-semibold text-zinc-950">Gamification</h3>
-        <p className="mt-2 text-sm text-zinc-500">
-          Login untuk melihat level, EXP, Coin, Diamond, dan daily mission.
+        <h3 className="font-semibold text-zinc-950">Gamifikasi</h3>
+        <p className="mt-2 text-sm text-zinc-950">
+          Masuk untuk melihat level, EXP, Koin, Berlian, dan misi harian.
         </p>
       </section>
     )
@@ -30,15 +30,15 @@ export function GamificationSummary({
       <div className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-semibold text-zinc-950">Gamification</h3>
-            <p className="text-sm text-zinc-500">
-              Ringkasan level dan reward harian.
+            <h3 className="font-semibold text-zinc-950">Gamifikasi</h3>
+            <p className="text-sm text-zinc-950">
+              Ringkasan level dan hadiah harian.
             </p>
           </div>
-          <div className="text-right text-xs font-semibold text-zinc-500">
-            <p>{gamification.stats.coin.toLocaleString('id-ID')} Coin total</p>
+          <div className="text-right text-xs font-semibold text-zinc-950">
+            <p>Total Koin {gamification.stats.coin.toLocaleString('id-ID')}</p>
             <p>
-              {gamification.stats.diamond.toLocaleString('id-ID')} Diamond total
+              Total Berlian {gamification.stats.diamond.toLocaleString('id-ID')}
             </p>
           </div>
         </div>
@@ -49,8 +49,8 @@ export function GamificationSummary({
 
       <div className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-zinc-800">Daily Mission</p>
-          <p className="text-xs font-semibold text-zinc-500">
+          <p className="text-sm font-semibold text-zinc-950">Misi Harian</p>
+          <p className="text-xs font-semibold text-zinc-950">
             {completedMissions} / {gamification.dailyMissions.length}
           </p>
         </div>
@@ -58,13 +58,13 @@ export function GamificationSummary({
           {gamification.dailyMissions.slice(0, 3).map((mission, index) => (
             <div
               key={mission.id}
-              className="flex items-center gap-2 text-xs text-zinc-600"
+              className="flex items-center gap-2 text-xs text-zinc-950"
             >
               <span
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
                   mission.completed
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-zinc-200 text-zinc-500'
+                    ? 'bg-emerald-500 text-zinc-950'
+                    : 'bg-zinc-200 text-zinc-950'
                 }`}
               >
                 {getMissionIconLabel(mission, index)}

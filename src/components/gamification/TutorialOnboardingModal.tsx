@@ -8,27 +8,27 @@ type TutorialOnboardingModalProps = {
 const tutorialSteps = [
   {
     title: 'Kelola Keuangan',
-    body: 'Catat pemasukan dan pengeluaranmu.',
+    body: 'Mulai dengan mencatat pemasukan dan pengeluaranmu.',
   },
   {
     title: 'Jaga Saldo',
     body: 'Atur pengeluaran dengan bijak.',
   },
   {
-    title: 'Kerjakan Quest',
+    title: 'Kerjakan Misi',
     body: 'Selesaikan misi harian.',
   },
   {
-    title: 'Dapatkan Reward',
-    body: 'Kumpulkan EXP, Coin, dan Diamond.',
+    title: 'Dapatkan Hadiah',
+    body: 'Kumpulkan EXP, Koin, dan Berlian.',
   },
   {
     title: 'Naikkan Level',
-    body: 'Progress finansial menaikkan level kota.',
+    body: 'Perkembangan finansial menaikkan level kota.',
   },
   {
-    title: 'Belanja di Shop',
-    body: 'Beli building dan dekorasi.',
+    title: 'Belanja di Toko',
+    body: 'Beli bangunan dan dekorasi.',
   },
   {
     title: 'Bangun Kota',
@@ -45,8 +45,8 @@ export function TutorialOnboardingModal({
   const isLastStep = activeStep === tutorialSteps.length - 1
 
   return (
-    <div className="fixed inset-0 z-[1001] flex items-center justify-center bg-slate-950/45 px-4 backdrop-blur-md">
-      <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-5 shadow-2xl">
+    <div className="fixed inset-0 z-[1001] flex items-center justify-center overflow-y-auto bg-slate-950/45 px-3 py-4 backdrop-blur-md">
+      <div className="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-xl border border-zinc-200 bg-white p-4 shadow-2xl sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase text-emerald-600">
@@ -62,11 +62,11 @@ export function TutorialOnboardingModal({
             onClick={onClose}
             className="min-h-11 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600 active:bg-red-700"
           >
-            Close
+            Tutup
           </button>
         </div>
 
-        <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+        <p className="mt-4 text-sm leading-relaxed text-zinc-700">
           {step.body}
         </p>
 
@@ -86,16 +86,16 @@ export function TutorialOnboardingModal({
             type="button"
             disabled={activeStep === 0}
             onClick={() => setActiveStep((stepIndex) => stepIndex - 1)}
-            className="min-h-12 rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600 active:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-200 disabled:text-white"
+            className="min-h-12 rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600 active:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-200 disabled:text-red-800"
           >
-            Back
+            Kembali
           </button>
           <button
             type="button"
             onClick={onComplete}
-            className="min-h-12 rounded-xl bg-zinc-100 px-5 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition hover:bg-zinc-200 active:bg-zinc-300"
+            className="min-h-12 rounded-xl bg-zinc-100 px-5 py-2.5 text-sm font-semibold text-zinc-950 shadow-sm transition hover:bg-zinc-200 active:bg-zinc-300"
           >
-            Skip Tutorial
+            Lewati Tutorial
           </button>
           <button
             type="button"
@@ -109,7 +109,7 @@ export function TutorialOnboardingModal({
             }}
             className="min-h-12 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600 active:bg-emerald-700"
           >
-            {isLastStep ? 'Finish' : 'Next'}
+            {isLastStep ? 'Selesai' : 'Lanjut'}
           </button>
         </div>
       </div>

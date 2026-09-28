@@ -49,7 +49,7 @@ export function ForgotPasswordPage() {
         errorCode,
       })
 
-      setError(errorCode)
+      setError(getPasswordResetErrorMessage(errorCode))
     } finally {
       setIsSubmitting(false)
     }
@@ -57,11 +57,11 @@ export function ForgotPasswordPage() {
 
   return (
     <PageContainer
-      title="Lupa Password"
-      description="Masukkan email akun kamu untuk menerima link reset password."
+      title="Lupa Kata Sandi"
+      description="Masukkan email akun kamu untuk menerima link reset kata sandi."
     >
       <form
-        className="grid max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-6 shadow-sm"
+        className="grid w-full max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-6"
         onSubmit={handleSubmit}
       >
         <label className="grid gap-2 text-sm font-medium text-zinc-800">
@@ -73,7 +73,7 @@ export function ForgotPasswordPage() {
             value={emailInput}
             onChange={(event) => setEmailInput(event.target.value)}
             required
-            className="rounded-md border border-zinc-300 px-3 py-2 text-base font-normal outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-h-11 rounded-md border border-zinc-300 bg-white px-3 py-2 text-base font-normal text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
           />
         </label>
 
@@ -83,15 +83,31 @@ export function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+          className="min-h-11 rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
         >
-          {isSubmitting ? 'Mengirim...' : 'Kirim link reset password'}
+          {isSubmitting ? 'Mengirim...' : 'Kirim link reset kata sandi'}
         </button>
 
         <Link className="text-sm font-medium text-emerald-700" to="/login">
-          Kembali ke login
+          Kembali ke halaman masuk
         </Link>
       </form>
     </PageContainer>
   )
+}
+
+function getPasswordResetErrorMessage(errorCode: string) {
+  if (errorCode === 'auth/invalid-email') {
+    return 'Format email tidak valid.'
+  }
+
+  if (errorCode === 'auth/user-not-found') {
+    return 'Akun dengan email tersebut tidak ditemukan.'
+  }
+
+  if (errorCode === 'auth/too-many-requests') {
+    return 'Terlalu banyak percobaan. Coba lagi beberapa saat lagi.'
+  }
+
+  return 'Gagal mengirim link reset kata sandi. Coba lagi.'
 }

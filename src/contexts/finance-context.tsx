@@ -118,10 +118,6 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       user.uid,
       (nextTransactions) => {
         setTransactions(nextTransactions)
-        syncFinanceAchievementProgress(user.uid, {
-          transactions: nextTransactions,
-          categories: [],
-        })
         markLoaded('transactions')
       },
       handleError,
@@ -169,15 +165,14 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
     ]
 
     await addUserTransaction(uid, transaction)
+    updateAchievementProgress(uid, 'finance_bronze_first_transaction')
     syncFinanceAchievementProgress(uid, {
       transactions: nextTransactions,
       categories,
       trackFinanceDay: true,
     })
 
-    if (transaction.type === 'expense') {
-      grantTransactionReward(uid, 'addExpense')
-    }
+    grantTransactionReward(uid, 'addTransaction')
   }
 
   async function updateTransactionWithReward(
@@ -185,9 +180,6 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
     transaction: TransactionFormData,
   ) {
     const uid = requireUid()
-    const previousTransaction = transactions.find(
-      (item) => item.id === transactionId,
-    )
     const nextTransactions = transactions.map((item) =>
       item.id === transactionId
         ? {
@@ -205,19 +197,11 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
     })
     updateAchievementProgress(uid, 'finance_silver_edit_transaction')
 
-    if (
-      transaction.type === 'expense' ||
-      previousTransaction?.type === 'expense'
-    ) {
-      grantTransactionReward(uid, 'editExpense')
-    }
+    grantTransactionReward(uid, 'editTransaction')
   }
 
   async function deleteTransactionWithReward(transactionId: string) {
     const uid = requireUid()
-    const previousTransaction = transactions.find(
-      (item) => item.id === transactionId,
-    )
     const nextTransactions = transactions.filter(
       (item) => item.id !== transactionId,
     )
@@ -229,9 +213,7 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
     })
     updateAchievementProgress(uid, 'finance_gold_delete_transaction')
 
-    if (previousTransaction?.type === 'expense') {
-      grantTransactionReward(uid, 'deleteExpense')
-    }
+    grantTransactionReward(uid, 'deleteTransaction')
   }
 
   async function addCategoryWithAchievement(category: CategoryFormData) {

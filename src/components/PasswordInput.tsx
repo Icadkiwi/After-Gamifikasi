@@ -7,7 +7,7 @@ export function PasswordInput({
   ...props
 }: PasswordInputProps) {
   const [isVisible, setIsVisible] = useState(false)
-  const ariaLabel = isVisible ? 'Hide password' : 'Show password'
+  const ariaLabel = isVisible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'
 
   return (
     <div className="relative">

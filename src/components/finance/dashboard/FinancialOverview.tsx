@@ -12,17 +12,17 @@ export function FinancialOverview({ transactions }: FinancialOverviewProps) {
   return (
     <section className="grid gap-3 md:grid-cols-3">
       <OverviewCard
-        label="Balance"
+        label="Saldo"
         value={formatRupiah(overview.balance)}
         tone="balance"
       />
       <OverviewCard
-        label="Income bulan ini"
+        label="Pemasukan bulan ini"
         value={formatRupiah(overview.monthlyIncome)}
         tone="income"
       />
       <OverviewCard
-        label="Expense bulan ini"
+        label="Pengeluaran bulan ini"
         value={formatRupiah(overview.monthlyExpense)}
         tone="expense"
       />
@@ -49,7 +49,7 @@ function OverviewCard({ label, value, tone }: OverviewCardProps) {
       <span
         className={`absolute left-0 top-0 h-full w-1 ${accentClassName}`}
       />
-      <p className="text-sm font-semibold text-zinc-500">{label}</p>
+      <p className="text-sm font-semibold text-zinc-950">{label}</p>
       <p className="mt-2 text-xl font-semibold text-zinc-950">{value}</p>
     </article>
   )

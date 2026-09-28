@@ -83,7 +83,7 @@ export function getTopExpenseCategories(
   const expenseTotals = monthTransactions
     .filter((transaction) => transaction.type === 'expense')
     .reduce<Record<string, number>>((totals, transaction) => {
-      const key = transaction.categoryName || 'Uncategorized'
+      const key = transaction.categoryName || 'Tanpa kategori'
 
       totals[key] = (totals[key] ?? 0) + transaction.amount
 

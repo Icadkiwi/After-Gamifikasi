@@ -1,4 +1,4 @@
-import type { ShopItem } from './shopItems'
+import { getShopItemSellPrice, type ShopItem } from './shopItems'
 import {
   incrementAchievementProgressCount,
   syncDailyMissionAchievementProgress,
@@ -10,9 +10,17 @@ import { getLocalDateKey } from '../utils/date'
 
 export type RewardType = 'exp' | 'coin' | 'diamond'
 export type MissionRewardType = RewardType | 'bundle'
-export type TransactionRewardAction = 'addExpense' | 'editExpense' | 'deleteExpense'
+export type TransactionRewardAction =
+  | 'addTransaction'
+  | 'editTransaction'
+  | 'deleteTransaction'
 
-type MissionAction = 'addExpense' | 'editExpense' | 'deleteExpense' | 'allMissions'
+type LegacyTransactionRewardAction =
+  | 'addExpense'
+  | 'editExpense'
+  | 'deleteExpense'
+
+type MissionAction = TransactionRewardAction | 'allMissions'
 
 export type RewardGrant = {
   type: RewardType
@@ -27,6 +35,7 @@ export type UserStats = {
   diamond: number
   tutorialCompleted: boolean
   purchasedShopItems: string[]
+  soldShopItems: string[]
 }
 
 export type DailyRewardLog = {
@@ -88,6 +97,12 @@ export type PurchaseResult = {
   stats: UserStats
 }
 
+export type SellShopItemResult = PurchaseResult & {
+  sellPrice: number
+  grantedCoin: number
+  grantedDiamond: number
+}
+
 export type GamificationSnapshot = {
   stats: UserStats
   dailyRewardLog: DailyRewardLog
@@ -96,10 +111,25 @@ export type GamificationSnapshot = {
   levelProgress: LevelProgress
 }
 
+export type LevelUpRewardPayload = {
+  uid: string
+  previousLevel: number
+  level: number
+  reward: {
+    coin: number
+    diamond: number
+  }
+  grantedReward: {
+    coin: number
+    diamond: number
+  }
+}
+
 const USER_STATS_STORAGE_PREFIX = 'after-gamifikasi-user-stats'
 const DAILY_REWARD_LOG_STORAGE_PREFIX = 'after-gamifikasi-daily-reward-log'
 const LEGACY_ECONOMY_STORAGE_KEY = 'after-gamifikasi-economy-state'
 const GAMIFICATION_UPDATED_EVENT = 'after-gamifikasi:gamification-updated'
+export const LEVEL_UP_REWARD_EVENT = 'after-gamifikasi:level-up-reward'
 
 export const MAX_DAILY_EXP_REWARD = 300
 export const MAX_DAILY_COIN_REWARD = 105
@@ -110,8 +140,8 @@ export const LEVEL_UP_REWARD_BY_TARGET_LEVEL: Record<
   number,
   { coin: number; diamond: number }
 > = {
-  2: { coin: 500, diamond: 10 },
-  3: { coin: 750, diamond: 20 },
+  2: { coin: 50, diamond: 10 },
+  3: { coin: 100, diamond: 25 },
 }
 
 const LEVEL_THRESHOLDS = [0, 100, 250, 500, 900, 1400, 2100, 3000]
@@ -122,9 +152,10 @@ const DAILY_MISSION_DEFINITIONS: Array<
   {
     id: 'input-1-expense',
     title: 'Input 1 transaksi hari ini',
-    description: 'Catat minimal 1 pengeluaran hari ini, lalu klaim Coin dan EXP.',
+    description:
+      'Catat minimal 1 pemasukan atau pengeluaran hari ini, lalu klaim Koin dan EXP.',
     requirement: {
-      action: 'addExpense',
+      action: 'addTransaction',
       target: 1,
     },
     rewards: [
@@ -135,9 +166,10 @@ const DAILY_MISSION_DEFINITIONS: Array<
   {
     id: 'input-3-expenses',
     title: 'Input 3 transaksi hari ini',
-    description: 'Catat 3 pengeluaran untuk membuka reward Coin dan EXP.',
+    description:
+      'Catat 3 pemasukan atau pengeluaran untuk membuka hadiah Koin dan EXP.',
     requirement: {
-      action: 'addExpense',
+      action: 'addTransaction',
       target: 3,
     },
     rewards: [
@@ -147,10 +179,11 @@ const DAILY_MISSION_DEFINITIONS: Array<
   },
   {
     id: 'edit-1-expense',
-    title: 'Edit 1 transaksi',
-    description: 'Rapikan 1 data pengeluaran untuk membuka reward Coin dan EXP.',
+    title: 'Ubah 1 transaksi',
+    description:
+      'Rapikan 1 data pemasukan atau pengeluaran untuk membuka hadiah Koin dan EXP.',
     requirement: {
-      action: 'editExpense',
+      action: 'editTransaction',
       target: 1,
     },
     rewards: [
@@ -161,7 +194,7 @@ const DAILY_MISSION_DEFINITIONS: Array<
   {
     id: 'complete-all-daily-missions',
     title: 'Selesaikan semua misi harian',
-    description: 'Klaim Diamond, Coin, dan EXP setelah seluruh misi harian selesai.',
+    description: 'Klaim Berlian, Koin, dan EXP setelah seluruh misi harian selesai.',
     requirement: {
       action: 'allMissions',
       target: 3,
@@ -238,6 +271,7 @@ function createDefaultUserStats(userId: string): UserStats {
     diamond: clampNumber(legacyState.diamond, 0, MAX_USER_DIAMOND),
     tutorialCompleted: false,
     purchasedShopItems: [],
+    soldShopItems: [],
   }
 }
 
@@ -266,6 +300,9 @@ function normalizeUserStats(
     purchasedShopItems: Array.isArray(partialStats?.purchasedShopItems)
       ? uniqueValues(partialStats.purchasedShopItems)
       : [],
+    soldShopItems: Array.isArray(partialStats?.soldShopItems)
+      ? uniqueValues(partialStats.soldShopItems)
+      : [],
   }
 }
 
@@ -274,6 +311,12 @@ function normalizeDailyRewardLog(
   date: string,
   partialLog: Partial<DailyRewardLog> | null,
 ): DailyRewardLog {
+  const actionCounts = partialLog?.actionCounts as
+    | Partial<
+        Record<TransactionRewardAction | LegacyTransactionRewardAction, number>
+      >
+    | undefined
+
   return {
     userId,
     date,
@@ -286,14 +329,16 @@ function normalizeDailyRewardLog(
       ? uniqueValues(partialLog.completedMissions)
       : [],
     actionCounts: {
-      addExpense: normalizeAmount(
-        Number(partialLog?.actionCounts?.addExpense ?? 0),
+      addTransaction: normalizeAmount(
+        Number(actionCounts?.addTransaction ?? actionCounts?.addExpense ?? 0),
       ),
-      editExpense: normalizeAmount(
-        Number(partialLog?.actionCounts?.editExpense ?? 0),
+      editTransaction: normalizeAmount(
+        Number(actionCounts?.editTransaction ?? actionCounts?.editExpense ?? 0),
       ),
-      deleteExpense: normalizeAmount(
-        Number(partialLog?.actionCounts?.deleteExpense ?? 0),
+      deleteTransaction: normalizeAmount(
+        Number(
+          actionCounts?.deleteTransaction ?? actionCounts?.deleteExpense ?? 0,
+        ),
       ),
     },
   }
@@ -305,6 +350,18 @@ function emitGamificationUpdate(userId: string) {
       detail: {
         userId,
       },
+    }),
+  )
+}
+
+function emitLevelUpReward(payload: LevelUpRewardPayload) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.dispatchEvent(
+    new CustomEvent(LEVEL_UP_REWARD_EVENT, {
+      detail: payload,
     }),
   )
 }
@@ -571,16 +628,14 @@ function grantLevelUpReward(
   )
   const grantedCoin = nextCoin - nextStats.coin
   const grantedDiamond = nextDiamond - nextStats.diamond
-
-  if (grantedCoin <= 0 && grantedDiamond <= 0) {
-    return nextStats
-  }
-
-  const rewardedStats = saveUserStats({
-    ...nextStats,
-    coin: nextCoin,
-    diamond: nextDiamond,
-  })
+  const rewardedStats =
+    grantedCoin > 0 || grantedDiamond > 0
+      ? saveUserStats({
+          ...nextStats,
+          coin: nextCoin,
+          diamond: nextDiamond,
+        })
+      : nextStats
 
   if (grantedCoin > 0) {
     incrementAchievementProgressCount(
@@ -597,6 +652,17 @@ function grantLevelUpReward(
       grantedDiamond,
     )
   }
+
+  emitLevelUpReward({
+    uid: userId,
+    previousLevel,
+    level: nextStats.level,
+    reward,
+    grantedReward: {
+      coin: grantedCoin,
+      diamond: grantedDiamond,
+    },
+  })
 
   return rewardedStats
 }
@@ -760,7 +826,7 @@ export function claimMissionReward(userId: string, missionId: string) {
   if (mission.claimed) {
     return {
       success: false,
-      message: 'Reward misi sudah diambil.',
+      message: 'Hadiah misi sudah diambil.',
       rewards: [] as RewardGrantResult[],
       stats: getUserStats(userId),
     }
@@ -789,7 +855,7 @@ export function claimMissionReward(userId: string, missionId: string) {
 
   return {
     success: true,
-    message: 'Reward misi berhasil diambil.',
+    message: 'Hadiah misi berhasil diambil.',
     rewards,
     stats: getUserStats(userId),
   }
@@ -858,6 +924,24 @@ export function resetTutorial(userId: string) {
   })
 }
 
+export function resetUserLevel(userId: string) {
+  return saveUserStats({
+    ...getUserStats(userId),
+    exp: 0,
+  })
+}
+
+export function adminUpgradeUserLevel(userId: string) {
+  const currentStats = getUserStats(userId)
+  const nextLevelExp = getNextLevelExp(currentStats.level)
+  const nextStats = saveUserStats({
+    ...currentStats,
+    exp: Math.max(currentStats.exp, nextLevelExp),
+  })
+
+  return grantLevelUpReward(userId, currentStats.level, nextStats)
+}
+
 export function syncCurrencyFromGame(
   userId: string,
   balance: { coin: number; diamond: number },
@@ -904,13 +988,23 @@ export function purchaseShopItem(userId: string, item: ShopItem): PurchaseResult
   const currencyType = item.currencyType ?? 'coin'
   const price = normalizeAmount(item.price)
   const balance = currencyType === 'diamond' ? currentStats.diamond : currentStats.coin
-  const currencyName = currencyType === 'diamond' ? 'Diamond' : 'Coin'
+  const currencyName = currencyType === 'diamond' ? 'Berlian' : 'Koin'
 
-  if (item.type === 'vehicle' && currentStats.purchasedShopItems.includes(item.key)) {
-    return {
-      success: false,
-      message: 'Vehicle sudah dimiliki.',
-      stats: currentStats,
+  if (item.type === 'vehicle') {
+    if (currentStats.purchasedShopItems.includes(item.key)) {
+      return {
+        success: false,
+        message: 'Kendaraan sudah dimiliki.',
+        stats: currentStats,
+      }
+    }
+
+    if (currentStats.soldShopItems.includes(item.key)) {
+      return {
+        success: false,
+        message: 'Kendaraan ini sudah pernah dibeli dan dijual.',
+        stats: currentStats,
+      }
     }
   }
 
@@ -941,6 +1035,84 @@ export function purchaseShopItem(userId: string, item: ShopItem): PurchaseResult
     success: true,
     message: 'Pembelian berhasil.',
     stats: nextStats,
+  }
+}
+
+export function sellShopItem(
+  userId: string,
+  item: ShopItem,
+): SellShopItemResult {
+  const currentStats = getUserStats(userId)
+
+  if (item.type !== 'vehicle') {
+    return {
+      success: false,
+      message: 'Hanya kendaraan yang bisa dijual dari toko.',
+      stats: currentStats,
+      sellPrice: 0,
+      grantedCoin: 0,
+      grantedDiamond: 0,
+    }
+  }
+
+  if (!currentStats.purchasedShopItems.includes(item.key)) {
+    return {
+      success: false,
+      message: currentStats.soldShopItems.includes(item.key)
+        ? 'Kendaraan sudah dijual.'
+        : 'Kendaraan belum dimiliki.',
+      stats: currentStats,
+      sellPrice: 0,
+      grantedCoin: 0,
+      grantedDiamond: 0,
+    }
+  }
+
+  const sellPrice = getShopItemSellPrice(item)
+  const currencyType = item.currencyType ?? 'coin'
+  const nextCoin =
+    currencyType === 'coin'
+      ? clampNumber(currentStats.coin + sellPrice, 0, MAX_USER_COIN)
+      : currentStats.coin
+  const nextDiamond =
+    currencyType === 'diamond'
+      ? clampNumber(currentStats.diamond + sellPrice, 0, MAX_USER_DIAMOND)
+      : currentStats.diamond
+  const grantedCoin = nextCoin - currentStats.coin
+  const grantedDiamond = nextDiamond - currentStats.diamond
+  const nextStats = saveUserStats({
+    ...currentStats,
+    coin: nextCoin,
+    diamond: nextDiamond,
+    purchasedShopItems: currentStats.purchasedShopItems.filter(
+      (key) => key !== item.key,
+    ),
+    soldShopItems: uniqueValues([...currentStats.soldShopItems, item.key]),
+  })
+
+  if (grantedCoin > 0) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_1000_coin',
+      grantedCoin,
+    )
+  }
+
+  if (grantedDiamond > 0) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_100_diamond',
+      grantedDiamond,
+    )
+  }
+
+  return {
+    success: true,
+    message: 'Kendaraan berhasil dijual.',
+    stats: nextStats,
+    sellPrice,
+    grantedCoin,
+    grantedDiamond,
   }
 }
 

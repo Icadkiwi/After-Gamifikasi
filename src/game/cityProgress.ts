@@ -2,13 +2,17 @@ import {
   subscribeGameEvent,
   type CityProgressState,
 } from './GameEvents'
+import { getPassiveIncomePerHourForKey } from './passiveIncomeConfig'
 
 const shopPlaceableStorageKey = 'after-gamifikasi-shop-placeables'
 const economyStorageKey = 'after-gamifikasi-economy-state'
 
 type StoredPlaceable = {
+  key?: string
+  shopKey?: string
   type?: string
   buildingType?: string
+  level?: number
 }
 
 type StoredEconomy = {
@@ -24,14 +28,26 @@ export function getStoredCityProgress(): CityProgressState {
   ).length
   const barberLevel = clampLevel(economy?.barberLevel)
   const bankLevel = clampLevel(economy?.bankLevel)
-  const hasBarber = placeables.some(
-    (placeable) => placeable.buildingType === 'barber',
-  )
+  const passiveIncomePerHour = placeables.reduce((total, placeable) => {
+    const level =
+      placeable.buildingType === 'barber'
+        ? barberLevel
+        : clampLevel(placeable.level)
+
+    return (
+      total +
+      getPassiveIncomePerHourForKey(
+        placeable.shopKey ?? placeable.key,
+        level,
+        placeable.buildingType,
+      )
+    )
+  }, 0)
 
   return {
     buildingCount,
     vehicleNpcCount: 0,
-    passiveIncomePerCycle: hasBarber ? barberLevel : 0,
+    passiveIncomePerHour,
     cityLevel: Math.max(1, bankLevel + barberLevel - 1),
   }
 }

@@ -44,6 +44,6 @@ test('creates safe debug context without logging the full email', () => {
 test('keeps requested success message stable', () => {
   assert.equal(
     passwordResetSuccessMessage,
-    'Link reset password sudah dikirim. Cek inbox/spam email kamu.',
+    'Link reset kata sandi sudah dikirim. Cek kotak masuk atau folder spam email kamu.',
   )
 })

@@ -13,6 +13,8 @@ export type VehicleSpawnConfig = {
   assetKey: string
   x: number
   baseY: number
+  minY: number
+  maxY: number
   minX: number
   maxX: number
   scaleMultiplier: number
@@ -32,7 +34,11 @@ type ActiveVehicle = {
   speed: number
   minX: number
   maxX: number
+  minY: number
+  maxY: number
   baseY: number
+  targetBaseY: number
+  laneChangeAt: number
   visualScale: number
   pauseUntil: number
   bobPhase: number
@@ -41,6 +47,7 @@ type ActiveVehicle = {
 export class VehicleMovementSystem {
   private readonly scene: Phaser.Scene
   private readonly vehicles: ActiveVehicle[] = []
+  private readonly speedMultiplier = 2.6
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene
@@ -57,14 +64,20 @@ export class VehicleMovementSystem {
       const visualConfig = vehicleVisualConfig[config.vehicleType]
       const visualScale = visualConfig.scale * config.scaleMultiplier
       const direction: VehicleDirection = index % 2 === 0 ? 1 : -1
+      const minY = Math.min(config.minY, config.maxY)
+      const maxY = Math.max(config.minY, config.maxY)
+      const baseY = Phaser.Math.Clamp(config.baseY, minY, maxY)
       let pointerDownAt = 0
       let pointerStartX = 0
       let pointerStartY = 0
+      let activePointerId: number | null = null
+      let releaseHandled = false
+      let clearScenePointerRelease = () => {}
       const sprite = this.scene.add
-        .image(config.x, config.baseY + visualConfig.yOffset, config.assetKey)
+        .image(config.x, baseY + visualConfig.yOffset, config.assetKey)
         .setOrigin(0.5, 1)
         .setScale(visualScale * direction, visualScale)
-        .setDepth(23 + index)
+        .setDepth(60 + index)
         .setInteractive({ useHandCursor: true })
       const shadow = this.scene.add
         .ellipse(
@@ -75,7 +88,37 @@ export class VehicleMovementSystem {
           0x000000,
           0.22,
         )
-        .setDepth(22 + index)
+        .setDepth(59 + index)
+
+      const handlePointerRelease = (pointer: Phaser.Input.Pointer) => {
+        if (releaseHandled || pointer.id !== activePointerId) {
+          return
+        }
+
+        releaseHandled = true
+        clearScenePointerRelease()
+
+        const didCameraDrag = config.onPointerUp?.(pointer) ?? false
+        const pressDuration = this.scene.time.now - pointerDownAt
+        const moveDistance = Phaser.Math.Distance.Between(
+          pointerStartX,
+          pointerStartY,
+          pointer.x,
+          pointer.y,
+        )
+
+        activePointerId = null
+
+        if (didCameraDrag || pressDuration > 260 || moveDistance > 12) {
+          return
+        }
+
+        config.onClick()
+      }
+
+      const handleScenePointerRelease = (pointer: Phaser.Input.Pointer) => {
+        handlePointerRelease(pointer)
+      }
 
       sprite.on(
         'pointerdown',
@@ -88,7 +131,16 @@ export class VehicleMovementSystem {
           pointerDownAt = this.scene.time.now
           pointerStartX = pointer.x
           pointerStartY = pointer.y
+          activePointerId = pointer.id
+          releaseHandled = false
           config.onPointerDown?.(pointer)
+          clearScenePointerRelease()
+          this.scene.input.once('pointerup', handleScenePointerRelease)
+          this.scene.input.once('pointerupoutside', handleScenePointerRelease)
+          clearScenePointerRelease = () => {
+            this.scene.input.off('pointerup', handleScenePointerRelease)
+            this.scene.input.off('pointerupoutside', handleScenePointerRelease)
+          }
           event.stopPropagation()
         },
       )
@@ -104,20 +156,7 @@ export class VehicleMovementSystem {
           event: Phaser.Types.Input.EventData,
         ) => {
           event.stopPropagation()
-          const didCameraDrag = config.onPointerUp?.(pointer) ?? false
-          const pressDuration = this.scene.time.now - pointerDownAt
-          const moveDistance = Phaser.Math.Distance.Between(
-            pointerStartX,
-            pointerStartY,
-            pointer.x,
-            pointer.y,
-          )
-
-          if (didCameraDrag || pressDuration > 240 || moveDistance > 10) {
-            return
-          }
-
-          config.onClick()
+          handlePointerRelease(pointer)
         },
       )
 
@@ -130,10 +169,14 @@ export class VehicleMovementSystem {
         speed: Phaser.Math.Between(
           visualConfig.speedMin,
           visualConfig.speedMax,
-        ),
+        ) * this.speedMultiplier,
         minX: config.minX,
         maxX: config.maxX,
-        baseY: config.baseY + visualConfig.yOffset,
+        minY,
+        maxY,
+        baseY: baseY + visualConfig.yOffset,
+        targetBaseY: baseY + visualConfig.yOffset,
+        laneChangeAt: this.scene.time.now + Phaser.Math.Between(900, 2200),
         visualScale,
         pauseUntil: this.scene.time.now + config.delay,
         bobPhase: Phaser.Math.FloatBetween(0, Math.PI * 2),
@@ -159,8 +202,10 @@ export class VehicleMovementSystem {
         vehicle.speed = Phaser.Math.Between(
           vehicleVisualConfig[vehicle.vehicleType].speedMin,
           vehicleVisualConfig[vehicle.vehicleType].speedMax,
-        )
+        ) * this.speedMultiplier
         vehicle.pauseUntil = now + Phaser.Math.Between(350, 1100)
+        vehicle.targetBaseY = this.getNextLaneY(vehicle)
+        vehicle.laneChangeAt = now + Phaser.Math.Between(1200, 2600)
         vehicle.sprite.setScale(
           vehicle.visualScale * vehicle.direction,
           vehicle.visualScale,
@@ -169,6 +214,18 @@ export class VehicleMovementSystem {
         vehicle.sprite.x = nextX
       }
 
+      if (now >= vehicle.laneChangeAt) {
+        vehicle.targetBaseY = this.getNextLaneY(vehicle)
+        vehicle.laneChangeAt = now + Phaser.Math.Between(1400, 3200)
+      }
+
+      const verticalStep = 30 * deltaSeconds
+      const verticalDistance = vehicle.targetBaseY - vehicle.baseY
+
+      vehicle.baseY =
+        Math.abs(verticalDistance) <= verticalStep
+          ? vehicle.targetBaseY
+          : vehicle.baseY + Math.sign(verticalDistance) * verticalStep
       this.syncVehicleVisuals(vehicle, now)
     })
   }
@@ -191,5 +248,24 @@ export class VehicleMovementSystem {
     vehicle.sprite.y = vehicle.baseY + bounce
     vehicle.shadow.setPosition(vehicle.sprite.x, vehicle.baseY + 2)
     vehicle.shadow.setAlpha(0.18 + Math.max(0, 1 - Math.abs(bounce) / 3) * 0.08)
+  }
+
+  private getNextLaneY(vehicle: ActiveVehicle) {
+    if (Math.abs(vehicle.maxY - vehicle.minY) < 3) {
+      return vehicle.baseY
+    }
+
+    const nextY = Phaser.Math.Between(
+      Math.round(vehicle.minY),
+      Math.round(vehicle.maxY),
+    )
+
+    if (Math.abs(nextY - vehicle.baseY) < 5) {
+      return vehicle.baseY <= (vehicle.minY + vehicle.maxY) / 2
+        ? vehicle.maxY
+        : vehicle.minY
+    }
+
+    return nextY
   }
 }

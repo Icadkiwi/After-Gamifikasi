@@ -9,15 +9,15 @@ export type FinanceStatisticsPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly'
 export const defaultFinanceCategories: Array<
   Omit<FinanceCategory, 'id' | 'createdAt' | 'updatedAt'>
 > = [
-  { name: 'Food', type: 'expense', color: '#ef4444' },
-  { name: 'Transport', type: 'expense', color: '#f97316' },
-  { name: 'Health', type: 'expense', color: '#14b8a6' },
-  { name: 'Housing', type: 'expense', color: '#8b5cf6' },
-  { name: 'Entertainment', type: 'expense', color: '#ec4899' },
-  { name: 'Personal', type: 'expense', color: '#6366f1' },
-  { name: 'Miscellaneous', type: 'expense', color: '#64748b' },
-  { name: 'E-wallet / Top Up', type: 'expense', color: '#0ea5e9' },
-  { name: 'Income', type: 'income', color: '#22c55e' },
+  { name: 'Makanan', type: 'expense', color: '#ef4444' },
+  { name: 'Transportasi', type: 'expense', color: '#f97316' },
+  { name: 'Kesehatan', type: 'expense', color: '#14b8a6' },
+  { name: 'Tempat Tinggal', type: 'expense', color: '#8b5cf6' },
+  { name: 'Hiburan', type: 'expense', color: '#ec4899' },
+  { name: 'Pribadi', type: 'expense', color: '#6366f1' },
+  { name: 'Lain-lain', type: 'expense', color: '#64748b' },
+  { name: 'E-wallet / Isi Saldo', type: 'expense', color: '#0ea5e9' },
+  { name: 'Pemasukan', type: 'income', color: '#22c55e' },
 ]
 
 export function formatRupiah(value: number) {
@@ -93,7 +93,7 @@ export function getExpenseByCategory(transactions: FinanceTransaction[]) {
   return transactions
     .filter((transaction) => transaction.type === 'expense')
     .reduce<Record<string, number>>((totals, transaction) => {
-      const key = transaction.categoryName || 'Uncategorized'
+      const key = transaction.categoryName || 'Tanpa kategori'
 
       totals[key] = (totals[key] ?? 0) + transaction.amount
 
@@ -103,7 +103,7 @@ export function getExpenseByCategory(transactions: FinanceTransaction[]) {
 
 export function getCategoryTotals(transactions: FinanceTransaction[]) {
   return transactions.reduce<Record<string, number>>((totals, transaction) => {
-    const key = transaction.categoryName || 'Uncategorized'
+    const key = transaction.categoryName || 'Tanpa kategori'
 
     totals[key] = (totals[key] ?? 0) + transaction.amount
 

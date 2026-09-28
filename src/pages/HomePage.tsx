@@ -9,8 +9,8 @@ export function HomePage() {
       <GameCanvas className="h-[320px] rounded-lg border border-zinc-200 shadow-sm" />
 
       <h1 className="text-3xl font-semibold text-zinc-950">After Gamifikasi</h1>
-      <p className="text-base text-zinc-600">
-        Dashboard sederhana untuk {user?.email}
+      <p className="text-base text-zinc-700">
+        Dasbor sederhana untuk {user?.email}
       </p>
     </section>
   )

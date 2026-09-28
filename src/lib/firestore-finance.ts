@@ -3,10 +3,11 @@ import {
   collection,
   deleteDoc,
   doc,
-  onSnapshot,
+  getDocs,
+  setDoc,
   updateDoc,
-  type Unsubscribe,
-} from 'firebase/firestore'
+  writeBatch,
+} from 'firebase/firestore/lite'
 
 import type {
   CategoryFormData,
@@ -23,6 +24,8 @@ type LocalFinanceData = {
   transactions: FinanceTransaction[]
   categories: FinanceCategory[]
 }
+
+type Unsubscribe = () => void
 
 const localFinanceStoragePrefix = 'after-gamifikasi-finance'
 const localFinanceUpdatedEvent = 'after-gamifikasi:finance-updated'
@@ -80,12 +83,21 @@ function readLocalFinanceData(uid: string): LocalFinanceData {
   }
 }
 
-function writeLocalFinanceData(uid: string, data: LocalFinanceData) {
+function writeLocalFinanceData(
+  uid: string,
+  data: LocalFinanceData,
+  options: { notify?: boolean } = {},
+) {
   if (!uid || !isBrowserStorageAvailable()) {
     return
   }
 
   localStorage.setItem(getLocalFinanceStorageKey(uid), JSON.stringify(data))
+
+  if (options.notify === false) {
+    return
+  }
+
   window.dispatchEvent(
     new CustomEvent(localFinanceUpdatedEvent, {
       detail: { uid },
@@ -123,16 +135,31 @@ function subscribeLocalFinanceData(
   }
 }
 
-function isPermissionDeniedError(error: unknown) {
-  const code = (error as { code?: string }).code
-  const message =
-    error instanceof Error
-      ? error.message.toLowerCase()
-      : String(error).toLowerCase()
+function getErrorCode(error: unknown) {
+  return typeof error === 'object' && error !== null
+    ? (error as { code?: string }).code
+    : undefined
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function toError(error: unknown) {
+  return error instanceof Error ? error : new Error(String(error))
+}
+
+function isRecoverableFirestoreError(error: unknown) {
+  const code = getErrorCode(error)
+  const message = getErrorMessage(error).toLowerCase()
 
   return (
     code === 'permission-denied' ||
-    message.includes('missing or insufficient permissions')
+    code === 'internal' ||
+    code === 'unavailable' ||
+    message.includes('missing or insufficient permissions') ||
+    message.includes('internal assertion failed') ||
+    message.includes('failed to fetch')
   )
 }
 
@@ -165,6 +192,106 @@ function mapFinanceDoc<T extends { id: string }>(
   } as T
 }
 
+function omitId<T extends { id: string }>(item: T): Omit<T, 'id'> {
+  const document = { ...item } as Omit<T, 'id'> & { id?: string }
+
+  delete document.id
+
+  return document
+}
+
+async function migrateLocalTransactionsToFirestore(
+  uid: string,
+  remoteTransactions: FinanceTransaction[],
+) {
+  const remoteTransactionIds = new Set(
+    remoteTransactions.map((transaction) => transaction.id),
+  )
+  const localOnlyTransactions = readLocalFinanceData(uid).transactions.filter(
+    (transaction) => !remoteTransactionIds.has(transaction.id),
+  )
+
+  if (localOnlyTransactions.length > 0) {
+    try {
+      await Promise.all(
+        localOnlyTransactions.map((transaction) =>
+          setDoc(
+            doc(db, 'users', uid, 'transactions', transaction.id),
+            omitId(transaction),
+          ),
+        ),
+      )
+    } catch {
+      // Tetap tampilkan data lokal meskipun upload ke Firestore gagal.
+    }
+  }
+
+  return sortTransactions([...remoteTransactions, ...localOnlyTransactions])
+}
+
+async function migrateLocalCategoriesToFirestore(
+  uid: string,
+  remoteCategories: FinanceCategory[],
+) {
+  const remoteCategoryIds = new Set(
+    remoteCategories.map((category) => category.id),
+  )
+  const localOnlyCategories = readLocalFinanceData(uid).categories.filter(
+    (category) => !remoteCategoryIds.has(category.id),
+  )
+
+  if (localOnlyCategories.length > 0) {
+    try {
+      await Promise.all(
+        localOnlyCategories.map((category) =>
+          setDoc(
+            doc(db, 'users', uid, 'categories', category.id),
+            omitId(category),
+          ),
+        ),
+      )
+    } catch {
+      // Tetap tampilkan data lokal meskipun upload ke Firestore gagal.
+    }
+  }
+
+  return sortCategories([...remoteCategories, ...localOnlyCategories])
+}
+
+function sortTransactions(transactions: FinanceTransaction[]) {
+  return [...transactions].sort((a, b) => b.date.localeCompare(a.date))
+}
+
+function sortCategories(categories: FinanceCategory[]) {
+  return [...categories].sort((a, b) => a.name.localeCompare(b.name))
+}
+
+async function loadRemoteTransactions(uid: string) {
+  const snapshot = await getDocs(userCollection(uid, 'transactions'))
+
+  return sortTransactions(
+    snapshot.docs.map((snapshotDoc) =>
+      mapFinanceDoc<FinanceTransaction>({
+        id: snapshotDoc.id,
+        data: () => snapshotDoc.data() as Omit<FinanceTransaction, 'id'>,
+      }),
+    ),
+  )
+}
+
+async function loadRemoteCategories(uid: string) {
+  const snapshot = await getDocs(userCollection(uid, 'categories'))
+
+  return sortCategories(
+    snapshot.docs.map((snapshotDoc) =>
+      mapFinanceDoc<FinanceCategory>({
+        id: snapshotDoc.id,
+        data: () => snapshotDoc.data() as Omit<FinanceCategory, 'id'>,
+      }),
+    ),
+  )
+}
+
 function createTransactionPayload(transaction: TransactionFormData) {
   const note = transaction.note?.trim()
 
@@ -181,12 +308,23 @@ function createTransactionPayload(transaction: TransactionFormData) {
 
 function addLocalTransaction(uid: string, transaction: TransactionFormData) {
   const now = Date.now()
-  const data = readLocalFinanceData(uid)
-  const nextTransaction: FinanceTransaction = {
-    id: createLocalId('transactions'),
+
+  addLocalTransactionWithId(uid, createLocalId('transactions'), {
     ...createTransactionPayload(transaction),
     createdAt: now,
     updatedAt: now,
+  })
+}
+
+function addLocalTransactionWithId(
+  uid: string,
+  transactionId: string,
+  transaction: Omit<FinanceTransaction, 'id'>,
+) {
+  const data = readLocalFinanceData(uid)
+  const nextTransaction: FinanceTransaction = {
+    id: transactionId,
+    ...transaction,
   }
 
   writeLocalFinanceData(uid, {
@@ -228,19 +366,28 @@ function deleteLocalTransaction(uid: string, transactionId: string) {
 
 function addLocalCategory(uid: string, category: CategoryFormData) {
   const now = Date.now()
-  const data = readLocalFinanceData(uid)
-  const nextCategory: FinanceCategory = {
-    id: createLocalId('categories'),
+
+  addLocalCategoryWithId(uid, createLocalId('categories'), {
     ...category,
     createdAt: now,
     updatedAt: now,
+  })
+}
+
+function addLocalCategoryWithId(
+  uid: string,
+  categoryId: string,
+  category: Omit<FinanceCategory, 'id'>,
+) {
+  const data = readLocalFinanceData(uid)
+  const nextCategory: FinanceCategory = {
+    id: categoryId,
+    ...category,
   }
 
   writeLocalFinanceData(uid, {
     ...data,
-    categories: [...data.categories, nextCategory].sort((a, b) =>
-      a.name.localeCompare(b.name),
-    ),
+    categories: sortCategories([...data.categories, nextCategory]),
   })
 }
 
@@ -282,69 +429,61 @@ export function subscribeUserTransactions(
   onData: (transactions: FinanceTransaction[]) => void,
   onError: (error: Error) => void,
 ): Unsubscribe {
+  let isActive = true
   const emitLocalTransactions = () => {
-    onData(
-      readLocalFinanceData(uid).transactions.sort((a, b) =>
-        b.date.localeCompare(a.date),
-      ),
-    )
-  }
-  const unsubscribeLocal = subscribeLocalFinanceData(uid, () => {
-    if (shouldUseLocalFinanceFallback(uid)) {
-      emitLocalTransactions()
+    if (!isActive) {
+      return
     }
-  })
-  let unsubscribeRemote: Unsubscribe | null = null
+
+    onData(sortTransactions(readLocalFinanceData(uid).transactions))
+  }
+  const unsubscribeLocal = subscribeLocalFinanceData(uid, emitLocalTransactions)
 
   if (shouldUseLocalFinanceFallback(uid)) {
     queueMicrotask(emitLocalTransactions)
-  }
-
-  try {
-    unsubscribeRemote = onSnapshot(
-      userCollection(uid, 'transactions'),
-      (snapshot) => {
-        if (shouldUseLocalFinanceFallback(uid)) {
+  } else {
+    void loadRemoteTransactions(uid)
+      .then(async (remoteTransactions) => {
+        if (!isActive) {
           return
         }
 
-        const transactions = snapshot.docs
-          .map((snapshotDoc) =>
-            mapFinanceDoc<FinanceTransaction>({
-              id: snapshotDoc.id,
-              data: () =>
-                snapshotDoc.data() as Omit<FinanceTransaction, 'id'>,
-            }),
-          )
-          .sort((a, b) => b.date.localeCompare(a.date))
+        const transactions = await migrateLocalTransactionsToFirestore(
+          uid,
+          remoteTransactions,
+        )
 
-        writeLocalFinanceData(uid, {
-          ...readLocalFinanceData(uid),
-          transactions,
-        })
+        if (!isActive) {
+          return
+        }
+
+        writeLocalFinanceData(
+          uid,
+          {
+            ...readLocalFinanceData(uid),
+            transactions,
+          },
+          { notify: false },
+        )
         onData(transactions)
-      },
-      (error) => {
-        if (isPermissionDeniedError(error)) {
+      })
+      .catch((error) => {
+        if (!isActive) {
+          return
+        }
+
+        if (isRecoverableFirestoreError(error)) {
           activateLocalFinanceFallback(uid)
           emitLocalTransactions()
           return
         }
 
-        onError(error)
-      },
-    )
-  } catch (error) {
-    if (isPermissionDeniedError(error)) {
-      activateLocalFinanceFallback(uid)
-      emitLocalTransactions()
-    } else {
-      onError(error instanceof Error ? error : new Error(String(error)))
-    }
+        onError(toError(error))
+      })
   }
 
   return () => {
-    unsubscribeRemote?.()
+    isActive = false
     unsubscribeLocal()
   }
 }
@@ -354,68 +493,61 @@ export function subscribeUserCategories(
   onData: (categories: FinanceCategory[]) => void,
   onError: (error: Error) => void,
 ): Unsubscribe {
+  let isActive = true
   const emitLocalCategories = () => {
-    onData(
-      readLocalFinanceData(uid).categories.sort((a, b) =>
-        a.name.localeCompare(b.name),
-      ),
-    )
-  }
-  const unsubscribeLocal = subscribeLocalFinanceData(uid, () => {
-    if (shouldUseLocalFinanceFallback(uid)) {
-      emitLocalCategories()
+    if (!isActive) {
+      return
     }
-  })
-  let unsubscribeRemote: Unsubscribe | null = null
+
+    onData(sortCategories(readLocalFinanceData(uid).categories))
+  }
+  const unsubscribeLocal = subscribeLocalFinanceData(uid, emitLocalCategories)
 
   if (shouldUseLocalFinanceFallback(uid)) {
     queueMicrotask(emitLocalCategories)
-  }
-
-  try {
-    unsubscribeRemote = onSnapshot(
-      userCollection(uid, 'categories'),
-      (snapshot) => {
-        if (shouldUseLocalFinanceFallback(uid)) {
+  } else {
+    void loadRemoteCategories(uid)
+      .then(async (remoteCategories) => {
+        if (!isActive) {
           return
         }
 
-        const categories = snapshot.docs
-          .map((snapshotDoc) =>
-            mapFinanceDoc<FinanceCategory>({
-              id: snapshotDoc.id,
-              data: () => snapshotDoc.data() as Omit<FinanceCategory, 'id'>,
-            }),
-          )
-          .sort((a, b) => a.name.localeCompare(b.name))
+        const categories = await migrateLocalCategoriesToFirestore(
+          uid,
+          remoteCategories,
+        )
 
-        writeLocalFinanceData(uid, {
-          ...readLocalFinanceData(uid),
-          categories,
-        })
+        if (!isActive) {
+          return
+        }
+
+        writeLocalFinanceData(
+          uid,
+          {
+            ...readLocalFinanceData(uid),
+            categories,
+          },
+          { notify: false },
+        )
         onData(categories)
-      },
-      (error) => {
-        if (isPermissionDeniedError(error)) {
+      })
+      .catch((error) => {
+        if (!isActive) {
+          return
+        }
+
+        if (isRecoverableFirestoreError(error)) {
           activateLocalFinanceFallback(uid)
           emitLocalCategories()
           return
         }
 
-        onError(error)
-      },
-    )
-  } catch (error) {
-    if (isPermissionDeniedError(error)) {
-      activateLocalFinanceFallback(uid)
-      emitLocalCategories()
-    } else {
-      onError(error instanceof Error ? error : new Error(String(error)))
-    }
+        onError(toError(error))
+      })
   }
 
   return () => {
-    unsubscribeRemote?.()
+    isActive = false
     unsubscribeLocal()
   }
 }
@@ -432,13 +564,16 @@ export async function addUserTransaction(
   }
 
   try {
-    await addDoc(userCollection(uid, 'transactions'), {
+    const payload = {
       ...createTransactionPayload(transaction),
       createdAt: now,
       updatedAt: now,
-    })
+    }
+    const docRef = await addDoc(userCollection(uid, 'transactions'), payload)
+
+    addLocalTransactionWithId(uid, docRef.id, payload)
   } catch (error) {
-    if (!isPermissionDeniedError(error)) {
+    if (!isRecoverableFirestoreError(error)) {
       throw error
     }
 
@@ -462,8 +597,9 @@ export async function updateUserTransaction(
       ...createTransactionPayload(transaction),
       updatedAt: Date.now(),
     })
+    updateLocalTransaction(uid, transactionId, transaction)
   } catch (error) {
-    if (!isPermissionDeniedError(error)) {
+    if (!isRecoverableFirestoreError(error)) {
       throw error
     }
 
@@ -480,8 +616,9 @@ export async function deleteUserTransaction(uid: string, transactionId: string) 
 
   try {
     await deleteDoc(doc(db, 'users', uid, 'transactions', transactionId))
+    deleteLocalTransaction(uid, transactionId)
   } catch (error) {
-    if (!isPermissionDeniedError(error)) {
+    if (!isRecoverableFirestoreError(error)) {
       throw error
     }
 
@@ -499,13 +636,16 @@ export async function addUserCategory(uid: string, category: CategoryFormData) {
   }
 
   try {
-    await addDoc(userCollection(uid, 'categories'), {
+    const payload = {
       ...category,
       createdAt: now,
       updatedAt: now,
-    })
+    }
+    const docRef = await addDoc(userCollection(uid, 'categories'), payload)
+
+    addLocalCategoryWithId(uid, docRef.id, payload)
   } catch (error) {
-    if (!isPermissionDeniedError(error)) {
+    if (!isRecoverableFirestoreError(error)) {
       throw error
     }
 
@@ -529,8 +669,9 @@ export async function updateUserCategory(
       ...category,
       updatedAt: Date.now(),
     })
+    updateLocalCategory(uid, categoryId, category)
   } catch (error) {
-    if (!isPermissionDeniedError(error)) {
+    if (!isRecoverableFirestoreError(error)) {
       throw error
     }
 
@@ -547,13 +688,55 @@ export async function deleteUserCategory(uid: string, categoryId: string) {
 
   try {
     await deleteDoc(doc(db, 'users', uid, 'categories', categoryId))
+    deleteLocalCategory(uid, categoryId)
   } catch (error) {
-    if (!isPermissionDeniedError(error)) {
+    if (!isRecoverableFirestoreError(error)) {
       throw error
     }
 
     activateLocalFinanceFallback(uid)
     deleteLocalCategory(uid, categoryId)
+  }
+}
+
+export async function resetUserFinanceData(uid: string) {
+  if (!uid) {
+    return
+  }
+
+  const emptyData: LocalFinanceData = {
+    transactions: [],
+    categories: [],
+  }
+
+  if (shouldUseLocalFinanceFallback(uid)) {
+    writeLocalFinanceData(uid, emptyData)
+    return
+  }
+
+  try {
+    const [transactionsSnapshot, categoriesSnapshot] = await Promise.all([
+      getDocs(userCollection(uid, 'transactions')),
+      getDocs(userCollection(uid, 'categories')),
+    ])
+    const batch = writeBatch(db)
+
+    transactionsSnapshot.docs.forEach((snapshotDoc) => {
+      batch.delete(snapshotDoc.ref)
+    })
+    categoriesSnapshot.docs.forEach((snapshotDoc) => {
+      batch.delete(snapshotDoc.ref)
+    })
+
+    await batch.commit()
+    writeLocalFinanceData(uid, emptyData)
+  } catch (error) {
+    if (!isRecoverableFirestoreError(error)) {
+      throw error
+    }
+
+    activateLocalFinanceFallback(uid)
+    writeLocalFinanceData(uid, emptyData)
   }
 }
 

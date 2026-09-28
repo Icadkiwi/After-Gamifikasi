@@ -1,10 +1,23 @@
+import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.jpg'
+import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+
+import { ShieldCheck } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+
 import type {
   LevelProgress,
   UserStats,
 } from '../../game/gamificationService'
 
-import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.jpg'
 import { LevelProgressCard } from './LevelProgressCard'
 
 type GamificationHudProps = {
@@ -13,9 +26,7 @@ type GamificationHudProps = {
   coinCapacity: number
   canResetCurrency: boolean
   onOpenAchievements: () => void
-  onResetCurrency: () => void
-  onAdminAddCoins: (amount: number) => void
-  onAdminAddDiamonds: (amount: number) => void
+  onOpenAdminTools: () => void
 }
 
 export function GamificationHud({
@@ -24,99 +35,100 @@ export function GamificationHud({
   coinCapacity,
   canResetCurrency,
   onOpenAchievements,
-  onResetCurrency,
-  onAdminAddCoins,
-  onAdminAddDiamonds,
+  onOpenAdminTools,
 }: GamificationHudProps) {
   return (
-    <aside className="absolute left-3 top-3 z-20 w-[min(18rem,calc(100vw-1.5rem))] space-y-2 sm:left-4 sm:top-4 sm:w-72">
+    <aside className="absolute left-2 top-2 z-20 w-[min(12.5rem,calc(100vw-1rem))] space-y-1.5 sm:left-4 sm:top-4 sm:w-72 sm:space-y-2">
       <LevelProgressCard levelProgress={levelProgress} />
 
       <div className="grid gap-2">
         <CurrencyCard
-          iconUrl={coinUrl}
-          label="Coin"
+          icon={<img src={coinUrl} alt="Koin" className="size-4 object-contain" />}
+          label="Koin"
           value={stats.coin}
           target={coinCapacity}
+          progressClassName="[&_[data-slot=progress-indicator]]:bg-amber-400"
         />
         <CurrencyCard
-          iconUrl={diamondUrl}
-          label="Diamond"
+          icon={<img src={diamondUrl} alt="Berlian" className="size-4 object-contain" />}
+          label="Berlian"
           value={stats.diamond}
           target={1000}
+          progressClassName="[&_[data-slot=progress-indicator]]:bg-sky-400"
         />
       </div>
 
       <div className="grid gap-2">
-        <button
+        <Button
           type="button"
+          variant="outline"
+          className="glass-panel justify-start gap-2 border-border bg-card/90 font-semibold text-primary hover:bg-accent hover:text-accent-foreground"
           onClick={onOpenAchievements}
-          className="rounded-md border border-emerald-200 bg-white/92 px-3 py-2 text-sm font-semibold text-emerald-700 shadow-sm backdrop-blur transition hover:bg-emerald-50"
         >
-          Achievements
-        </button>
+          Pencapaian
+        </Button>
       </div>
 
       {canResetCurrency && (
-        <div className="grid gap-2 rounded-md border border-yellow-300 bg-yellow-50/95 p-2 shadow-sm backdrop-blur">
-          <p className="text-[11px] font-bold uppercase text-yellow-700">
-            Admin Tools
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
+        <Card size="sm" className="glass-panel gap-2 border-amber-500/40">
+          <CardHeader>
+            <CardDescription className="text-[11px] font-bold uppercase text-amber-500">
+              Alat Admin
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
               type="button"
-              onClick={() => onAdminAddCoins(500)}
-              className="rounded-md border border-yellow-300 bg-yellow-400 px-2 py-2 text-xs font-bold text-zinc-950 transition hover:bg-yellow-500"
+              variant="outline"
+              className="h-10 w-full justify-start gap-2 font-semibold"
+              onClick={onOpenAdminTools}
             >
-              +500 Coin
-            </button>
-            <button
-              type="button"
-              onClick={() => onAdminAddDiamonds(50)}
-              className="rounded-md border border-sky-200 bg-sky-500 px-2 py-2 text-xs font-bold text-white transition hover:bg-sky-600"
-            >
-              +50 Diamond
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={onResetCurrency}
-            className="rounded-md border border-red-200 bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600"
-          >
-            Reset Currency
-          </button>
-        </div>
+              <ShieldCheck className="size-4" aria-hidden="true" />
+              Kontrol Admin
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </aside>
   )
 }
 
 type CurrencyCardProps = {
-  iconUrl: string
+  icon: React.ReactNode
   label: string
   value: number
   target: number
+  progressClassName?: string
 }
 
-function CurrencyCard({ iconUrl, label, value, target }: CurrencyCardProps) {
+function CurrencyCard({
+  icon,
+  label,
+  value,
+  target,
+  progressClassName,
+}: CurrencyCardProps) {
+  const percent = target > 0 ? Math.min((value / target) * 100, 100) : 0
+
   return (
-    <div className="rounded-md border border-zinc-200 bg-white/92 px-3 py-2 shadow-sm backdrop-blur">
-      <div className="flex min-w-0 items-center gap-2">
-        <img
-          src={iconUrl}
-          alt={label}
-          className="h-7 w-7 shrink-0 rounded-full object-cover"
-        />
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase text-zinc-500">
+    <Card size="sm" className="glass-panel gap-1 py-2">
+      <CardContent className="flex min-w-0 items-center gap-2">
+        {icon}
+        <div className="min-w-0 flex-1">
+          <CardDescription className="text-[11px] font-semibold uppercase">
             {label}
-          </p>
-          <p className="truncate text-sm font-semibold text-zinc-950">
+          </CardDescription>
+          <CardTitle className="truncate text-sm font-bold">
             {formatNumber(value)} / {formatNumber(target)}
-          </p>
+          </CardTitle>
+          <Progress
+            value={percent}
+            className={`mt-1 h-1 ${progressClassName ?? ''}`}
+            aria-label={`Progres ${label} ${Math.round(percent)}%`}
+          />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 

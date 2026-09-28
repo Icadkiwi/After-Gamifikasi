@@ -19,13 +19,13 @@ export function ExpenseCategoryPreview({
   return (
     <section className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
       <div>
-        <h3 className="font-semibold text-zinc-950">Top Expense Categories</h3>
-        <p className="text-sm text-zinc-500">Top 3 bulan ini.</p>
+        <h3 className="font-semibold text-zinc-950">Kategori Pengeluaran Teratas</h3>
+        <p className="text-sm text-zinc-950">3 terbesar bulan ini.</p>
       </div>
 
       <div className="mt-4 grid gap-3">
         {topCategories.length === 0 ? (
-          <p className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 p-4 text-sm text-zinc-500">
+          <p className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 p-4 text-sm text-zinc-950">
             Mulai catat transaksi pertamamu untuk melihat statistik keuangan.
           </p>
         ) : (
@@ -37,11 +37,11 @@ export function ExpenseCategoryPreview({
                     className="h-3 w-3 shrink-0 rounded-full"
                     style={{ backgroundColor: category.color }}
                   />
-                  <span className="truncate font-semibold text-zinc-800">
+                  <span className="truncate font-semibold text-zinc-950">
                     {category.name}
                   </span>
                 </div>
-                <span className="shrink-0 text-xs font-semibold text-zinc-500">
+                <span className="shrink-0 text-xs font-semibold text-zinc-950">
                   {category.percentage.toFixed(0)}%
                 </span>
               </div>
@@ -54,7 +54,7 @@ export function ExpenseCategoryPreview({
                   }}
                 />
               </div>
-              <p className="mt-1 text-xs font-semibold text-zinc-500">
+              <p className="mt-1 text-xs font-semibold text-zinc-950">
                 {formatRupiah(category.amount)}
               </p>
             </article>

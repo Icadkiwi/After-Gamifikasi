@@ -37,54 +37,54 @@ export function CategoryModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/35 px-4">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center overflow-y-auto bg-black/35 px-3 py-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 shadow-xl sm:p-5"
       >
         <div className="flex items-center justify-between gap-4">
           <h3 className="text-lg font-semibold text-zinc-950">
-            {category ? 'Edit Category' : 'Add Category'}
+            {category ? 'Ubah Kategori' : 'Tambah Kategori'}
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold text-white"
+            className="min-h-10 rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-zinc-950"
           >
-            Close
+            Tutup
           </button>
         </div>
 
         <div className="mt-4 grid gap-3">
-          <label className="grid gap-1 text-sm font-medium text-zinc-700">
-            Name
+          <label className="grid gap-1 text-sm font-medium text-zinc-950">
+            Nama
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
               required
-              className="rounded-md border border-zinc-300 px-3 py-2"
+              className="min-h-11 rounded-md border border-zinc-300 px-3 py-2 text-base"
             />
           </label>
 
-          <label className="grid gap-1 text-sm font-medium text-zinc-700">
-            Type
+          <label className="grid gap-1 text-sm font-medium text-zinc-950">
+            Jenis
             <select
               value={type}
               onChange={(event) => setType(event.target.value as FinanceRecordType)}
-              className="rounded-md border border-zinc-300 px-3 py-2"
+              className="min-h-11 rounded-md border border-zinc-300 px-3 py-2 text-base"
             >
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
+              <option value="expense">Pengeluaran</option>
+              <option value="income">Pemasukan</option>
             </select>
           </label>
 
-          <label className="grid gap-1 text-sm font-medium text-zinc-700">
-            Color
+          <label className="grid gap-1 text-sm font-medium text-zinc-950">
+            Warna
             <input
               type="color"
               value={color}
               onChange={(event) => setColor(event.target.value)}
-              className="h-10 rounded-md border border-zinc-300 px-2"
+              className="h-11 rounded-md border border-zinc-300 px-2"
             />
           </label>
         </div>
@@ -92,9 +92,9 @@ export function CategoryModal({
         <button
           type="submit"
           disabled={submitting}
-          className="mt-5 w-full rounded-md bg-green-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-600 disabled:bg-zinc-300"
+          className="mt-5 min-h-11 w-full rounded-md bg-green-500 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-green-600 disabled:bg-zinc-300"
         >
-          {submitting ? 'Saving...' : 'Save Category'}
+          {submitting ? 'Menyimpan...' : 'Simpan Kategori'}
         </button>
       </form>
     </div>

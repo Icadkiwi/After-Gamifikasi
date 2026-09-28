@@ -3,6 +3,16 @@ import type {
   DailyRewardLog,
 } from '../../../game/gamificationService'
 
+import { Badge } from '@/components/ui/badge'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+
 import { ClaimRewardButton } from './ClaimRewardButton'
 import {
   formatMissionReward,
@@ -29,79 +39,81 @@ export function MissionCard({
   const isClaimable = mission.completed && !mission.claimed
 
   return (
-    <article
-      className={`rounded-xl border bg-white p-2.5 shadow-sm transition duration-200 ${
+    <Card
+      size="sm"
+      className={
         isClaimable
-          ? 'border-emerald-200 shadow-emerald-500/10'
-          : 'border-zinc-200'
-      }`}
+          ? 'gap-2 border-primary/40 py-2.5 shadow-md shadow-primary/10'
+          : 'gap-2 py-2.5'
+      }
     >
-      <div className="flex items-start gap-2.5">
-        <div
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[10px] font-black ${
-            mission.claimed
-              ? 'bg-zinc-100 text-zinc-500'
-              : isClaimable
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-amber-100 text-amber-700'
-          }`}
-          aria-hidden="true"
-        >
-          {getMissionIconLabel(mission, missionIndex)}
-        </div>
+      <CardHeader className="gap-2">
+        <div className="flex items-start gap-2.5">
+          <div
+            className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-black ${
+              mission.claimed
+                ? 'bg-muted text-muted-foreground'
+                : isClaimable
+                  ? 'bg-accent text-accent-foreground'
+                  : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+            }`}
+            aria-hidden="true"
+          >
+            {getMissionIconLabel(mission, missionIndex)}
+          </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <h3 className="text-[13px] font-semibold leading-snug text-zinc-950">
-                {mission.title}
-              </h3>
-              <p className="mt-0.5 max-h-8 overflow-hidden text-[11px] leading-4 text-zinc-500">
-                {mission.description}
-              </p>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <CardTitle className="text-[13px] font-semibold leading-snug">
+                  {mission.title}
+                </CardTitle>
+                <CardDescription className="mt-0.5 line-clamp-2 max-h-8 text-[11px] leading-4">
+                  {mission.description}
+                </CardDescription>
+              </div>
+
+              {mission.claimed ? (
+                <Badge variant="secondary">Diklaim</Badge>
+              ) : isClaimable ? (
+                <Badge>Siap</Badge>
+              ) : (
+                <Badge className="border-transparent bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                  Terbuka
+                </Badge>
+              )}
             </div>
+          </div>
+        </div>
+      </CardHeader>
 
-            <span
-              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                mission.claimed
-                  ? 'bg-zinc-100 text-zinc-500'
-                  : isClaimable
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-700'
-              }`}
-            >
-              {mission.claimed ? 'Claimed' : isClaimable ? 'Ready' : 'Open'}
+      <CardContent className="grid gap-2">
+        <div>
+          <div className="mb-1 flex items-center justify-between gap-3 text-[11px] font-semibold text-muted-foreground">
+            <span>
+              {progress.current} / {progress.target}
+            </span>
+            <span className="text-right">
+              {formatMissionReward(mission)}
             </span>
           </div>
-
-          <div className="mt-2">
-            <div className="mb-1 flex items-center justify-between gap-3 text-[11px] font-semibold text-zinc-500">
-              <span>
-                {progress.current} / {progress.target}
-              </span>
-              <span className="text-right">{formatMissionReward(mission)}</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  isClaimable || mission.claimed
-                    ? 'bg-emerald-500'
-                    : 'bg-amber-400'
-                }`}
-                style={{ width: `${progress.percent}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="mt-2">
-            <ClaimRewardButton
-              completed={mission.completed}
-              claimed={mission.claimed}
-              onClaim={() => onClaimMission(mission.id)}
-            />
-          </div>
+          <Progress
+            value={progress.percent}
+            className={`h-1.5 ${
+              isClaimable || mission.claimed
+                ? '[&_[data-slot=progress-indicator]]:bg-primary'
+                : '[&_[data-slot=progress-indicator]]:bg-amber-400'
+            }`}
+            aria-label={`Progres misi ${Math.round(progress.percent)}%`}
+          />
         </div>
-      </div>
-    </article>
+
+        <ClaimRewardButton
+          completed={mission.completed}
+          claimed={mission.claimed}
+          onClaim={() => onClaimMission(mission.id)}
+        />
+      </CardContent>
+    </Card>
   )
 }

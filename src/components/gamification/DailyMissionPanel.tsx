@@ -5,6 +5,14 @@ import type {
 
 import mentorVehicleUrl from '../../../MBS_Toony_021523u/png/Vehicles/taxi.png'
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  CardDescription,
+  CardTitle,
+} from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+
 import { DailyMissionFloatingButton } from './daily-mission/DailyMissionFloatingButton'
 import { MissionCard } from './daily-mission/MissionCard'
 import { getNpcDialog } from './daily-mission/mission-utils'
@@ -42,11 +50,12 @@ export function DailyMissionPanel({
 
   if (isMinimized) {
     return (
-      <aside className="absolute bottom-4 right-4 z-20 flex w-[min(13.5rem,calc(100vw-1.5rem))] flex-col gap-2 sm:bottom-auto sm:right-4 sm:top-4">
+      <aside className="absolute bottom-2 right-2 z-20 flex w-[min(13.5rem,calc(100vw-1rem))] flex-col gap-2 sm:bottom-auto sm:right-4 sm:top-4">
         <DailyMissionFloatingButton
           completedCount={completedMissions}
           totalMissions={totalMissions}
           hasClaimableReward={hasClaimableReward}
+          mentorImageUrl={mentorVehicleUrl}
           onExpand={onExpand}
         />
         <MissionQuickActions
@@ -58,10 +67,13 @@ export function DailyMissionPanel({
   }
 
   return (
-    <div className="absolute inset-x-3 bottom-4 z-20 flex max-h-[calc(100%-2rem)] flex-col gap-2 sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-[400px]">
-      <aside className="flex min-h-0 max-h-[min(76vh,34rem)] flex-col overflow-hidden rounded-xl border border-white/70 bg-white/95 shadow-2xl backdrop-blur-md transition-all duration-300 motion-safe:animate-[missionPanelIn_180ms_ease-out] sm:max-h-[75vh]">
-        <div className="shrink-0 border-b border-zinc-100 bg-white/95 p-3 backdrop-blur">
-          <MissionPanelHeader dialog={dialog} />
+    <div className="absolute inset-x-2 bottom-2 z-20 flex max-h-[calc(100dvh-1rem)] flex-col gap-2 sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-[400px]">
+      <aside className="glass-panel flex min-h-0 max-h-[min(72dvh,34rem)] flex-col overflow-hidden rounded-xl transition-all duration-300 motion-safe:animate-[missionPanelIn_180ms_ease-out] sm:max-h-[75dvh]">
+        <div className="shrink-0 p-3">
+          <MissionPanelHeader
+            dialog={dialog}
+            hasClaimableReward={hasClaimableReward}
+          />
 
           <MissionStats
             completedMissions={completedMissions}
@@ -73,6 +85,8 @@ export function DailyMissionPanel({
             onMinimize={onMinimize}
           />
         </div>
+
+        <Separator />
 
         <MissionScrollableList
           missions={missions}
@@ -90,14 +104,16 @@ export function DailyMissionPanel({
 
 type MissionPanelHeaderProps = {
   dialog: string
+  hasClaimableReward: boolean
 }
 
 function MissionPanelHeader({
   dialog,
+  hasClaimableReward,
 }: MissionPanelHeaderProps) {
   return (
     <header className="flex items-start gap-2.5">
-      <div className="flex h-12 w-14 shrink-0 items-end justify-center rounded-xl bg-emerald-100 px-2 pb-1.5">
+      <div className="flex h-12 w-14 shrink-0 items-end justify-center rounded-lg bg-accent px-2 pb-1.5">
         <img
           src={mentorVehicleUrl}
           alt="NPC kendaraan mentor"
@@ -108,17 +124,18 @@ function MissionPanelHeader({
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-600">
-              Daily Mission
-            </p>
-            <h2 className="truncate text-base font-bold leading-tight text-zinc-950">
-              Kendaraan Mentor
-            </h2>
+            <CardDescription className="text-[10px] font-bold uppercase tracking-wide text-primary">
+              Misi Harian
+            </CardDescription>
+            <CardTitle className="truncate text-base font-bold leading-tight">
+              Mentor
+            </CardTitle>
           </div>
 
+          {hasClaimableReward && <Badge>Klaim!</Badge>}
         </div>
 
-        <p className="mt-1 max-h-10 overflow-hidden text-xs leading-5 text-zinc-600">
+        <p className="mt-1 max-h-10 overflow-hidden text-xs leading-5 text-muted-foreground">
           {dialog}
         </p>
       </div>
@@ -138,15 +155,15 @@ function MissionStats({
   return (
     <section
       className="mt-2.5 grid gap-2"
-      title="Progress penyelesaian daily mission hari ini."
+      title="Progres penyelesaian misi harian hari ini."
     >
-      <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
-        Today's Reward Progress
+      <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+        Progres Hadiah Hari Ini
       </p>
 
       <div className="grid gap-2">
         <MissionSummaryItem
-          label="Daily Mission"
+          label="Misi Harian"
           value={`${completedMissions}/${totalMissions}`}
         />
       </div>
@@ -165,20 +182,22 @@ function MissionActionButtons({
 }: MissionActionButtonsProps) {
   return (
     <div className="mt-2.5 flex gap-2">
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={onOpenTutorial}
-        className="min-h-9 flex-1 rounded-xl bg-yellow-400 px-3 py-1.5 text-xs font-semibold text-zinc-950 shadow-sm transition hover:bg-yellow-500 active:bg-yellow-600"
+        className="h-10 flex-1 text-xs font-semibold"
       >
         Tutorial
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
+        variant="outline"
         onClick={onMinimize}
-        className="min-h-9 flex-1 rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-zinc-800 active:bg-zinc-950"
+        className="glass-panel h-10 flex-1 bg-card/90 text-xs font-semibold"
       >
-        Minimize
-      </button>
+        Kecilkan
+      </Button>
     </div>
   )
 }
@@ -194,20 +213,21 @@ function MissionQuickActions({
 }: MissionQuickActionsProps) {
   return (
     <div className="grid grid-cols-2 gap-2">
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={onOpenShop}
-        className="min-h-11 rounded-md border border-zinc-200 bg-white/92 px-3 py-2 text-sm font-semibold text-zinc-950 shadow-sm backdrop-blur transition hover:bg-white"
+        className="glass-panel h-11 bg-card/90 text-sm font-semibold text-foreground"
       >
-        Shop
-      </button>
-      <button
+        Toko
+      </Button>
+      <Button
         type="button"
         onClick={onOpenFinance}
-        className="min-h-11 rounded-md border border-green-200 bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-600"
+        className="h-11 bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
       >
-        Finance
-      </button>
+        Keuangan
+      </Button>
     </div>
   )
 }
@@ -239,7 +259,7 @@ function MissionScrollableList({
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-4 text-center text-sm font-medium text-zinc-500">
+        <div className="rounded-lg border border-dashed border-border bg-muted p-4 text-center text-sm font-medium text-muted-foreground">
           Misi harian belum tersedia.
         </div>
       )}
@@ -254,11 +274,11 @@ type MissionSummaryItemProps = {
 
 function MissionSummaryItem({ label, value }: MissionSummaryItemProps) {
   return (
-    <div className="rounded-xl bg-zinc-100 px-2.5 py-1.5">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+    <div className="rounded-lg bg-muted px-2.5 py-1.5">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
-      <p className="truncate text-sm font-bold text-zinc-950">{value}</p>
+      <p className="truncate text-sm font-bold">{value}</p>
     </div>
   )
 }

@@ -82,13 +82,13 @@ export function FinanceTransactions() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-zinc-950">
-            Transactions
+            Transaksi
           </h3>
-          <p className="text-sm text-zinc-500">
-            Tambah, edit, hapus, dan filter pemasukan atau pengeluaran.
+          <p className="text-sm text-zinc-950">
+            Tambah, ubah, hapus, dan filter pemasukan atau pengeluaran.
           </p>
         </div>
 
@@ -98,9 +98,9 @@ export function FinanceTransactions() {
             setEditingTransaction(null)
             setIsModalOpen(true)
           }}
-          className="rounded-md bg-green-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-600"
+          className="min-h-11 w-full rounded-md bg-green-500 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-green-600 sm:w-auto"
         >
-          Add Transaction
+          Tambah Transaksi
         </button>
       </div>
 
@@ -110,20 +110,20 @@ export function FinanceTransactions() {
             key={item}
             type="button"
             onClick={() => setFilter(item)}
-            className={`rounded-md px-3 py-2 text-sm font-semibold capitalize ${
+            className={`min-h-11 rounded-md px-3 py-2 text-sm font-semibold capitalize ${
               filter === item
-                ? 'bg-green-500 text-white'
-                : 'bg-zinc-100 text-zinc-700'
+                ? 'bg-green-500 text-zinc-950'
+                : 'bg-zinc-100 text-zinc-950'
             }`}
           >
-            {item}
+            {formatFilterLabel(item)}
           </button>
         ))}
       </div>
 
       <div className="overflow-hidden rounded-md border border-zinc-200">
         {filteredTransactions.length === 0 ? (
-          <p className="p-4 text-sm text-zinc-500">Belum ada transaksi.</p>
+          <p className="p-4 text-sm text-zinc-950">Belum ada transaksi.</p>
         ) : (
           filteredTransactions.map((transaction) => (
             <div
@@ -142,22 +142,22 @@ export function FinanceTransactions() {
                         : 'bg-red-100 text-red-700'
                     }`}
                   >
-                    {transaction.type}
+                    {formatTransactionTypeLabel(transaction.type)}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-zinc-500">
-                  {transaction.categoryName} • {formatDate(transaction.date)}
+                <p className="mt-1 text-sm text-zinc-950">
+                  {transaction.categoryName} | {formatDate(transaction.date)}
                 </p>
                 {transaction.note && (
-                  <p className="mt-1 text-sm text-zinc-600">
+                  <p className="mt-1 text-sm text-zinc-950">
                     {transaction.note}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center gap-2 md:justify-end">
+              <div className="flex flex-wrap items-center gap-2 md:justify-end">
                 <p
-                  className={`min-w-32 text-sm font-semibold ${
+                  className={`w-full min-w-0 text-sm font-semibold md:w-auto md:min-w-32 ${
                     transaction.type === 'income'
                       ? 'text-green-600'
                       : 'text-red-600'
@@ -172,16 +172,16 @@ export function FinanceTransactions() {
                     setEditingTransaction(transaction)
                     setIsModalOpen(true)
                   }}
-                  className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-semibold text-zinc-700"
+                  className="min-h-10 flex-1 rounded-md bg-zinc-100 px-3 py-2 text-sm font-semibold text-zinc-950 sm:flex-none"
                 >
-                  Edit
+                  Ubah
                 </button>
                 <button
                   type="button"
                   onClick={() => openDeleteConfirmation(transaction)}
-                  className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold text-white"
+                  className="min-h-10 flex-1 rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-zinc-950 sm:flex-none"
                 >
-                  Delete
+                  Hapus
                 </button>
               </div>
             </div>
@@ -243,8 +243,8 @@ function DeleteTransactionConfirmationModal({
   const isFinalStep = step === 2
 
   return (
-    <div className="fixed inset-0 z-[1001] flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl">
+    <div className="fixed inset-0 z-[1001] flex items-center justify-center overflow-y-auto bg-black/40 px-3 py-4">
+      <div className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 shadow-xl sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase text-red-600">
@@ -259,13 +259,13 @@ function DeleteTransactionConfirmationModal({
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-10 rounded-md bg-zinc-100 px-3 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Close
+            Tutup
           </button>
         </div>
 
-        <p className="mt-3 text-sm text-zinc-600">
+        <p className="mt-3 text-sm text-zinc-950">
           {isFinalStep
             ? 'Klik tombol merah sekali lagi untuk menghapus transaksi ini.'
             : 'Pastikan transaksi yang dipilih sudah benar sebelum lanjut.'}
@@ -277,12 +277,12 @@ function DeleteTransactionConfirmationModal({
               <p className="truncate font-semibold text-zinc-950">
                 {transaction.title}
               </p>
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-1 text-sm text-zinc-950">
                 {transaction.categoryName} | {formatDate(transaction.date)}
               </p>
             </div>
             <p
-              className={`shrink-0 text-sm font-semibold ${
+              className={`shrink-0 text-right text-sm font-semibold ${
                 transaction.type === 'income'
                   ? 'text-green-600'
                   : 'text-red-600'
@@ -306,7 +306,7 @@ function DeleteTransactionConfirmationModal({
               type="button"
               onClick={onBack}
               disabled={isDeleting}
-              className="rounded-md bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Kembali
             </button>
@@ -315,7 +315,7 @@ function DeleteTransactionConfirmationModal({
               type="button"
               onClick={onClose}
               disabled={isDeleting}
-              className="rounded-md bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-10 rounded-md bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Batal
             </button>
@@ -325,7 +325,7 @@ function DeleteTransactionConfirmationModal({
             type="button"
             onClick={onConfirm}
             disabled={isDeleting}
-            className={`rounded-md px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-zinc-300 ${
+            className={`min-h-10 rounded-md px-4 py-2 text-sm font-semibold text-zinc-950 transition disabled:cursor-not-allowed disabled:bg-zinc-300 ${
               isFinalStep
                 ? 'bg-red-600 hover:bg-red-700'
                 : 'bg-red-500 hover:bg-red-600'
@@ -341,4 +341,16 @@ function DeleteTransactionConfirmationModal({
       </div>
     </div>
   )
+}
+
+function formatFilterLabel(filter: TransactionFilter) {
+  if (filter === 'all') {
+    return 'Semua'
+  }
+
+  return formatTransactionTypeLabel(filter)
+}
+
+function formatTransactionTypeLabel(type: FinanceRecordType) {
+  return type === 'income' ? 'Pemasukan' : 'Pengeluaran'
 }

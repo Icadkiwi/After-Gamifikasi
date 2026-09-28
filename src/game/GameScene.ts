@@ -17,6 +17,7 @@ import {
   emitGameEvent,
   gameEvents,
   type BuildingType,
+  type CurrencyState,
   type ShopPurchaseResult,
 } from './GameEvents'
 import { CameraController } from './CameraController'
@@ -25,12 +26,19 @@ import {
   getBankCapacity,
   getBankUpgradeCost,
 } from './bankConfig'
+import { getBuildingInfo } from './buildingInfo'
+import { getCityBuildingUpgradeCost } from './buildingUpgradeConfig'
 import {
   DEFAULT_SHOP_PRICE,
+  getShopItemSellPrice,
   shopAssetEntries,
   visibleShopItems,
   type ShopItem,
 } from './shopItems'
+import {
+  getPassiveIncomePerHourForKey,
+  getPassiveIncomePerSecond,
+} from './passiveIncomeConfig'
 import {
   VehicleMovementSystem,
   type VehicleSpawnConfig,
@@ -105,6 +113,7 @@ type EconomyState = {
   bankLevel: number
   barberLevel: number
   lastCollectedAt: number
+  passiveIncomeRemainder: number
 }
 
 interface PlaceableObject {
@@ -190,15 +199,9 @@ export class GameScene extends Phaser.Scene {
   private readonly groundStorageKey = 'after-gamifikasi-ground-tiles'
   private readonly economyStorageKey = 'after-gamifikasi-economy-state'
   private readonly bankLevels = BANK_LEVELS
-  private readonly barberLevels: Record<number, { coinPerSecond: number }> = {
-    1: { coinPerSecond: 1 },
-    2: { coinPerSecond: 2 },
-    3: { coinPerSecond: 3 },
-  }
   private readonly weatherSwitchDelay = 20000
   private readonly weatherFadeDuration = 3000
   private readonly maxDiamonds = 1000
-  private readonly diamondProductionDelay = 10000
   private activeWeatherMode: WeatherMode = 'sunny'
   private coins = 0
   private diamonds = 0
@@ -206,10 +209,10 @@ export class GameScene extends Phaser.Scene {
   private bankLevel = 1
   private barberLevel = 1
   private lastCollectedAt = Date.now()
+  private passiveIncomeRemainder = 0
   private weatherLayers?: Record<WeatherMode, WeatherLayer>
   private weatherSwitchEvent?: Phaser.Time.TimerEvent
   private coinProductionTimer?: Phaser.Time.TimerEvent
-  private diamondProductionTimer?: Phaser.Time.TimerEvent
   private groundBase?: Phaser.GameObjects.Rectangle
   private vehicleMovementSystem?: VehicleMovementSystem
   private ownedShopItemKeys: string[] = []
@@ -218,6 +221,7 @@ export class GameScene extends Phaser.Scene {
   private decorations: Phaser.GameObjects.Image[] = []
   private placeableObjects: PlaceableObject[] = []
   private placementPreview?: PlacementPreview
+  private isPlacementConfirmOpen = false
   private groundReplacementItem?: ShopItem
   private undoStack: Array<{
     sprite: Phaser.GameObjects.Image
@@ -278,7 +282,7 @@ export class GameScene extends Phaser.Scene {
     this.setupControls()
     this.startWeatherSwitching()
     this.startCoinProduction()
-    this.startDiamondProduction()
+    this.emitSceneReady()
 
     this.scale.on('resize', this.handleResize, this)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -317,6 +321,18 @@ export class GameScene extends Phaser.Scene {
         this.handleAdminAddDiamondsCommand,
       )
       gameEvents.removeEventListener(
+        'ADMIN_RESET_LEVELS',
+        this.handleAdminResetLevelsCommand,
+      )
+      gameEvents.removeEventListener(
+        'ADMIN_UPGRADE_LEVELS',
+        this.handleAdminUpgradeLevelsCommand,
+      )
+      gameEvents.removeEventListener(
+        'ADMIN_RESET_CITY_BUILDINGS',
+        this.handleAdminResetCityBuildingsCommand,
+      )
+      gameEvents.removeEventListener(
         'SYNC_GAME_CURRENCY',
         this.handleSyncGameCurrencyCommand,
       )
@@ -332,9 +348,20 @@ export class GameScene extends Phaser.Scene {
         'UPGRADE_PLACED_BUILDING',
         this.handleUpgradePlacedBuildingCommand,
       )
+      gameEvents.removeEventListener(
+        'CONFIRM_SHOP_PLACEMENT',
+        this.handleConfirmShopPlacementCommand,
+      )
+      gameEvents.removeEventListener(
+        'CANCEL_SHOP_PLACEMENT_CONFIRM',
+        this.handleCancelShopPlacementConfirmCommand,
+      )
+      gameEvents.removeEventListener(
+        'CANCEL_SHOP_PLACEMENT',
+        this.handleCancelShopPlacementCommand,
+      )
       this.weatherSwitchEvent?.remove(false)
       this.coinProductionTimer?.remove(false)
-      this.diamondProductionTimer?.remove(false)
       this.destroyPlacementPreview()
       this.cameraController?.cancel()
       this.vehicleMovementSystem?.clear()
@@ -359,6 +386,17 @@ export class GameScene extends Phaser.Scene {
     if (this.cursors.right.isDown) {
       this.cameraController?.setScrollX(this.cameras.main.scrollX + scrollStep)
     }
+  }
+
+  private emitSceneReady() {
+    emitGameEvent('GAME_SCENE_READY', {})
+    const readyRetryDelays = [200, 800]
+
+    readyRetryDelays.forEach((delay) => {
+      this.time.delayedCall(delay, () => {
+        emitGameEvent('GAME_SCENE_READY', {})
+      })
+    })
   }
 
   private handleResize(gameSize: Phaser.Structs.Size) {
@@ -477,6 +515,11 @@ export class GameScene extends Phaser.Scene {
       Phaser.Math.Clamp(savedState?.diamonds ?? 0, 0, this.maxDiamonds),
     )
     this.lastCollectedAt = savedState?.lastCollectedAt ?? Date.now()
+    this.passiveIncomeRemainder = Phaser.Math.Clamp(
+      Number(savedState?.passiveIncomeRemainder ?? 0),
+      0,
+      1,
+    )
 
     this.saveEconomyState()
     this.emitCurrencyUpdate()
@@ -497,47 +540,43 @@ export class GameScene extends Phaser.Scene {
   }
 
   private produceCoinsOnce() {
-    if (!this.hasPlacedBarberShop()) {
+    const totalIncomePerHour = this.getTotalPassiveIncomePerHour()
+
+    if (totalIncomePerHour <= 0) {
       return
     }
 
     if (this.coins >= this.maxCoins) {
+      this.passiveIncomeRemainder = 0
+      this.lastCollectedAt = Date.now()
+      this.saveEconomyState()
       return
     }
 
-    const level = this.getPrimaryBarberLevel()
-    const rate = this.barberLevels[level]?.coinPerSecond ?? 1
+    const incomePerSecond = getPassiveIncomePerSecond(totalIncomePerHour)
+    this.passiveIncomeRemainder += incomePerSecond
 
-    this.coins = Math.floor(Math.min(this.maxCoins, this.coins + rate))
-    this.lastCollectedAt = Date.now()
-    this.saveEconomyState()
-    this.emitCurrencyUpdate()
-  }
+    const accumulatedCoins = Math.floor(this.passiveIncomeRemainder)
 
-  private startDiamondProduction() {
-    if (this.diamondProductionTimer) {
-      this.diamondProductionTimer.remove(false)
-      this.diamondProductionTimer = undefined
-    }
-
-    this.diamondProductionTimer = this.time.addEvent({
-      delay: this.diamondProductionDelay,
-      loop: true,
-      callback: this.produceDiamondsOnce,
-      callbackScope: this,
-    })
-  }
-
-  private produceDiamondsOnce() {
-    if (!this.hasPlacedBarberShop()) {
+    if (accumulatedCoins < 1) {
+      this.lastCollectedAt = Date.now()
+      this.saveEconomyState()
       return
     }
 
-    if (this.diamonds >= this.maxDiamonds) {
-      return
+    const coinRoom = Math.max(this.maxCoins - Math.floor(this.coins), 0)
+    const grantedCoins = Math.min(accumulatedCoins, coinRoom)
+
+    this.coins = Math.floor(Math.min(this.maxCoins, this.coins + grantedCoins))
+    this.passiveIncomeRemainder = Math.max(
+      this.passiveIncomeRemainder - grantedCoins,
+      0,
+    )
+
+    if (grantedCoins < accumulatedCoins || this.coins >= this.maxCoins) {
+      this.passiveIncomeRemainder = 0
     }
 
-    this.diamonds = Math.floor(Math.min(this.maxDiamonds, this.diamonds + 1))
     this.lastCollectedAt = Date.now()
     this.saveEconomyState()
     this.emitCurrencyUpdate()
@@ -557,7 +596,7 @@ export class GameScene extends Phaser.Scene {
     if (this.coins < upgradeCost) {
       emitGameEvent(
         'SHOP_ERROR',
-        `Coin tidak cukup. Upgrade Bank LV ${this.bankLevel + 1} butuh ${upgradeCost.toLocaleString('id-ID')} coin.`,
+        `Koin tidak cukup. Peningkatan Bank ke LV ${this.bankLevel + 1} membutuhkan ${upgradeCost.toLocaleString('id-ID')} koin.`,
       )
       this.emitCurrencyUpdate()
       return
@@ -575,15 +614,44 @@ export class GameScene extends Phaser.Scene {
       return
     }
 
+    const upgradeCost = getCityBuildingUpgradeCost('barber', this.barberLevel)
+
+    if (
+      !this.spendCoinsForUpgrade(
+        upgradeCost,
+        `Toko Cukur LV ${this.barberLevel + 1}`,
+      )
+    ) {
+      return
+    }
+
     this.barberLevel += 1
     this.saveEconomyState()
     this.emitCurrencyUpdate()
   }
 
-  private emitCurrencyUpdate() {
+  private spendCoinsForUpgrade(upgradeCost: number | undefined, label: string) {
+    if (!upgradeCost) {
+      return true
+    }
+
+    if (this.coins < upgradeCost) {
+      emitGameEvent(
+        'SHOP_ERROR',
+        `Koin tidak cukup. Peningkatan ${label} membutuhkan ${upgradeCost.toLocaleString('id-ID')} koin.`,
+      )
+      this.emitCurrencyUpdate()
+      return false
+    }
+
+    this.coins = Math.floor(this.coins - upgradeCost)
+    return true
+  }
+
+  private emitCurrencyUpdate(): CurrencyState {
     const coins = Math.floor(this.coins)
     const diamonds = Math.floor(this.diamonds)
-    const currencyState = {
+    const currencyState: CurrencyState = {
       coins,
       maxCoins: this.maxCoins,
       diamonds,
@@ -591,13 +659,15 @@ export class GameScene extends Phaser.Scene {
       bankLevel: this.bankLevel,
       barberLevel: this.barberLevel,
       bankCapacity: this.bankLevels[this.bankLevel].capacity,
-      barberCoinPerSecond: this.barberLevels[this.barberLevel].coinPerSecond,
-      coinPerSecond: this.barberLevels[this.barberLevel].coinPerSecond,
+      barberCoinPerHour: this.getBarberPassiveIncomePerHour(),
+      coinPerHour: this.getTotalPassiveIncomePerHour(),
     }
 
     emitGameEvent('CURRENCY_UPDATE', currencyState)
     emitGameEvent('COINS_UPDATED', currencyState)
     this.emitCityProgressUpdate()
+
+    return currencyState
   }
 
   private emitCityProgressUpdate() {
@@ -605,15 +675,13 @@ export class GameScene extends Phaser.Scene {
       (placeable) => placeable.type === 'building',
     ).length
     const vehicleNpcCount = this.vehicleMovementSystem?.getVehicleCount() ?? 0
-    const passiveIncomePerCycle = this.hasPlacedBarberShop()
-      ? this.barberLevels[this.barberLevel].coinPerSecond
-      : 0
+    const passiveIncomePerHour = this.getTotalPassiveIncomePerHour()
     const cityLevel = Math.max(1, this.bankLevel + this.barberLevel - 1)
 
     emitGameEvent('CITY_PROGRESS_UPDATE', {
       buildingCount,
       vehicleNpcCount,
-      passiveIncomePerCycle,
+      passiveIncomePerHour,
       cityLevel,
     })
   }
@@ -667,7 +735,8 @@ export class GameScene extends Phaser.Scene {
       itemType: placeable.itemType,
       imageUrl: placeable.shopItem.imageUrl,
       price,
-      sellPrice: placeable.canSell ? Math.floor(price * 0.5) : undefined,
+      currencyType: placeable.shopItem.currencyType,
+      sellPrice: placeable.canSell ? getShopItemSellPrice({ price }) : undefined,
       isDefault: placeable.isDefault,
       canSell: placeable.canSell,
       canUpgrade: placeableUpgradeState.canUpgrade,
@@ -694,7 +763,7 @@ export class GameScene extends Phaser.Scene {
     )
 
     if (!placeable?.shopItem || placeable.itemType !== 'building') {
-      emitGameEvent('SHOP_ERROR', 'Building tidak bisa di-upgrade.')
+      emitGameEvent('SHOP_ERROR', 'Bangunan tidak bisa ditingkatkan.')
       return
     }
 
@@ -709,16 +778,33 @@ export class GameScene extends Phaser.Scene {
     if (!upgradeState.canUpgrade) {
       emitGameEvent(
         'SHOP_ERROR',
-        upgradeState.requirement ?? 'Requirement upgrade belum terpenuhi.',
+        upgradeState.requirement ?? 'Syarat peningkatan belum terpenuhi.',
       )
       this.openPlaceableModal(placeable)
       return
     }
 
+    const nextLevel = (upgradeState.level ?? 1) + 1
+    const upgradeCost = getCityBuildingUpgradeCost(
+      buildingType ?? undefined,
+      upgradeState.level ?? 1,
+    )
+
+    if (
+      !this.spendCoinsForUpgrade(
+        upgradeCost,
+        `${placeable.shopItem.name} LV ${nextLevel}`,
+      )
+    ) {
+      this.openPlaceableModal(placeable)
+      return
+    }
+
     placeable.shopItem.level = Math.min((upgradeState.level ?? 1) + 1, 3)
+    this.saveEconomyState()
     this.saveShopPlaceables()
     this.openPlaceableModal(placeable)
-    this.emitCityProgressUpdate()
+    this.emitCurrencyUpdate()
   }
 
   private readonly handleBuyShopItemCommand = (event: Event) => {
@@ -735,12 +821,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (item.key.toLowerCase().includes('background')) {
-      emitGameEvent('SHOP_ERROR', 'Item background tidak bisa dibeli')
+      emitGameEvent('SHOP_ERROR', 'Barang latar belakang tidak bisa dibeli')
       return
     }
 
     if (!this.textures.exists(item.assetKey)) {
-      emitGameEvent('SHOP_ERROR', 'Asset belum tersedia')
+      emitGameEvent('SHOP_ERROR', 'Aset belum tersedia')
       return
     }
 
@@ -767,27 +853,44 @@ export class GameScene extends Phaser.Scene {
     )
 
     if (!placeable?.shopItem) {
-      emitGameEvent('SHOP_ERROR', 'Object ini tidak bisa dijual')
+      emitGameEvent('SHOP_ERROR', 'Objek ini tidak bisa dijual')
       return
     }
 
     if (placeable.isDefault || !placeable.canSell) {
       console.warn('Default object cannot be sold')
-      emitGameEvent('SHOP_ERROR', 'Object default tidak bisa dijual')
+      emitGameEvent('SHOP_ERROR', 'Objek bawaan tidak bisa dijual')
       return
     }
 
-    const sellPrice = Math.floor(placeable.shopItem.price * 0.5)
+    const sellPrice = getShopItemSellPrice(placeable.shopItem)
+    const currencyType = placeable.shopItem.currencyType ?? 'coin'
+    const previousCoins = this.coins
+    const previousDiamonds = this.diamonds
 
-    this.coins = Math.floor(Math.min(this.maxCoins, this.coins + sellPrice))
+    if (currencyType === 'diamond') {
+      this.diamonds = Math.floor(
+        Math.min(this.maxDiamonds, this.diamonds + sellPrice),
+      )
+    } else {
+      this.coins = Math.floor(Math.min(this.maxCoins, this.coins + sellPrice))
+    }
     this.removePlaceable(placeable)
     this.saveEconomyState()
-    this.emitCurrencyUpdate()
+    const currencyState = this.emitCurrencyUpdate()
+
+    emitGameEvent('SHOP_SELL_COMPLETED', {
+      sellPrice,
+      grantedCoin: Math.max(this.coins - previousCoins, 0),
+      grantedDiamond: Math.max(this.diamonds - previousDiamonds, 0),
+      currency: currencyState,
+    })
   }
 
   private readonly handleAdminResetCurrencyCommand = () => {
     this.coins = 0
     this.diamonds = 0
+    this.passiveIncomeRemainder = 0
     this.lastCollectedAt = Date.now()
     this.saveEconomyState()
     this.emitCurrencyUpdate()
@@ -813,6 +916,91 @@ export class GameScene extends Phaser.Scene {
     this.emitCurrencyUpdate()
   }
 
+  private readonly handleAdminResetLevelsCommand = () => {
+    this.bankLevel = 1
+    this.barberLevel = 1
+    this.maxCoins = getBankCapacity(this.bankLevel)
+    this.coins = Math.floor(Phaser.Math.Clamp(this.coins, 0, this.maxCoins))
+    this.lastCollectedAt = Date.now()
+
+    this.placeableObjects.forEach((placeable) => {
+      if (
+        placeable.shopItem &&
+        (placeable.itemType === 'building' ||
+          placeable.shopItem.type === 'building')
+      ) {
+        placeable.shopItem.level = 1
+      }
+    })
+
+    this.saveEconomyState()
+    this.saveShopPlaceables()
+    this.emitCurrencyUpdate()
+  }
+
+  private readonly handleAdminUpgradeLevelsCommand = () => {
+    this.bankLevel = Math.min(this.bankLevel + 1, 3)
+    this.barberLevel = Math.min(this.barberLevel + 1, 3)
+    this.maxCoins = getBankCapacity(this.bankLevel)
+    this.lastCollectedAt = Date.now()
+
+    this.placeableObjects.forEach((placeable) => {
+      if (
+        !placeable.shopItem ||
+        (placeable.itemType !== 'building' &&
+          placeable.shopItem.type !== 'building')
+      ) {
+        return
+      }
+
+      const buildingType = this.getBuildingTypeForPlaceable(placeable)
+
+      if (buildingType === 'bank') {
+        placeable.shopItem.level = this.bankLevel
+        return
+      }
+
+      if (buildingType === 'barber') {
+        placeable.shopItem.level = this.barberLevel
+        return
+      }
+
+      if (!this.hasFunctionalBuildingInfo(placeable)) {
+        return
+      }
+
+      placeable.shopItem.level = Math.min(
+        Phaser.Math.Clamp(placeable.shopItem.level ?? 1, 1, 3) + 1,
+        3,
+      )
+    })
+
+    this.saveEconomyState()
+    this.saveShopPlaceables()
+    this.emitCurrencyUpdate()
+  }
+
+  private readonly handleAdminResetCityBuildingsCommand = () => {
+    this.destroyPlacementPreview()
+    this.groundReplacementItem = undefined
+    this.isObjectDragging = false
+
+    this.placeableObjects.forEach((placeable) => {
+      placeable.sprite.destroy()
+    })
+    this.placeableObjects = []
+    this.buildings = []
+    this.decorations = []
+    this.undoStack = []
+
+    const starterObjects = this.spawnStarterObjects()
+
+    this.savePlacedObjects(starterObjects)
+    this.savePlaceablePositions({})
+    this.spawnPlacedObjects(starterObjects)
+    this.emitCurrencyUpdate()
+  }
+
   private readonly handleSyncGameCurrencyCommand = (event: Event) => {
     const { coins, diamonds } = (
       event as CustomEvent<{ coins: number; diamonds: number }>
@@ -831,9 +1019,11 @@ export class GameScene extends Phaser.Scene {
       event as CustomEvent<{ itemKeys: string[] }>
     ).detail
 
-    this.ownedShopItemKeys = Array.isArray(itemKeys)
+    const nextOwnedShopItemKeys = Array.isArray(itemKeys)
       ? Array.from(new Set(itemKeys.filter((key) => isVehicleShopKey(key))))
       : []
+
+    this.ownedShopItemKeys = nextOwnedShopItemKeys
     this.syncVehicleSpawns()
     this.emitCityProgressUpdate()
   }
@@ -851,7 +1041,7 @@ export class GameScene extends Phaser.Scene {
     )
 
     if (!targetTile) {
-      emitGameEvent('SHOP_ERROR', 'Ground street 02 tidak tersedia')
+      emitGameEvent('SHOP_ERROR', 'Jalan utama belum tersedia')
       return
     }
 
@@ -872,6 +1062,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.updatePlacementPreviewPosition(preview.x)
+    emitGameEvent('SHOP_PLACEMENT_STARTED', { item })
   }
 
   private updatePlacementPreviewPosition(worldX: number) {
@@ -915,8 +1106,12 @@ export class GameScene extends Phaser.Scene {
     sprite.setTint(0xff8888)
   }
 
-  private placePreviewItem(worldX: number) {
+  private requestPlacePreviewConfirmation(worldX: number) {
     if (!this.placementPreview) {
+      return
+    }
+
+    if (this.isPlacementConfirmOpen) {
       return
     }
 
@@ -925,7 +1120,29 @@ export class GameScene extends Phaser.Scene {
     this.updatePlacementPreviewPosition(worldX)
 
     if (!this.isFullyOnGroundStreet02(sprite)) {
-      emitGameEvent('SHOP_ERROR', 'Pilih posisi di atas ground-street-02')
+      emitGameEvent('SHOP_ERROR', 'Pilih posisi di atas jalan utama')
+      return
+    }
+
+    if (this.hasBuildingSpriteCollision(sprite, type)) {
+      emitGameEvent('SHOP_ERROR', 'Bangunan bertabrakan')
+      return
+    }
+
+    this.isPlacementConfirmOpen = true
+    emitGameEvent('SHOP_PLACEMENT_CONFIRM_REQUEST', { item })
+  }
+
+  private commitPlacementPreview() {
+    if (!this.placementPreview) {
+      return
+    }
+
+    const { item, sprite, type } = this.placementPreview
+    this.isPlacementConfirmOpen = false
+
+    if (!this.isFullyOnGroundStreet02(sprite)) {
+      emitGameEvent('SHOP_ERROR', 'Pilih posisi di atas jalan utama')
       return
     }
 
@@ -954,6 +1171,7 @@ export class GameScene extends Phaser.Scene {
 
     this.addPlaceableSpriteToCollection(placedSprite, type)
     this.placementPreview = undefined
+    this.isPlacementConfirmOpen = false
     this.registerPlaceable(id, placedSprite, type, baseY, placedItem)
     this.saveShopPlaceables()
   }
@@ -961,11 +1179,34 @@ export class GameScene extends Phaser.Scene {
   private destroyPlacementPreview() {
     this.placementPreview?.sprite.destroy()
     this.placementPreview = undefined
+    this.isPlacementConfirmOpen = false
+  }
+
+  private readonly handleConfirmShopPlacementCommand = () => {
+    this.commitPlacementPreview()
+  }
+
+  private readonly handleCancelShopPlacementConfirmCommand = () => {
+    this.isPlacementConfirmOpen = false
+  }
+
+  private readonly handleCancelShopPlacementCommand = () => {
+    const cancelledItem =
+      this.placementPreview?.item ?? this.groundReplacementItem
+
+    this.destroyPlacementPreview()
+    this.groundReplacementItem = undefined
+    this.isObjectDragging = false
+    this.cameraController?.cancel()
+    emitGameEvent('SHOP_PLACEMENT_CANCELLED', {
+      item: cancelledItem,
+    })
   }
 
   private startGroundReplacementMode(item: ShopItem) {
     this.destroyPlacementPreview()
     this.groundReplacementItem = item
+    emitGameEvent('SHOP_PLACEMENT_STARTED', { item })
   }
 
   private replaceGroundTileAt(worldX: number, worldY: number) {
@@ -979,12 +1220,12 @@ export class GameScene extends Phaser.Scene {
     const targetTile = this.findGroundTileAt(worldX, worldY)
 
     if (!nextGroundKey || !targetTile) {
-      emitGameEvent('SHOP_ERROR', 'Klik tile ground existing')
+      emitGameEvent('SHOP_ERROR', 'Klik petak jalan yang tersedia')
       return
     }
 
     if (this.isGroundTileOccupied(targetTile)) {
-      emitGameEvent('SHOP_ERROR', 'Tile ini sedang ditempati object')
+      emitGameEvent('SHOP_ERROR', 'Petak ini sedang ditempati objek')
       return
     }
 
@@ -1019,6 +1260,7 @@ export class GameScene extends Phaser.Scene {
     )
     this.saveEconomyState()
     this.emitCurrencyUpdate()
+    emitGameEvent('SHOP_PURCHASE_COMPLETED', { item })
 
     return true
   }
@@ -1027,22 +1269,22 @@ export class GameScene extends Phaser.Scene {
     const definition = getVehicleDefinitionByKey(item.key)
 
     if (!definition || !item.vehicleType) {
-      emitGameEvent('SHOP_ERROR', 'Vehicle tidak ditemukan.')
+      emitGameEvent('SHOP_ERROR', 'Kendaraan tidak ditemukan.')
       return
     }
 
     if (definition.unavailable || !this.textures.exists(item.assetKey)) {
-      emitGameEvent('SHOP_ERROR', 'Asset vehicle belum tersedia.')
+      emitGameEvent('SHOP_ERROR', 'Aset kendaraan belum tersedia.')
       return
     }
 
     if (this.ownedShopItemKeys.includes(item.key)) {
-      emitGameEvent('SHOP_ERROR', 'Vehicle sudah dimiliki.')
+      emitGameEvent('SHOP_ERROR', 'Kendaraan sudah dimiliki.')
       return
     }
 
     if (!isVehicleRequirementMet(item.vehicleType)) {
-      emitGameEvent('SHOP_ERROR', item.unlockRequirement ?? 'Vehicle masih locked.')
+      emitGameEvent('SHOP_ERROR', item.unlockRequirement ?? 'Kendaraan masih terkunci.')
       return
     }
 
@@ -1054,7 +1296,7 @@ export class GameScene extends Phaser.Scene {
         return ownedDefinition?.limitGroup === definition.limitGroup
       })
     ) {
-      emitGameEvent('SHOP_ERROR', 'Vehicle limit untuk building ini sudah tercapai.')
+      emitGameEvent('SHOP_ERROR', 'Batas kendaraan untuk bangunan ini sudah tercapai.')
       return
     }
 
@@ -1120,7 +1362,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getItemCurrencyName(item: ShopItem) {
-    return (item.currencyType ?? 'coin') === 'diamond' ? 'Diamond' : 'Coin'
+    return (item.currencyType ?? 'coin') === 'diamond' ? 'Berlian' : 'Koin'
   }
 
   private switchWeather() {
@@ -1240,8 +1482,16 @@ export class GameScene extends Phaser.Scene {
 
   private syncVehicleSpawns() {
     const streetTiles = this.getGroundStreet02Tiles()
+    const vehicleSpawnTiles =
+      streetTiles.length > 0 ? streetTiles : this.groundTiles
 
-    if (!this.vehicleMovementSystem || streetTiles.length === 0) {
+    if (!this.vehicleMovementSystem) {
+      return
+    }
+
+    if (vehicleSpawnTiles.length === 0) {
+      this.vehicleMovementSystem.setVehicles([])
+      this.emitCityProgressUpdate()
       return
     }
 
@@ -1250,7 +1500,6 @@ export class GameScene extends Phaser.Scene {
 
       if (
         !definition ||
-        definition.vehicleType === 'taxi' ||
         definition.unavailable ||
         !this.textures.exists(definition.assetKey)
       ) {
@@ -1261,23 +1510,60 @@ export class GameScene extends Phaser.Scene {
     })
     const vehicleConfigs: VehicleSpawnConfig[] = ownedVehicleItems.flatMap(
       (vehicle, index) => {
-        const tile = streetTiles[(index * 2 + 2) % streetTiles.length]
+        const tile =
+          vehicleSpawnTiles[(index * 2 + 2) % vehicleSpawnTiles.length]
 
         if (!tile) {
           return []
         }
 
-        const groundArea = this.getConnectedGroundStreet02Area(tile)
-        const margin = 96
-        const minX = Math.max(groundArea.minX + margin, margin)
-        const maxX = Math.min(groundArea.maxX - margin, this.worldWidth - margin)
+        const roadBounds = this.getVehicleRoadBounds()
+        const minX = roadBounds.minX
+        const maxX = roadBounds.maxX
+
+        const laneBounds = this.getVehicleLaneBounds(tile)
 
         if (minX >= maxX) {
-          return []
+          const fallbackX = Phaser.Math.Clamp(
+            this.getTileCenterX(tile),
+            96,
+            this.worldWidth - 96,
+          )
+
+          return [
+            {
+              id: vehicle.key,
+              vehicleType: vehicle.vehicleType,
+              assetKey: vehicle.assetKey,
+              x: fallbackX,
+              baseY: this.getVehicleLaneY(tile, index),
+              minY: laneBounds.minY,
+              maxY: laneBounds.maxY,
+              minX: Math.max(fallbackX - 220, 96),
+              maxX: Math.min(fallbackX + 220, this.worldWidth - 96),
+              scaleMultiplier: this.getVehicleScaleMultiplier(),
+              delay: index * 550,
+              onPointerDown: (pointer) => {
+                this.cameraController?.handlePointerDown(pointer)
+              },
+              onPointerMove: (pointer) => {
+                this.cameraController?.handlePointerMove(pointer)
+              },
+              onPointerUp: (pointer) =>
+                this.cameraController?.handlePointerUp(pointer) ?? false,
+              onClick: () => {
+                this.openVehicleModal(vehicle.key)
+              },
+            },
+          ]
         }
 
-        const progress = (index + 1) / (ownedVehicleItems.length + 1)
-        const x = Phaser.Math.Linear(minX, maxX, progress)
+        const x = this.getVehicleStartX(
+          index,
+          ownedVehicleItems.length,
+          minX,
+          maxX,
+        )
 
         return [
           {
@@ -1286,6 +1572,8 @@ export class GameScene extends Phaser.Scene {
             assetKey: vehicle.assetKey,
             x,
             baseY: this.getVehicleLaneY(tile, index),
+            minY: laneBounds.minY,
+            maxY: laneBounds.maxY,
             minX,
             maxX,
             scaleMultiplier: this.getVehicleScaleMultiplier(),
@@ -1299,7 +1587,7 @@ export class GameScene extends Phaser.Scene {
             onPointerUp: (pointer) =>
               this.cameraController?.handlePointerUp(pointer) ?? false,
             onClick: () => {
-              emitGameEvent('OPEN_NPC_PANEL', {})
+              this.openVehicleModal(vehicle.key)
             },
           },
         ]
@@ -1310,12 +1598,83 @@ export class GameScene extends Phaser.Scene {
     this.emitCityProgressUpdate()
   }
 
+  private openVehicleModal(vehicleKey: string) {
+    const item = visibleShopItems.find(
+      (shopItem) =>
+        shopItem.key === vehicleKey && isVehicleShopItem(shopItem),
+    )
+
+    if (!item) {
+      return
+    }
+
+    emitGameEvent('OPEN_VEHICLE_MODAL', {
+      item,
+      sellPrice: getShopItemSellPrice(item),
+    })
+  }
+
   private getVehicleLaneY(tile: Phaser.GameObjects.Image, index: number) {
-    return tile.y - 7 - (index % 2) * 7
+    const laneBounds = this.getVehicleLaneBounds(tile)
+
+    return index % 2 === 0 ? laneBounds.maxY : laneBounds.minY
+  }
+
+  private getVehicleLaneBounds(tile: Phaser.GameObjects.Image) {
+    const maxY = tile.y - 7
+    const roadTopY = this.getGroundStreetTopY(tile)
+    const minY = Math.min(maxY, Math.max(tile.y - 34, roadTopY + 26))
+
+    return {
+      minY,
+      maxY,
+    }
+  }
+
+  private getVehicleRoadBounds() {
+    const margin = 120
+    const firstTile = this.groundTiles[0]
+    const lastTile = this.groundTiles[this.groundTiles.length - 1]
+
+    if (!firstTile || !lastTile) {
+      return {
+        minX: margin,
+        maxX: Math.max(this.worldWidth - margin, margin),
+      }
+    }
+
+    return {
+      minX: Math.max(firstTile.x + margin, margin),
+      maxX: Math.min(
+        lastTile.x + lastTile.displayWidth - margin,
+        this.worldWidth - margin,
+      ),
+    }
   }
 
   private getVehicleScaleMultiplier() {
     return this.scale.width < 640 ? 0.9 : 1
+  }
+
+  private getVehicleStartX(
+    index: number,
+    totalVehicles: number,
+    minX: number,
+    maxX: number,
+  ) {
+    const progress = (index + 1) / (totalVehicles + 1)
+    const cameraLeft = this.cameras.main.scrollX
+    const visibleRoadLeft = cameraLeft + 180
+    const visibleRoadRight =
+      cameraLeft + this.scale.width * (this.scale.width >= 900 ? 0.68 : 0.9)
+    const startMinX = Math.max(minX, visibleRoadLeft)
+    const startMaxX = Math.min(maxX, visibleRoadRight)
+
+    if (startMinX < startMaxX) {
+      return Phaser.Math.Linear(startMinX, startMaxX, progress)
+    }
+
+    return Phaser.Math.Linear(minX, maxX, progress)
   }
 
   private spawnStarterObjects() {
@@ -1340,7 +1699,7 @@ export class GameScene extends Phaser.Scene {
         type: 'building',
         buildingType: 'bank',
         level: 1,
-        price: DEFAULT_SHOP_PRICE,
+        price: 0,
         imageUrl: bankUrl,
         x: bankX,
         y: baseY,
@@ -1351,7 +1710,7 @@ export class GameScene extends Phaser.Scene {
         id: 'starter-fence-wire',
         key: 'fence_wire',
         shopKey: 'fence_wire',
-        name: 'Fence Wire',
+        name: 'Pagar Kawat',
         assetKey: 'fence_wire',
         type: 'decoration',
         level: 1,
@@ -1738,7 +2097,7 @@ export class GameScene extends Phaser.Scene {
       return 'hospital' satisfies BuildingType
     }
 
-    if (shopKey === 'building_medium_blue') {
+    if (shopKey === 'building_xl_white') {
       return 'police_station' satisfies BuildingType
     }
 
@@ -1759,6 +2118,18 @@ export class GameScene extends Phaser.Scene {
           : Phaser.Math.Clamp(placeable.shopItem?.level ?? 1, 1, 3)
 
     if (placeable.itemType !== 'building') {
+      return {
+        level: undefined,
+        canUpgrade: false,
+        requirement: undefined,
+      }
+    }
+
+    if (
+      buildingType !== 'bank' &&
+      buildingType !== 'barber' &&
+      !this.hasFunctionalBuildingInfo(placeable)
+    ) {
       return {
         level: undefined,
         canUpgrade: false,
@@ -1791,12 +2162,12 @@ export class GameScene extends Phaser.Scene {
 
       if (!ownedVehicleTypes.includes(requiredVehicle)) {
         const requiredVehicleName =
-          getVehicleDefinitionByType(requiredVehicle)?.name ?? 'vehicle terkait'
+          getVehicleDefinitionByType(requiredVehicle)?.name ?? 'kendaraan terkait'
 
         return {
           level,
           canUpgrade: false,
-          requirement: `LV3 requires ${requiredVehicleName}.`,
+          requirement: `LV 3 membutuhkan ${requiredVehicleName}.`,
         }
       }
     }
@@ -1808,22 +2179,47 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private hasPlacedBarberShop() {
-    return this.placeableObjects.some(
-      (placeable) => this.getBuildingTypeForPlaceable(placeable) === 'barber',
+  private hasFunctionalBuildingInfo(placeable: PlaceableObject) {
+    const shopKey = placeable.shopKey ?? placeable.shopItem?.key ?? ''
+
+    return Boolean(getBuildingInfo(shopKey))
+  }
+
+  private getTotalPassiveIncomePerHour() {
+    return this.placeableObjects.reduce(
+      (total, placeable) => total + this.getPlaceablePassiveIncomePerHour(placeable),
+      0,
     )
   }
 
-  private getPrimaryBarberLevel() {
-    const barber = this.placeableObjects.find(
-      (placeable) => this.getBuildingTypeForPlaceable(placeable) === 'barber',
+  private getBarberPassiveIncomePerHour() {
+    return getPassiveIncomePerHourForKey(
+      'barber_shop',
+      this.barberLevel,
+      'barber',
     )
+  }
 
-    if (!barber) {
-      return 1
+  private getPlaceablePassiveIncomePerHour(placeable: PlaceableObject) {
+    if (
+      placeable.itemType !== 'building' &&
+      placeable.shopItem?.type !== 'building'
+    ) {
+      return 0
     }
 
-    return Phaser.Math.Clamp(this.barberLevel, 1, 3)
+    const buildingType = this.getBuildingTypeForPlaceable(placeable)
+    const shopKey = placeable.shopKey ?? placeable.shopItem?.key
+    const level =
+      buildingType === 'barber'
+        ? this.barberLevel
+        : Phaser.Math.Clamp(placeable.shopItem?.level ?? 1, 1, 3)
+
+    return getPassiveIncomePerHourForKey(
+      shopKey,
+      level,
+      buildingType ?? undefined,
+    )
   }
 
   private revertPlaceable(placeable: PlaceableObject) {
@@ -2037,6 +2433,17 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private savePlaceablePositions(savedPositions: SavedPlaceablePositions) {
+    try {
+      localStorage.setItem(
+        this.placeableStorageKey,
+        JSON.stringify(savedPositions),
+      )
+    } catch {
+      // Position persistence is optional; gameplay should continue without storage.
+    }
+  }
+
   private getSavedPlaceablePositions(): SavedPlaceablePositions {
     try {
       const rawPositions = localStorage.getItem(this.placeableStorageKey)
@@ -2218,6 +2625,11 @@ export class GameScene extends Phaser.Scene {
     const currentItem = visibleShopItems.find(
       (shopItem) => shopItem.key === key,
     )
+    const currentBuildingType = this.getBuildingTypeFromShopKey(key)
+    const savedBuildingType =
+      key === 'building_medium_blue' && item.buildingType === 'police_station'
+        ? undefined
+        : item.buildingType
     const normalizedId = this.normalizeStarterId(id, key)
     const fallbackItem = this.getStarterFallbackItem(key)
     const isDefault =
@@ -2233,16 +2645,20 @@ export class GameScene extends Phaser.Scene {
       x,
       y: typeof item.y === 'number' ? item.y : 0,
       shopKey: item.shopKey ?? key,
-      name: currentItem?.name ?? fallbackItem?.name ?? item.name ?? 'Item',
-      price: DEFAULT_SHOP_PRICE,
+      name: currentItem?.name ?? fallbackItem?.name ?? item.name ?? 'Barang',
+      price:
+        currentItem?.price ??
+        fallbackItem?.price ??
+        item.price ??
+        DEFAULT_SHOP_PRICE,
       imageUrl:
         currentItem?.imageUrl ?? fallbackItem?.imageUrl ?? item.imageUrl ?? '',
       type: currentItem?.type ?? fallbackItem?.type ?? type,
       assetKey: currentItem?.assetKey ?? fallbackItem?.assetKey ?? assetKey,
       buildingType:
-        item.buildingType ??
         fallbackItem?.buildingType ??
-        this.getBuildingTypeFromShopKey(key),
+        currentBuildingType ??
+        savedBuildingType,
       level: item.level ?? 1,
       isDefault,
       canSell: isDefault ? false : canSell,
@@ -2257,6 +2673,7 @@ export class GameScene extends Phaser.Scene {
         type: 'building',
         buildingType: 'bank',
         imageUrl: bankUrl,
+        price: 0,
         isDefault: true,
         canSell: false,
       }
@@ -2264,7 +2681,7 @@ export class GameScene extends Phaser.Scene {
 
     if (key === 'barber_shop') {
       return {
-        name: 'Barber Shop',
+        name: 'Toko Cukur',
         assetKey: 'building-barber-shop',
         type: 'building',
         buildingType: 'barber',
@@ -2276,7 +2693,7 @@ export class GameScene extends Phaser.Scene {
 
     if (key === 'fence_wire') {
       return {
-        name: 'Fence Wire',
+        name: 'Pagar Kawat',
         assetKey: 'fence_wire',
         type: 'decoration',
         imageUrl: fenceWireUrl,
@@ -2301,7 +2718,7 @@ export class GameScene extends Phaser.Scene {
       return 'hospital'
     }
 
-    if (key === 'building_medium_blue') {
+    if (key === 'building_xl_white') {
       return 'police_station'
     }
 
@@ -2410,6 +2827,7 @@ export class GameScene extends Phaser.Scene {
       bankLevel: this.bankLevel,
       barberLevel: this.barberLevel,
       lastCollectedAt: this.lastCollectedAt,
+      passiveIncomeRemainder: this.passiveIncomeRemainder,
     }
 
     try {
@@ -2442,6 +2860,10 @@ export class GameScene extends Phaser.Scene {
           3,
         ),
         lastCollectedAt: Number(parsedState.lastCollectedAt ?? Date.now()),
+        passiveIncomeRemainder: Math.max(
+          Number(parsedState.passiveIncomeRemainder ?? 0),
+          0,
+        ),
       } satisfies EconomyState
     } catch {
       return null
@@ -2594,6 +3016,18 @@ export class GameScene extends Phaser.Scene {
       this.handleAdminAddDiamondsCommand,
     )
     gameEvents.addEventListener(
+      'ADMIN_RESET_LEVELS',
+      this.handleAdminResetLevelsCommand,
+    )
+    gameEvents.addEventListener(
+      'ADMIN_UPGRADE_LEVELS',
+      this.handleAdminUpgradeLevelsCommand,
+    )
+    gameEvents.addEventListener(
+      'ADMIN_RESET_CITY_BUILDINGS',
+      this.handleAdminResetCityBuildingsCommand,
+    )
+    gameEvents.addEventListener(
       'SYNC_GAME_CURRENCY',
       this.handleSyncGameCurrencyCommand,
     )
@@ -2609,6 +3043,18 @@ export class GameScene extends Phaser.Scene {
       'UPGRADE_PLACED_BUILDING',
       this.handleUpgradePlacedBuildingCommand,
     )
+    gameEvents.addEventListener(
+      'CONFIRM_SHOP_PLACEMENT',
+      this.handleConfirmShopPlacementCommand,
+    )
+    gameEvents.addEventListener(
+      'CANCEL_SHOP_PLACEMENT_CONFIRM',
+      this.handleCancelShopPlacementConfirmCommand,
+    )
+    gameEvents.addEventListener(
+      'CANCEL_SHOP_PLACEMENT',
+      this.handleCancelShopPlacementCommand,
+    )
   }
 
   private handlePointerDown(pointer: Phaser.Input.Pointer) {
@@ -2621,7 +3067,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.placementPreview) {
-      this.placePreviewItem(this.getPointerWorldX(pointer))
+      if (!this.isPlacementConfirmOpen) {
+        this.cameraController?.handlePointerDown(pointer)
+        this.updatePlacementPreviewPosition(this.getPointerWorldX(pointer))
+      }
       return
     }
 
@@ -2634,7 +3083,10 @@ export class GameScene extends Phaser.Scene {
 
   private handlePointerMove(pointer: Phaser.Input.Pointer) {
     if (this.placementPreview) {
-      this.updatePlacementPreviewPosition(this.getPointerWorldX(pointer))
+      if (!this.isPlacementConfirmOpen) {
+        this.cameraController?.handlePointerMove(pointer)
+        this.updatePlacementPreviewPosition(this.getPointerWorldX(pointer))
+      }
       return
     }
 
@@ -2646,16 +3098,31 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handlePointerUp(pointer: Phaser.Input.Pointer) {
+    if (this.placementPreview) {
+      const didDrag = this.cameraController?.handlePointerUp(pointer) ?? false
+
+      if (!this.isPlacementConfirmOpen) {
+        this.updatePlacementPreviewPosition(this.getPointerWorldX(pointer))
+
+        if (!didDrag) {
+          this.requestPlacePreviewConfirmation(this.getPointerWorldX(pointer))
+        }
+      }
+
+      this.isObjectDragging = false
+      return
+    }
+
     this.cameraController?.handlePointerUp(pointer)
     this.isObjectDragging = false
   }
 
   private getPointerWorldX(pointer: Phaser.Input.Pointer) {
-    return pointer.worldX ?? pointer.x + this.cameras.main.scrollX
+    return pointer.x + this.cameras.main.scrollX
   }
 
   private getPointerWorldY(pointer: Phaser.Input.Pointer) {
-    return pointer.worldY ?? pointer.y + this.cameras.main.scrollY
+    return pointer.y + this.cameras.main.scrollY
   }
 
   private getGroundKey(tileData: GroundTileData): GroundKey {

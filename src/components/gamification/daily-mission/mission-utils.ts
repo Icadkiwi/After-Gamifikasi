@@ -9,7 +9,7 @@ export function getNpcDialog(missions: DailyMission[]) {
   )
 
   if (unclaimedMission) {
-    return `Misi "${unclaimedMission.title}" sudah selesai. Ambil reward-nya sekarang.`
+    return `Misi "${unclaimedMission.title}" sudah selesai. Ambil hadiahnya sekarang.`
   }
 
   const firstInputMission = missions.find(
@@ -17,7 +17,7 @@ export function getNpcDialog(missions: DailyMission[]) {
   )
 
   if (firstInputMission && !firstInputMission.completed) {
-    return 'Halo! Catat pengeluaran pertamamu hari ini untuk menyelesaikan misi, lalu klaim EXP dan Coin.'
+    return 'Halo! Catat pemasukan atau pengeluaran pertamamu hari ini untuk menyelesaikan misi, lalu klaim EXP dan Koin.'
   }
 
   const nextMission = missions.find(
@@ -25,7 +25,7 @@ export function getNpcDialog(missions: DailyMission[]) {
   )
 
   if (nextMission) {
-    return `Bagus. Lanjutkan misi "${nextMission.title}" untuk membuka reward berikutnya.`
+    return `Bagus. Lanjutkan misi "${nextMission.title}" untuk membuka hadiah berikutnya.`
   }
 
   return 'Semua misi harian sudah rapi. Besok aku siapkan tantangan baru.'
@@ -70,17 +70,17 @@ export function formatMissionReward(mission: DailyMission) {
       }
 
       if (reward.type === 'coin') {
-        return `Coin +${reward.amount}`
+        return `Koin +${reward.amount}`
       }
 
-      return `Diamond +${reward.amount}`
+      return `Berlian +${reward.amount}`
     })
     .join(' + ')
 }
 
 export function getMissionIconLabel(mission: DailyMission, missionIndex: number) {
   if (mission.requirement.action === 'allMissions') {
-    return 'ALL'
+    return 'SEMUA'
   }
 
   return String(missionIndex + 1)

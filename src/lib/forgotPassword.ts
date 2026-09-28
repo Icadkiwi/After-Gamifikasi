@@ -2,7 +2,7 @@ import { FirebaseError } from 'firebase/app'
 import type { Auth } from 'firebase/auth'
 
 export const passwordResetSuccessMessage =
-  'Link reset password sudah dikirim. Cek inbox/spam email kamu.'
+  'Link reset kata sandi sudah dikirim. Cek kotak masuk atau folder spam email kamu.'
 
 export function normalizePasswordResetEmail(email: string) {
   return email.trim()
