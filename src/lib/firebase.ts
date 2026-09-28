@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app'
+import { getApp, getApps, initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore/lite'
 
@@ -11,6 +11,9 @@ const firebaseConfig = {
   appId: '1:363834436195:web:f1ab7f912650e5ad1ea656',
 }
 
-export const app = initializeApp(firebaseConfig)
+export const app = getApps().some((app) => app.name === '[DEFAULT]')
+  ? getApp()
+  : initializeApp(firebaseConfig)
 export const auth = getAuth(app)
+auth.languageCode = 'id'
 export const db = getFirestore(app)

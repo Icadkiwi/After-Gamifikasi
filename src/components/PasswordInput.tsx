@@ -14,13 +14,15 @@ export function PasswordInput({
       <input
         {...props}
         type={isVisible ? 'text' : 'password'}
-        className={`${className} pr-12`}
+        className={`${className} w-full pr-12`}
       />
 
       <button
         type="button"
         aria-label={ariaLabel}
         aria-pressed={isVisible}
+        aria-controls={props.id}
+        disabled={props.disabled}
         onClick={() => setIsVisible((visible) => !visible)}
         onMouseDown={(event) => event.preventDefault()}
         className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-md text-zinc-500 transition hover:text-zinc-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"

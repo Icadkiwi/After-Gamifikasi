@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { sendPasswordResetEmail } from 'firebase/auth'
 import { Link } from 'react-router-dom'
 
@@ -6,12 +6,15 @@ import { PageContainer } from '../components/PageContainer'
 import {
   createForgotPasswordDebugContext,
   getFirebaseErrorCode,
+  getFirebaseErrorMessage,
+  isValidEmail,
   normalizePasswordResetEmail,
   passwordResetSuccessMessage,
 } from '../lib/forgotPassword'
 import { auth } from '../lib/firebase'
 
 export function ForgotPasswordPage() {
+  const submitPending = useRef(false)
   const [emailInput, setEmailInput] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -19,17 +22,19 @@ export function ForgotPasswordPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submitPending.current) return
     setError('')
     setSuccess('')
 
     const email = normalizePasswordResetEmail(emailInput)
 
-    if (!email) {
+    if (!isValidEmail(email)) {
       setError('Masukkan email yang valid.')
       return
     }
 
     const debugContext = createForgotPasswordDebugContext(auth, email)
+    submitPending.current = true
     setIsSubmitting(true)
 
     try {
@@ -45,12 +50,12 @@ export function ForgotPasswordPage() {
 
       console.error('[forgot-password] Password reset request failed.', {
         ...debugContext,
-        error,
         errorCode,
       })
 
-      setError(getPasswordResetErrorMessage(errorCode))
+      setError(getFirebaseErrorMessage(error, 'Gagal mengirim link reset kata sandi. Coba lagi.'))
     } finally {
+      submitPending.current = false
       setIsSubmitting(false)
     }
   }
@@ -63,12 +68,16 @@ export function ForgotPasswordPage() {
       <form
         className="grid w-full max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-6"
         onSubmit={handleSubmit}
+        noValidate
+        aria-busy={isSubmitting}
       >
         <label className="grid gap-2 text-sm font-medium text-zinc-800">
           Email
           <input
             type="email"
             name="email"
+            autoComplete="email"
+            disabled={isSubmitting}
             placeholder="nama@email.com"
             value={emailInput}
             onChange={(event) => setEmailInput(event.target.value)}
@@ -77,8 +86,8 @@ export function ForgotPasswordPage() {
           />
         </label>
 
-        {success && <p className="text-sm text-emerald-700">{success}</p>}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {success && <p role="status" className="text-sm text-emerald-700">{success}</p>}
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
@@ -94,20 +103,4 @@ export function ForgotPasswordPage() {
       </form>
     </PageContainer>
   )
-}
-
-function getPasswordResetErrorMessage(errorCode: string) {
-  if (errorCode === 'auth/invalid-email') {
-    return 'Format email tidak valid.'
-  }
-
-  if (errorCode === 'auth/user-not-found') {
-    return 'Akun dengan email tersebut tidak ditemukan.'
-  }
-
-  if (errorCode === 'auth/too-many-requests') {
-    return 'Terlalu banyak percobaan. Coba lagi beberapa saat lagi.'
-  }
-
-  return 'Gagal mengirim link reset kata sandi. Coba lagi.'
 }

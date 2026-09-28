@@ -4,6 +4,8 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  runTransaction,
+  serverTimestamp,
   setDoc,
   updateDoc,
   writeBatch,
@@ -17,6 +19,19 @@ import type {
 } from '../types/finance'
 import { defaultFinanceCategories } from '../utils/finance'
 import { db } from './firebase'
+import { getFirebaseErrorMessage } from './forgotPassword'
+
+export async function ensureUserDocument(uid: string, email: string | null) {
+  const userRef = doc(db, 'users', uid)
+
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(userRef)
+
+    if (!snapshot.exists()) {
+      transaction.set(userRef, { email, createdAt: serverTimestamp() })
+    }
+  })
+}
 
 type FinanceCollectionName = 'transactions' | 'categories'
 
@@ -31,7 +46,7 @@ const localFinanceStoragePrefix = 'after-gamifikasi-finance'
 const localFinanceUpdatedEvent = 'after-gamifikasi:finance-updated'
 const firestoreBlockedUsers = new Set<string>()
 
-function userCollection(uid: string, collectionName: string) {
+function userCollection(uid: string, collectionName: FinanceCollectionName) {
   return collection(db, 'users', uid, collectionName)
 }
 
@@ -146,7 +161,7 @@ function getErrorMessage(error: unknown) {
 }
 
 function toError(error: unknown) {
-  return error instanceof Error ? error : new Error(String(error))
+  return new Error(getFirebaseErrorMessage(error, 'Gagal memuat data keuangan. Coba lagi.'))
 }
 
 function isRecoverableFirestoreError(error: unknown) {
@@ -154,12 +169,9 @@ function isRecoverableFirestoreError(error: unknown) {
   const message = getErrorMessage(error).toLowerCase()
 
   return (
-    code === 'permission-denied' ||
-    code === 'internal' ||
     code === 'unavailable' ||
-    message.includes('missing or insufficient permissions') ||
-    message.includes('internal assertion failed') ||
-    message.includes('failed to fetch')
+    code === 'deadline-exceeded' ||
+    (!code && message.includes('failed to fetch'))
   )
 }
 
@@ -208,7 +220,9 @@ async function migrateLocalTransactionsToFirestore(
     remoteTransactions.map((transaction) => transaction.id),
   )
   const localOnlyTransactions = readLocalFinanceData(uid).transactions.filter(
-    (transaction) => !remoteTransactionIds.has(transaction.id),
+    (transaction) =>
+      transaction.id.startsWith('transactions-') &&
+      !remoteTransactionIds.has(transaction.id),
   )
 
   if (localOnlyTransactions.length > 0) {
@@ -221,7 +235,10 @@ async function migrateLocalTransactionsToFirestore(
           ),
         ),
       )
-    } catch {
+    } catch (error) {
+      if (!isRecoverableFirestoreError(error)) {
+        throw error
+      }
       // Tetap tampilkan data lokal meskipun upload ke Firestore gagal.
     }
   }
@@ -237,7 +254,9 @@ async function migrateLocalCategoriesToFirestore(
     remoteCategories.map((category) => category.id),
   )
   const localOnlyCategories = readLocalFinanceData(uid).categories.filter(
-    (category) => !remoteCategoryIds.has(category.id),
+    (category) =>
+      category.id.startsWith('categories-') &&
+      !remoteCategoryIds.has(category.id),
   )
 
   if (localOnlyCategories.length > 0) {
@@ -250,7 +269,10 @@ async function migrateLocalCategoriesToFirestore(
           ),
         ),
       )
-    } catch {
+    } catch (error) {
+      if (!isRecoverableFirestoreError(error)) {
+        throw error
+      }
       // Tetap tampilkan data lokal meskipun upload ke Firestore gagal.
     }
   }

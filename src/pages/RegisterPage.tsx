@@ -1,13 +1,14 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useRef, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 
 import { PageContainer } from '../components/PageContainer'
 import { PasswordInput } from '../components/PasswordInput'
 import { useAuth } from '../contexts/AuthContext'
+import { getFirebaseErrorMessage, isValidEmail } from '../lib/forgotPassword'
 
 export function RegisterPage() {
-  const { register } = useAuth()
-  const navigate = useNavigate()
+  const { register, loading } = useAuth()
+  const submitPending = useRef(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,15 +16,25 @@ export function RegisterPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submitPending.current || loading) return
     setError('')
+    if (!isValidEmail(email)) {
+      setError('Masukkan alamat email dengan format yang valid.')
+      return
+    }
+    if (password.length < 6) {
+      setError('Kata sandi harus terdiri dari minimal 6 karakter.')
+      return
+    }
+    submitPending.current = true
     setIsSubmitting(true)
 
     try {
-      await register(email, password)
-      navigate('/verify-email')
-    } catch {
-      setError('Pendaftaran gagal. Pastikan email valid dan kata sandi minimal 6 karakter.')
+      await register(email.trim(), password)
+    } catch (cause) {
+      setError(getFirebaseErrorMessage(cause, 'Pendaftaran gagal. Coba lagi.'))
     } finally {
+      submitPending.current = false
       setIsSubmitting(false)
     }
   }
@@ -36,12 +47,16 @@ export function RegisterPage() {
       <form
         className="grid w-full max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-6"
         onSubmit={handleSubmit}
+        noValidate
+        aria-busy={isSubmitting || loading}
       >
         <label className="grid gap-2 text-sm font-medium text-zinc-800">
           Email
           <input
             type="email"
             name="email"
+            autoComplete="email"
+            disabled={isSubmitting || loading}
             placeholder="nama@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -55,6 +70,8 @@ export function RegisterPage() {
           <PasswordInput
             id="register-password"
             name="password"
+            autoComplete="new-password"
+            disabled={isSubmitting || loading}
             placeholder="Buat kata sandi"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -64,11 +81,11 @@ export function RegisterPage() {
           />
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || loading}
           className="min-h-11 rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
         >
           {isSubmitting ? 'Memproses...' : 'Daftar'}

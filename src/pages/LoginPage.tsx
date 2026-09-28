@@ -1,13 +1,14 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useRef, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 
 import { PageContainer } from '../components/PageContainer'
 import { PasswordInput } from '../components/PasswordInput'
 import { useAuth } from '../contexts/AuthContext'
+import { getFirebaseErrorMessage, isValidEmail } from '../lib/forgotPassword'
 
 export function LoginPage() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
+  const { login, loading } = useAuth()
+  const submitPending = useRef(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,15 +16,25 @@ export function LoginPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submitPending.current || loading) return
     setError('')
+    if (!isValidEmail(email)) {
+      setError('Masukkan alamat email dengan format yang valid.')
+      return
+    }
+    if (!password) {
+      setError('Masukkan kata sandi kamu.')
+      return
+    }
+    submitPending.current = true
     setIsSubmitting(true)
 
     try {
-      const user = await login(email, password)
-      navigate(user.emailVerified ? '/game' : '/verify-email')
-    } catch {
-      setError('Email atau kata sandi tidak valid.')
+      await login(email.trim(), password)
+    } catch (cause) {
+      setError(getFirebaseErrorMessage(cause, 'Gagal masuk. Coba lagi.'))
     } finally {
+      submitPending.current = false
       setIsSubmitting(false)
     }
   }
@@ -36,12 +47,16 @@ export function LoginPage() {
       <form
         className="grid w-full max-w-md gap-5 rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-6"
         onSubmit={handleSubmit}
+        noValidate
+        aria-busy={isSubmitting || loading}
       >
         <label className="grid gap-2 text-sm font-medium text-zinc-800">
           Email
           <input
             type="email"
             name="email"
+            autoComplete="email"
+            disabled={isSubmitting || loading}
             placeholder="nama@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -55,6 +70,8 @@ export function LoginPage() {
           <PasswordInput
             id="login-password"
             name="password"
+            autoComplete="current-password"
+            disabled={isSubmitting || loading}
             placeholder="Masukkan kata sandi"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -70,11 +87,11 @@ export function LoginPage() {
           Lupa kata sandi?
         </Link>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || loading}
           className="min-h-11 rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
         >
           {isSubmitting ? 'Memproses...' : 'Masuk'}
