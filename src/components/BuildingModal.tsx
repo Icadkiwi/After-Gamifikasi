@@ -15,8 +15,8 @@ import { getShopItemSellPrice } from '../game/shopItems'
 
 import bankUrl from '../../MBS_Toony_021523u/png/Buildings/bank.png'
 import barberShopUrl from '../../MBS_Toony_021523u/png/Buildings/barber_shop.png'
-import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.png'
+import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.png'
 
 type BuildingModalProps = {
   building: BuildingModalPayload

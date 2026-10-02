@@ -1,0 +1,27 @@
+{
+  "results": [
+    {
+      "id": "recovery.initial",
+      "status": "PASS",
+      "note": "Local Access -> Coba User Lokal -> /game; one visible canvas, Bank persisted, no mount exception"
+    },
+    {
+      "id": "recovery.reload",
+      "status": "PASS",
+      "note": "One visible canvas after reload; no uncaught error"
+    },
+    {
+      "id": "recovery.remount",
+      "status": "PASS",
+      "note": "Logout removes canvas; re-entry mounts exactly one without a null-ref error"
+    }
+  ],
+  "runtime": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [],
+    "failedResources": [],
+    "httpErrors": [],
+    "intentionalBlocks": []
+  }
+}

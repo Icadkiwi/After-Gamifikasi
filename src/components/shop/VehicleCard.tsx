@@ -2,8 +2,8 @@ import type { CurrencyState } from '../../game/GameEvents'
 import { getShopItemSellPrice, type ShopItem } from '../../game/shopItems'
 import type { VehicleUnlockState } from '../../game/vehicleUnlockLogic'
 
-import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.png'
+import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.png'
 
 type VehicleCardProps = {
   item: ShopItem

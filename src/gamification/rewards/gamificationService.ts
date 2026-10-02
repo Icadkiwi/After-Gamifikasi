@@ -1,0 +1,1129 @@
+import type { ShopItem } from '../../game/shopItems'
+import { getShopItemSellPrice } from './shopEconomy'
+import { dailyMissionDefinitions, type LearningMission, type LearningMissionAction } from '../missions/missionConfig'
+import {
+  incrementAchievementProgressCount,
+  syncDailyMissionAchievementProgress,
+  syncGamificationAchievementProgress,
+  syncShopPurchaseAchievementProgress,
+  updateAchievementProgress,
+} from '../achievements/achievementService'
+import { getLocalDateKey } from '../../utils/date'
+import { getBankCapacity } from '../../game/bankConfig'
+import { cityStorageKey } from '../../game/city/storage'
+
+export type RewardType = 'exp' | 'coin' | 'diamond'
+export type MissionRewardType = RewardType | 'bundle'
+type MissionAction = LearningMissionAction | 'allMissions'
+
+export type RewardGrant = {
+  type: RewardType
+  amount: number
+}
+
+export type UserStats = {
+  userId: string
+  level: number
+  exp: number
+  coin: number
+  diamond: number
+  tutorialCompleted: boolean
+  purchasedShopItems: string[]
+  soldShopItems: string[]
+  learningRewardReceipts: string[]
+}
+
+export type DailyRewardLog = {
+  userId: string
+  date: string
+  expEarnedToday: number
+  coinEarnedToday: number
+  claimedMissions: string[]
+  completedMissions: string[]
+  actionCounts: Record<Exclude<MissionAction, 'allMissions'>, number>
+  processedLearningEvents: string[]
+  competencyActionCounts: Record<string, Partial<Record<LearningMissionAction, number>>>
+}
+
+export type DailyMission = LearningMission & {
+  rewardType: MissionRewardType
+  rewardAmount: number
+}
+
+export type DailyLimitState = {
+  date: string
+  maxDailyExpReward: number
+  maxDailyCoinReward: number
+  expEarnedToday: number
+  coinEarnedToday: number
+  remainingExpReward: number
+  remainingCoinReward: number
+}
+
+export type LevelProgress = {
+  level: number
+  exp: number
+  currentLevelExp: number
+  nextLevelExp: number
+  progressPercent: number
+}
+
+export type RewardGrantResult = {
+  type: RewardType
+  requestedAmount: number
+  grantedAmount: number
+  limitReached: boolean
+  balanceReached: boolean
+  stats: UserStats
+  dailyLimit: DailyLimitState
+}
+
+export type PurchaseResult = {
+  success: boolean
+  message: string
+  stats: UserStats
+}
+
+export type SellShopItemResult = PurchaseResult & {
+  sellPrice: number
+  grantedCoin: number
+  grantedDiamond: number
+}
+
+export type GamificationSnapshot = {
+  stats: UserStats
+  dailyRewardLog: DailyRewardLog
+  dailyMissions: DailyMission[]
+  dailyLimit: DailyLimitState
+  levelProgress: LevelProgress
+}
+
+export type LevelUpRewardPayload = {
+  uid: string
+  previousLevel: number
+  level: number
+  reward: {
+    coin: number
+    diamond: number
+  }
+  grantedReward: {
+    coin: number
+    diamond: number
+  }
+}
+
+const USER_STATS_STORAGE_PREFIX = 'after-gamifikasi-user-stats'
+const DAILY_REWARD_LOG_STORAGE_PREFIX = 'after-gamifikasi-learning-daily-log-v1'
+const GAMIFICATION_UPDATED_EVENT = 'after-gamifikasi:gamification-updated'
+export const LEVEL_UP_REWARD_EVENT = 'after-gamifikasi:level-up-reward'
+
+export const MAX_DAILY_EXP_REWARD = 300
+export const MAX_DAILY_COIN_REWARD = 105
+export const MAX_USER_COIN = 10000
+export const MAX_USER_DIAMOND = 1000
+
+export const LEVEL_UP_REWARD_BY_TARGET_LEVEL: Record<
+  number,
+  { coin: number; diamond: number }
+> = {
+  2: { coin: 50, diamond: 10 },
+  3: { coin: 100, diamond: 25 },
+}
+
+const LEVEL_THRESHOLDS = [0, 100, 250, 500, 900, 1400, 2100, 3000]
+
+const DAILY_MISSION_DEFINITIONS = dailyMissionDefinitions
+
+function getUserStatsStorageKey(userId: string) {
+  return `${USER_STATS_STORAGE_PREFIX}-${userId}`
+}
+
+function getDailyRewardLogStorageKey(userId: string, date: string) {
+  return `${DAILY_REWARD_LOG_STORAGE_PREFIX}-${userId}-${date}`
+}
+
+function readJson<T>(key: string): T | null {
+  try {
+    const rawValue = localStorage.getItem(key)
+
+    if (!rawValue) {
+      return null
+    }
+
+    return JSON.parse(rawValue) as T
+  } catch {
+    return null
+  }
+}
+
+function writeJson<T>(key: string, value: T) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Gamification persistence is optional; gameplay should continue.
+  }
+}
+
+function clampNumber(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function normalizeAmount(amount: number) {
+  return Math.max(Math.floor(Number.isFinite(amount) ? amount : 0), 0)
+}
+
+function uniqueValues(values: string[]) {
+  return Array.from(new Set(values))
+}
+
+function createDefaultUserStats(userId: string): UserStats {
+  return {
+    userId,
+    level: 1,
+    exp: 0,
+    coin: 0,
+    diamond: 0,
+    tutorialCompleted: false,
+    purchasedShopItems: [],
+    soldShopItems: [],
+    learningRewardReceipts: [],
+  }
+}
+
+function normalizeUserStats(
+  userId: string,
+  partialStats: Partial<UserStats> | null,
+): UserStats {
+  const defaultStats = createDefaultUserStats(userId)
+  const exp = normalizeAmount(Number(partialStats?.exp ?? defaultStats.exp))
+
+  return {
+    userId,
+    level: calculateLevel(exp),
+    exp,
+    coin: clampNumber(
+      normalizeAmount(Number(partialStats?.coin ?? defaultStats.coin)),
+      0,
+      MAX_USER_COIN,
+    ),
+    diamond: clampNumber(
+      normalizeAmount(Number(partialStats?.diamond ?? defaultStats.diamond)),
+      0,
+      MAX_USER_DIAMOND,
+    ),
+    tutorialCompleted: Boolean(partialStats?.tutorialCompleted),
+    purchasedShopItems: Array.isArray(partialStats?.purchasedShopItems)
+      ? uniqueValues(partialStats.purchasedShopItems)
+      : [],
+    soldShopItems: Array.isArray(partialStats?.soldShopItems)
+      ? uniqueValues(partialStats.soldShopItems)
+      : [],
+    learningRewardReceipts: Array.isArray(partialStats?.learningRewardReceipts)
+      ? uniqueValues(partialStats.learningRewardReceipts)
+      : [],
+  }
+}
+
+function normalizeDailyRewardLog(
+  userId: string,
+  date: string,
+  partialLog: Partial<DailyRewardLog> | null,
+): DailyRewardLog {
+  const actionCounts = partialLog?.actionCounts
+
+  return {
+    userId,
+    date,
+    expEarnedToday: normalizeAmount(Number(partialLog?.expEarnedToday ?? 0)),
+    coinEarnedToday: normalizeAmount(Number(partialLog?.coinEarnedToday ?? 0)),
+    claimedMissions: Array.isArray(partialLog?.claimedMissions)
+      ? uniqueValues(partialLog.claimedMissions)
+      : [],
+    completedMissions: Array.isArray(partialLog?.completedMissions)
+      ? uniqueValues(partialLog.completedMissions)
+      : [],
+    actionCounts: {
+      completeLesson: normalizeAmount(Number(actionCounts?.completeLesson ?? 0)),
+      completeChallenge: normalizeAmount(Number(actionCounts?.completeChallenge ?? 0)),
+      answerQuestion: normalizeAmount(Number(actionCounts?.answerQuestion ?? 0)),
+      improveCompetency: normalizeAmount(Number(actionCounts?.improveCompetency ?? 0)),
+    },
+    processedLearningEvents: Array.isArray(partialLog?.processedLearningEvents) ? uniqueValues(partialLog.processedLearningEvents) : [],
+    competencyActionCounts: partialLog?.competencyActionCounts ?? {},
+  }
+}
+
+function emitGamificationUpdate(userId: string) {
+  window.dispatchEvent(
+    new CustomEvent(GAMIFICATION_UPDATED_EVENT, {
+      detail: {
+        userId,
+      },
+    }),
+  )
+}
+
+function emitLevelUpReward(payload: LevelUpRewardPayload) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.dispatchEvent(
+    new CustomEvent(LEVEL_UP_REWARD_EVENT, {
+      detail: payload,
+    }),
+  )
+}
+
+function saveUserStats(stats: UserStats) {
+  const normalizedStats = normalizeUserStats(stats.userId, stats)
+
+  writeJson(getUserStatsStorageKey(stats.userId), normalizedStats)
+  emitGamificationUpdate(stats.userId)
+  syncGamificationAchievementProgress(stats.userId, normalizedStats)
+
+  return normalizedStats
+}
+
+function saveDailyRewardLog(log: DailyRewardLog) {
+  const normalizedLog = normalizeDailyRewardLog(log.userId, log.date, log)
+
+  writeJson(
+    getDailyRewardLogStorageKey(normalizedLog.userId, normalizedLog.date),
+    normalizedLog,
+  )
+  emitGamificationUpdate(normalizedLog.userId)
+
+  return normalizedLog
+}
+
+function getLevelStartExp(level: number) {
+  if (level <= LEVEL_THRESHOLDS.length) {
+    return LEVEL_THRESHOLDS[level - 1] ?? 0
+  }
+
+  return getNextLevelExp(level - 1)
+}
+
+function getNextLevelExp(level: number) {
+  if (level < LEVEL_THRESHOLDS.length) {
+    return LEVEL_THRESHOLDS[level]
+  }
+
+  const lastThreshold = LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1]
+  const levelsAfterTable = level - LEVEL_THRESHOLDS.length + 1
+
+  return lastThreshold + levelsAfterTable * 1000
+}
+
+function calculateLevel(exp: number) {
+  let level = 1
+
+  while (exp >= getNextLevelExp(level)) {
+    level += 1
+  }
+
+  return level
+}
+
+function getMissionRewardType(rewards: RewardGrant[]): MissionRewardType {
+  if (rewards.length === 1) {
+    return rewards[0].type
+  }
+
+  return 'bundle'
+}
+
+function getMissionRewardAmount(rewards: RewardGrant[]) {
+  return rewards.reduce((total, reward) => total + reward.amount, 0)
+}
+
+function getMillisecondsUntilNextLocalDay(date = new Date()) {
+  const nextDay = new Date(date)
+
+  nextDay.setHours(24, 0, 0, 0)
+
+  return Math.max(nextDay.getTime() - date.getTime(), 1000)
+}
+
+function isMissionRequirementMet(
+  mission: Pick<DailyMission, 'id' | 'requirement' | 'competencyId'>,
+  log: DailyRewardLog,
+): boolean {
+  if (mission.requirement.action === 'allMissions') {
+    return DAILY_MISSION_DEFINITIONS.filter(
+      (definition) => definition.requirement.action !== 'allMissions',
+    ).every((definition) =>
+      isMissionRequirementMet(
+        {
+          id: definition.id,
+          competencyId: definition.competencyId,
+          requirement: definition.requirement,
+        },
+        log,
+      ),
+    )
+  }
+
+  const progress = mission.competencyId
+    ? log.competencyActionCounts[mission.competencyId]?.[mission.requirement.action] ?? 0
+    : log.actionCounts[mission.requirement.action]
+  return progress >= mission.requirement.target
+}
+
+function refreshCompletedMissions(userId: string) {
+  let log = getDailyRewardLog(userId)
+  const completedMissionIds = DAILY_MISSION_DEFINITIONS.filter((definition) =>
+    isMissionRequirementMet(
+      {
+        id: definition.id,
+        competencyId: definition.competencyId,
+        requirement: definition.requirement,
+      },
+      log,
+    ),
+  ).map((definition) => definition.id)
+  const nextCompletedMissions = uniqueValues([
+    ...log.completedMissions,
+    ...completedMissionIds,
+  ])
+
+  if (nextCompletedMissions.length !== log.completedMissions.length) {
+    log = saveDailyRewardLog({
+      ...log,
+      completedMissions: nextCompletedMissions,
+    })
+  }
+
+  syncDailyMissionAchievements(userId, log)
+
+  return log
+}
+
+function syncDailyMissionAchievements(
+  userId: string,
+  log = getDailyRewardLog(userId),
+) {
+  const completedCount = DAILY_MISSION_DEFINITIONS.filter((definition) =>
+    log.completedMissions.includes(definition.id) ||
+    isMissionRequirementMet(
+      {
+        id: definition.id,
+        competencyId: definition.competencyId,
+        requirement: definition.requirement,
+      },
+      log,
+    ),
+  ).length
+
+  syncDailyMissionAchievementProgress(userId, {
+    completedCount,
+    totalCount: DAILY_MISSION_DEFINITIONS.length,
+    allCompleted: completedCount >= DAILY_MISSION_DEFINITIONS.length,
+  })
+}
+
+export function getTodayKey(date = new Date()) {
+  return getLocalDateKey(date)
+}
+
+export function getUserStats(userId: string) {
+  return normalizeUserStats(
+    userId,
+    readJson<Partial<UserStats>>(getUserStatsStorageKey(userId)),
+  )
+}
+
+export function getDailyRewardLog(userId: string, date = getTodayKey()) {
+  return normalizeDailyRewardLog(
+    userId,
+    date,
+    readJson<Partial<DailyRewardLog>>(
+      getDailyRewardLogStorageKey(userId, date),
+    ),
+  )
+}
+
+export function getLevelProgress(stats: UserStats): LevelProgress {
+  const currentLevelExp = getLevelStartExp(stats.level)
+  const nextLevelExp = getNextLevelExp(stats.level)
+  const levelExpRange = Math.max(nextLevelExp - currentLevelExp, 1)
+  const progressPercent = clampNumber(
+    ((stats.exp - currentLevelExp) / levelExpRange) * 100,
+    0,
+    100,
+  )
+
+  return {
+    level: stats.level,
+    exp: stats.exp,
+    currentLevelExp,
+    nextLevelExp,
+    progressPercent,
+  }
+}
+
+export function checkDailyLimit(userId: string): DailyLimitState {
+  const log = getDailyRewardLog(userId)
+
+  return {
+    date: log.date,
+    maxDailyExpReward: MAX_DAILY_EXP_REWARD,
+    maxDailyCoinReward: MAX_DAILY_COIN_REWARD,
+    expEarnedToday: log.expEarnedToday,
+    coinEarnedToday: log.coinEarnedToday,
+    remainingExpReward: Math.max(
+      MAX_DAILY_EXP_REWARD - log.expEarnedToday,
+      0,
+    ),
+    remainingCoinReward: Math.max(
+      MAX_DAILY_COIN_REWARD - log.coinEarnedToday,
+      0,
+    ),
+  }
+}
+
+export function addExp(userId: string, amount: number): RewardGrantResult {
+  const requestedAmount = normalizeAmount(amount)
+  const dailyLimit = checkDailyLimit(userId)
+  const grantedAmount = Math.min(requestedAmount, dailyLimit.remainingExpReward)
+  const log = getDailyRewardLog(userId)
+  const currentStats = getUserStats(userId)
+  const nextStats =
+    grantedAmount > 0
+      ? grantLevelUpReward(
+          userId,
+          currentStats.level,
+          saveUserStats({
+            ...currentStats,
+            exp: currentStats.exp + grantedAmount,
+          }),
+        )
+      : currentStats
+
+  if (grantedAmount > 0) {
+    saveDailyRewardLog({
+      ...log,
+      expEarnedToday: log.expEarnedToday + grantedAmount,
+    })
+  }
+
+  if (grantedAmount > 0) {
+    syncGamificationAchievementProgress(userId, nextStats)
+  }
+
+  return {
+    type: 'exp',
+    requestedAmount,
+    grantedAmount,
+    limitReached: grantedAmount < requestedAmount,
+    balanceReached: false,
+    stats: nextStats,
+    dailyLimit: checkDailyLimit(userId),
+  }
+}
+
+function grantLevelUpReward(
+  userId: string,
+  previousLevel: number,
+  nextStats: UserStats,
+) {
+  const levelIncrease = Math.max(nextStats.level - previousLevel, 0)
+
+  if (levelIncrease <= 0) {
+    return nextStats
+  }
+
+  const reward = getLevelUpReward(previousLevel, nextStats.level)
+  const nextCoin = clampNumber(nextStats.coin + reward.coin, 0, MAX_USER_COIN)
+  const nextDiamond = clampNumber(
+    nextStats.diamond + reward.diamond,
+    0,
+    MAX_USER_DIAMOND,
+  )
+  const grantedCoin = nextCoin - nextStats.coin
+  const grantedDiamond = nextDiamond - nextStats.diamond
+  const rewardedStats =
+    grantedCoin > 0 || grantedDiamond > 0
+      ? saveUserStats({
+          ...nextStats,
+          coin: nextCoin,
+          diamond: nextDiamond,
+        })
+      : nextStats
+
+  if (grantedCoin > 0) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_1000_coin',
+      grantedCoin,
+    )
+  }
+
+  if (grantedDiamond > 0) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_100_diamond',
+      grantedDiamond,
+    )
+  }
+
+  emitLevelUpReward({
+    uid: userId,
+    previousLevel,
+    level: nextStats.level,
+    reward,
+    grantedReward: {
+      coin: grantedCoin,
+      diamond: grantedDiamond,
+    },
+  })
+
+  return rewardedStats
+}
+
+function getLevelUpReward(previousLevel: number, nextLevel: number) {
+  return Array.from(
+    { length: Math.max(nextLevel - previousLevel, 0) },
+    (_, index) => getLevelUpRewardForTargetLevel(previousLevel + index + 1),
+  ).reduce(
+    (total, reward) => ({
+      coin: total.coin + reward.coin,
+      diamond: total.diamond + reward.diamond,
+    }),
+    { coin: 0, diamond: 0 },
+  )
+}
+
+function getLevelUpRewardForTargetLevel(targetLevel: number) {
+  const configuredReward = LEVEL_UP_REWARD_BY_TARGET_LEVEL[targetLevel]
+
+  if (configuredReward) {
+    return configuredReward
+  }
+
+  return {
+    coin: 750 + Math.max(targetLevel - 3, 0) * 250,
+    diamond: 20 + Math.max(targetLevel - 3, 0) * 10,
+  }
+}
+
+export function addCoin(userId: string, amount: number): RewardGrantResult {
+  const requestedAmount = normalizeAmount(amount)
+  const dailyLimit = checkDailyLimit(userId)
+  const currentStats = getUserStats(userId)
+  const balanceRoom = Math.max(MAX_USER_COIN - currentStats.coin, 0)
+  const grantedAmount = Math.min(
+    requestedAmount,
+    dailyLimit.remainingCoinReward,
+    balanceRoom,
+  )
+  const log = getDailyRewardLog(userId)
+  const nextStats =
+    grantedAmount > 0
+      ? saveUserStats({
+          ...currentStats,
+          coin: currentStats.coin + grantedAmount,
+        })
+      : currentStats
+
+  if (grantedAmount > 0) {
+    saveDailyRewardLog({
+      ...log,
+      coinEarnedToday: log.coinEarnedToday + grantedAmount,
+    })
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_1000_coin',
+      grantedAmount,
+    )
+  }
+
+  return {
+    type: 'coin',
+    requestedAmount,
+    grantedAmount,
+    limitReached: grantedAmount < requestedAmount,
+    balanceReached: grantedAmount < requestedAmount && balanceRoom <= grantedAmount,
+    stats: nextStats,
+    dailyLimit: checkDailyLimit(userId),
+  }
+}
+
+export function addDiamond(userId: string, amount: number): RewardGrantResult {
+  const requestedAmount = normalizeAmount(amount)
+  const currentStats = getUserStats(userId)
+  const balanceRoom = Math.max(MAX_USER_DIAMOND - currentStats.diamond, 0)
+  const grantedAmount = Math.min(requestedAmount, balanceRoom)
+  const nextStats =
+    grantedAmount > 0
+      ? saveUserStats({
+          ...currentStats,
+          diamond: currentStats.diamond + grantedAmount,
+        })
+      : currentStats
+
+  if (grantedAmount > 0) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_100_diamond',
+      grantedAmount,
+    )
+  }
+
+  return {
+    type: 'diamond',
+    requestedAmount,
+    grantedAmount,
+    limitReached: false,
+    balanceReached: grantedAmount < requestedAmount,
+    stats: nextStats,
+    dailyLimit: checkDailyLimit(userId),
+  }
+}
+
+export function completeMission(userId: string, missionId: string) {
+  const log = refreshCompletedMissions(userId)
+  const mission = getDailyMissions(userId).find((item) => item.id === missionId)
+
+  if (!mission?.completed) {
+    return {
+      success: false,
+      message: 'Misi belum selesai.',
+      dailyRewardLog: log,
+    }
+  }
+
+  if (log.completedMissions.includes(missionId)) {
+    return {
+      success: true,
+      message: 'Misi sudah selesai.',
+      dailyRewardLog: log,
+    }
+  }
+
+  const savedLog = saveDailyRewardLog({
+    ...log,
+    completedMissions: uniqueValues([...log.completedMissions, missionId]),
+  })
+
+  syncDailyMissionAchievements(userId, savedLog)
+
+  return {
+    success: true,
+    message: 'Misi selesai.',
+    dailyRewardLog: savedLog,
+  }
+}
+
+export function claimMissionReward(userId: string, missionId: string) {
+  refreshCompletedMissions(userId)
+  const mission = getDailyMissions(userId).find((item) => item.id === missionId)
+
+  if (!mission) {
+    return {
+      success: false,
+      message: 'Misi tidak ditemukan.',
+      rewards: [] as RewardGrantResult[],
+      stats: getUserStats(userId),
+    }
+  }
+
+  if (!mission.completed) {
+    return {
+      success: false,
+      message: 'Misi belum selesai.',
+      rewards: [] as RewardGrantResult[],
+      stats: getUserStats(userId),
+    }
+  }
+
+  if (mission.claimed) {
+    return {
+      success: false,
+      message: 'Hadiah misi sudah diambil.',
+      rewards: [] as RewardGrantResult[],
+      stats: getUserStats(userId),
+    }
+  }
+
+  const rewards = mission.rewards.map((reward) => {
+    if (reward.type === 'exp') {
+      return addExp(userId, reward.amount)
+    }
+
+    if (reward.type === 'coin') {
+      return addCoin(userId, reward.amount)
+    }
+
+    return addDiamond(userId, reward.amount)
+  })
+  const nextLog = getDailyRewardLog(userId)
+
+  saveDailyRewardLog({
+    ...nextLog,
+    claimedMissions: uniqueValues([...nextLog.claimedMissions, missionId]),
+  })
+  updateAchievementProgress(userId, 'habit_silver_claim_daily_reward')
+  updateAchievementProgress(userId, 'habit_gold_claim_5_daily_rewards')
+  syncDailyMissionAchievements(userId)
+
+  return {
+    success: true,
+    message: 'Hadiah misi berhasil diambil.',
+    rewards,
+    stats: getUserStats(userId),
+  }
+}
+
+export function recordLearningMissionEvent(
+  userId: string,
+  actionType: LearningMissionAction,
+  eventId: string,
+  amount = 1,
+  competencyIds: string[] = [],
+) {
+  const currentLog = getDailyRewardLog(userId)
+  if (currentLog.processedLearningEvents.includes(eventId)) return
+  saveDailyRewardLog({
+    ...currentLog,
+    processedLearningEvents: [...currentLog.processedLearningEvents, eventId],
+    competencyActionCounts: {
+      ...currentLog.competencyActionCounts,
+      ...Object.fromEntries([...new Set(competencyIds)].map((id) => [id, {
+        ...currentLog.competencyActionCounts[id],
+        [actionType]: normalizeAmount(Number(currentLog.competencyActionCounts[id]?.[actionType] ?? 0)) + normalizeAmount(amount),
+      }])),
+    },
+    actionCounts: {
+      ...currentLog.actionCounts,
+      [actionType]: currentLog.actionCounts[actionType] + normalizeAmount(amount),
+    },
+  })
+  const dailyRewardLog = refreshCompletedMissions(userId)
+
+  return {
+    actionType,
+    rewards: [] as RewardGrantResult[],
+    dailyRewardLog,
+    dailyMissions: getDailyMissions(userId),
+    dailyLimit: checkDailyLimit(userId),
+    stats: getUserStats(userId),
+  }
+}
+
+export function getDailyMissions(userId: string) {
+  const log = getDailyRewardLog(userId)
+
+  return DAILY_MISSION_DEFINITIONS.map((definition) => {
+    const completed =
+      log.completedMissions.includes(definition.id) ||
+      isMissionRequirementMet(
+        {
+          id: definition.id,
+          competencyId: definition.competencyId,
+          requirement: definition.requirement,
+        },
+        log,
+      )
+    const claimed = log.claimedMissions.includes(definition.id)
+
+    return {
+      ...definition,
+      rewardType: getMissionRewardType(definition.rewards),
+      rewardAmount: getMissionRewardAmount(definition.rewards),
+      progress: definition.requirement.action === 'allMissions'
+        ? DAILY_MISSION_DEFINITIONS.filter((item) => item.requirement.action !== 'allMissions' && isMissionRequirementMet(item, log)).length
+        : definition.competencyId
+          ? log.competencyActionCounts[definition.competencyId]?.[definition.requirement.action] ?? 0
+          : log.actionCounts[definition.requirement.action],
+      completed,
+      claimed,
+    }
+  })
+}
+
+export function completeTutorial(userId: string) {
+  return saveUserStats({
+    ...getUserStats(userId),
+    tutorialCompleted: true,
+  })
+}
+
+export function resetTutorial(userId: string) {
+  return saveUserStats({
+    ...getUserStats(userId),
+    tutorialCompleted: false,
+  })
+}
+
+export function resetUserLevel(userId: string) {
+  return saveUserStats({
+    ...getUserStats(userId),
+    exp: 0,
+  })
+}
+
+export function adminUpgradeUserLevel(userId: string) {
+  const currentStats = getUserStats(userId)
+  const nextLevelExp = getNextLevelExp(currentStats.level)
+  const nextStats = saveUserStats({
+    ...currentStats,
+    exp: Math.max(currentStats.exp, nextLevelExp),
+  })
+
+  return grantLevelUpReward(userId, currentStats.level, nextStats)
+}
+
+export function syncCurrencyFromGame(
+  userId: string,
+  balance: { coin: number; diamond: number },
+) {
+  const currentStats = getUserStats(userId)
+  const nextCoin = clampNumber(normalizeAmount(balance.coin), 0, MAX_USER_COIN)
+  const nextDiamond = clampNumber(
+    normalizeAmount(balance.diamond),
+    0,
+    MAX_USER_DIAMOND,
+  )
+
+  if (currentStats.coin === nextCoin && currentStats.diamond === nextDiamond) {
+    return currentStats
+  }
+
+  const nextStats = saveUserStats({
+    ...currentStats,
+    coin: nextCoin,
+    diamond: nextDiamond,
+  })
+
+  if (nextCoin > currentStats.coin) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_1000_coin',
+      nextCoin - currentStats.coin,
+    )
+  }
+
+  if (nextDiamond > currentStats.diamond) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_100_diamond',
+      nextDiamond - currentStats.diamond,
+    )
+  }
+
+  return nextStats
+}
+
+export function grantLearningCompletionReward(userId: string, receiptId: string, rewards: RewardGrant[]) {
+  const current = getUserStats(userId)
+  if (current.learningRewardReceipts.includes(receiptId)) return { granted: false, stats: current }
+  const amount = (type: RewardType) => rewards.filter((reward) => reward.type === type).reduce((total, reward) => total + normalizeAmount(reward.amount), 0)
+  const exp = current.exp + amount('exp')
+  const level = calculateLevel(exp)
+  const levelReward = getLevelUpReward(current.level, level)
+  const city = readJson<{ bankLevel?: number }>(cityStorageKey('after-gamifikasi-economy-state', userId))
+  const coinCapacity = getBankCapacity(city?.bankLevel ?? 1)
+  const next = normalizeUserStats(userId, {
+    ...current, exp,
+    coin: Math.min(coinCapacity, current.coin + amount('coin') + levelReward.coin),
+    diamond: current.diamond + amount('diamond') + levelReward.diamond,
+    learningRewardReceipts: [...current.learningRewardReceipts, receiptId],
+  })
+  // Receipt and balances use one write. A storage failure must not report a grant.
+  try { localStorage.setItem(getUserStatsStorageKey(userId), JSON.stringify(next)) }
+  catch { throw new Error('Hadiah belum tersimpan. Buka kembali dasbor setelah penyimpanan browser tersedia.') }
+  emitGamificationUpdate(userId)
+  syncGamificationAchievementProgress(userId, next)
+  if (next.level > current.level) emitLevelUpReward({ uid: userId, previousLevel: current.level, level: next.level, reward: levelReward, grantedReward: { coin: Math.min(levelReward.coin, Math.max(0, next.coin - current.coin)), diamond: Math.min(levelReward.diamond, Math.max(0, next.diamond - current.diamond)) } })
+  return { granted: true, stats: next }
+}
+
+export function purchaseShopItem(userId: string, item: ShopItem): PurchaseResult {
+  const currentStats = getUserStats(userId)
+  const currencyType = item.currencyType ?? 'coin'
+  const price = normalizeAmount(item.price)
+  const balance = currencyType === 'diamond' ? currentStats.diamond : currentStats.coin
+  const currencyName = currencyType === 'diamond' ? 'Berlian' : 'Koin'
+
+  if (item.type === 'vehicle') {
+    if (currentStats.purchasedShopItems.includes(item.key)) {
+      return {
+        success: false,
+        message: 'Kendaraan sudah dimiliki.',
+        stats: currentStats,
+      }
+    }
+
+    if (currentStats.soldShopItems.includes(item.key)) {
+      return {
+        success: false,
+        message: 'Kendaraan ini sudah pernah dibeli dan dijual.',
+        stats: currentStats,
+      }
+    }
+  }
+
+  if (balance < price) {
+    return {
+      success: false,
+      message: `${currencyName} tidak cukup.`,
+      stats: currentStats,
+    }
+  }
+
+  const nextStats = saveUserStats({
+    ...currentStats,
+    coin: currencyType === 'coin' ? currentStats.coin - price : currentStats.coin,
+    diamond:
+      currencyType === 'diamond'
+        ? currentStats.diamond - price
+        : currentStats.diamond,
+    purchasedShopItems:
+      item.type === 'vehicle'
+        ? uniqueValues([...currentStats.purchasedShopItems, item.key])
+        : currentStats.purchasedShopItems,
+  })
+
+  syncShopPurchaseAchievementProgress(userId, item)
+
+  return {
+    success: true,
+    message: 'Pembelian berhasil.',
+    stats: nextStats,
+  }
+}
+
+export function sellShopItem(
+  userId: string,
+  item: ShopItem,
+): SellShopItemResult {
+  const currentStats = getUserStats(userId)
+
+  if (item.type !== 'vehicle') {
+    return {
+      success: false,
+      message: 'Hanya kendaraan yang bisa dijual dari toko.',
+      stats: currentStats,
+      sellPrice: 0,
+      grantedCoin: 0,
+      grantedDiamond: 0,
+    }
+  }
+
+  if (!currentStats.purchasedShopItems.includes(item.key)) {
+    return {
+      success: false,
+      message: currentStats.soldShopItems.includes(item.key)
+        ? 'Kendaraan sudah dijual.'
+        : 'Kendaraan belum dimiliki.',
+      stats: currentStats,
+      sellPrice: 0,
+      grantedCoin: 0,
+      grantedDiamond: 0,
+    }
+  }
+
+  const sellPrice = getShopItemSellPrice(item)
+  const currencyType = item.currencyType ?? 'coin'
+  const nextCoin =
+    currencyType === 'coin'
+      ? clampNumber(currentStats.coin + sellPrice, 0, MAX_USER_COIN)
+      : currentStats.coin
+  const nextDiamond =
+    currencyType === 'diamond'
+      ? clampNumber(currentStats.diamond + sellPrice, 0, MAX_USER_DIAMOND)
+      : currentStats.diamond
+  const grantedCoin = nextCoin - currentStats.coin
+  const grantedDiamond = nextDiamond - currentStats.diamond
+  const nextStats = saveUserStats({
+    ...currentStats,
+    coin: nextCoin,
+    diamond: nextDiamond,
+    purchasedShopItems: currentStats.purchasedShopItems.filter(
+      (key) => key !== item.key,
+    ),
+    soldShopItems: uniqueValues([...currentStats.soldShopItems, item.key]),
+  })
+
+  if (grantedCoin > 0) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_1000_coin',
+      grantedCoin,
+    )
+  }
+
+  if (grantedDiamond > 0) {
+    incrementAchievementProgressCount(
+      userId,
+      'city_gold_earn_100_diamond',
+      grantedDiamond,
+    )
+  }
+
+  return {
+    success: true,
+    message: 'Kendaraan berhasil dijual.',
+    stats: nextStats,
+    sellPrice,
+    grantedCoin,
+    grantedDiamond,
+  }
+}
+
+export function getGamificationSnapshot(userId: string): GamificationSnapshot {
+  const stats = getUserStats(userId)
+
+  return {
+    stats,
+    dailyRewardLog: getDailyRewardLog(userId),
+    dailyMissions: getDailyMissions(userId),
+    dailyLimit: checkDailyLimit(userId),
+    levelProgress: getLevelProgress(stats),
+  }
+}
+
+export function subscribeGamification(
+  userId: string,
+  handler: (snapshot: GamificationSnapshot) => void,
+) {
+  const emitSnapshot = () => handler(getGamificationSnapshot(userId))
+  let dailyRolloverTimer: number | undefined
+  const scheduleDailyRollover = () => {
+    window.clearTimeout(dailyRolloverTimer)
+    dailyRolloverTimer = window.setTimeout(() => {
+      emitSnapshot()
+      scheduleDailyRollover()
+    }, getMillisecondsUntilNextLocalDay() + 250)
+  }
+  const handleGamificationUpdate = (event: Event) => {
+    const detail = (event as CustomEvent<{ userId: string }>).detail
+
+    if (detail.userId === userId) {
+      emitSnapshot()
+    }
+  }
+  const handleStorage = (event: StorageEvent) => {
+    if (
+      event.key === getUserStatsStorageKey(userId) ||
+      event.key?.startsWith(`${DAILY_REWARD_LOG_STORAGE_PREFIX}-${userId}-`)
+    ) {
+      emitSnapshot()
+    }
+  }
+
+  window.addEventListener(GAMIFICATION_UPDATED_EVENT, handleGamificationUpdate)
+  window.addEventListener('storage', handleStorage)
+  scheduleDailyRollover()
+
+  return () => {
+    window.clearTimeout(dailyRolloverTimer)
+    window.removeEventListener(
+      GAMIFICATION_UPDATED_EVENT,
+      handleGamificationUpdate,
+    )
+    window.removeEventListener('storage', handleStorage)
+  }
+}

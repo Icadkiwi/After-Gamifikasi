@@ -7,6 +7,8 @@ import { GamePage } from '../pages/GamePage'
 import { LoginPage } from '../pages/LoginPage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { VerifyEmailPage } from '../pages/VerifyEmailPage'
+import { LocalAccessPage } from '../pages/LocalAccessPage'
+import { localAccessEnabled } from '../lib/localAccess'
 
 export const router = createBrowserRouter([
   {
@@ -15,7 +17,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: (
+        element: localAccessEnabled ? <LocalAccessPage /> : (
           <AuthGate>
             <Navigate to="/game" replace />
           </AuthGate>

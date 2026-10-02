@@ -5,11 +5,14 @@ import { getBuildingInfo, type BuildingInfo } from '../game/buildingInfo'
 import { getShopItemSellPrice, type ShopItem } from '../game/shopItems'
 import { isOwnedShopItem } from '../game/vehiclePurchaseSystem'
 import { VehicleShop } from './shop/VehicleShop'
+import { useLearningProgress } from '../learning/progress/useLearningProgress'
+import { getLearningUnlockRequirement } from '../game/city/learningUnlocks'
 
-import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.png'
+import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.png'
 
 type ShopModalProps = {
+  userId: string
   items: ShopItem[]
   currency: CurrencyState | null
   errorMessage: string
@@ -23,6 +26,7 @@ type ShopModalProps = {
 type ShopCategory = 'all' | 'building' | 'decoration' | 'vehicle'
 
 export function ShopModal({
+  userId,
   items,
   currency,
   errorMessage,
@@ -32,6 +36,8 @@ export function ShopModal({
   onSell,
   onClose,
 }: ShopModalProps) {
+  const { profile, error: learningError } = useLearningProgress(userId)
+  const unlockReason = (item: ShopItem) => learningError || (profile ? getLearningUnlockRequirement(item.key, profile) : 'Memuat progres belajar...')
   const [activeCategory, setActiveCategory] = useState<ShopCategory>('all')
   const [selectedInfoItem, setSelectedInfoItem] = useState<ShopItem | null>(
     null,
@@ -129,6 +135,7 @@ export function ShopModal({
         <div className="shop-modal-content mt-4 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-4 pr-1.5 sm:mt-5 sm:pb-5 sm:pr-2.5">
           <ShopSection
             title="Bangunan"
+            unlockReason={unlockReason}
             items={buildingItems}
             currency={currency}
             purchasedItemKeys={purchasedItemKeys}
@@ -137,6 +144,7 @@ export function ShopModal({
           />
           <ShopSection
             title="Dekorasi"
+            unlockReason={unlockReason}
             items={decorationItems}
             currency={currency}
             purchasedItemKeys={purchasedItemKeys}
@@ -144,6 +152,7 @@ export function ShopModal({
             onBuy={setPendingPurchaseItem}
           />
           <VehicleShop
+            userId={userId}
             items={vehicleItems}
             currency={currency}
             purchasedItemKeys={purchasedItemKeys}
@@ -371,6 +380,7 @@ function CategoryButton({ isActive, label, onClick }: CategoryButtonProps) {
 }
 
 type ShopSectionProps = {
+  unlockReason: (item: ShopItem) => string | null
   title: string
   items: ShopItem[]
   currency?: CurrencyState | null
@@ -380,6 +390,7 @@ type ShopSectionProps = {
 }
 
 function ShopSection({
+  unlockReason,
   title,
   items,
   currency,
@@ -402,6 +413,7 @@ function ShopSection({
             item={item}
             currency={currency}
             isOwned={isOwnedShopItem(item, purchasedItemKeys)}
+            unlockReason={unlockReason(item)}
             onOpenInfo={onOpenInfo}
             onBuy={onBuy}
           />
@@ -412,6 +424,7 @@ function ShopSection({
 }
 
 type ShopCardProps = {
+  unlockReason: string | null
   item: ShopItem
   currency?: CurrencyState | null
   isOwned: boolean
@@ -420,6 +433,7 @@ type ShopCardProps = {
 }
 
 function ShopCard({
+  unlockReason,
   item,
   currency,
   isOwned,
@@ -430,7 +444,7 @@ function ShopCard({
   const balance =
     currencyType === 'diamond' ? currency?.diamonds ?? 0 : currency?.coins ?? 0
   const canAfford = balance >= item.price
-  const disabled = isOwned || !canAfford
+  const disabled = isOwned || !canAfford || Boolean(unlockReason)
   const buildingInfo =
     item.type === 'building' ? getBuildingInfo(item.key) : undefined
 
@@ -460,6 +474,7 @@ function ShopCard({
         <p className="mt-1 text-xs font-medium uppercase text-zinc-400">
           {getItemTypeLabel(item)}
         </p>
+        {unlockReason && <p className="mt-2 text-xs text-amber-300">{unlockReason}</p>}
         {item.description && (
           <p className="mt-2 line-clamp-2 text-xs text-zinc-300">
             {item.description}
@@ -483,7 +498,7 @@ function ShopCard({
           onClick={() => onBuy(item)}
           className="min-h-10 rounded-md bg-green-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600"
         >
-          {isOwned ? 'Dimiliki' : 'Beli'}
+          {unlockReason ? 'Terkunci' : isOwned ? 'Dimiliki' : 'Beli'}
         </button>
       </div>
     </article>

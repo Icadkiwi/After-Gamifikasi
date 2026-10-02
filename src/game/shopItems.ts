@@ -1,3 +1,4 @@
+export { getShopItemSellPrice, SHOP_ITEM_SELL_RATE } from '../gamification/rewards/shopEconomy'
 import { vehicleDefinitions, type VehicleType } from './vehicleConfig'
 
 export type ShopItemType = 'building' | 'decoration' | 'ground' | 'vehicle'
@@ -25,7 +26,6 @@ export type ShopAssetEntry = {
 
 export const DEFAULT_SHOP_PRICE = 1000
 export const DECORATION_SHOP_PRICE = 50
-export const SHOP_ITEM_SELL_RATE = 0.5
 export const BUILDING_SHOP_PRICES: Record<string, number> = {
   bank: 0,
   barber_shop: 2500,
@@ -57,10 +57,6 @@ export const BUILDING_SHOP_PRICES: Record<string, number> = {
   house_large_orange: 2000,
   warehouse_brown: 1500,
   warehouse_red: 1500,
-}
-
-export function getShopItemSellPrice(item: Pick<ShopItem, 'price'>) {
-  return Math.floor(Math.max(item.price, 0) * SHOP_ITEM_SELL_RATE)
 }
 
 const buildingAssets = import.meta.glob<string>(
@@ -102,6 +98,11 @@ function isHiddenShopAsset(key: string) {
     normalizedKey === 'bank' ||
     normalizedKey === 'coin' ||
     normalizedKey === 'diamond' ||
+    // The streak flame is a HUD icon for the daily learning streak, not shop stock.
+    normalizedKey === 'streak' ||
+    // City Hall and School are functional presentation buildings (CD1), not stock.
+    normalizedKey === 'classic city hall icon' ||
+    normalizedKey === 'hand-sketched cartoon school building' ||
     normalizedKey === 'fire_station' ||
     normalizedKey.startsWith('cloud_') ||
     normalizedKey.startsWith('christmas_lights_')

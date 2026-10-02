@@ -4,10 +4,10 @@ import { toast } from 'sonner'
 import {
   LEVEL_UP_REWARD_EVENT,
   type LevelUpRewardPayload,
-} from '../../game/gamificationService'
+} from '../../gamification/rewards/gamificationService'
 
-import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.png'
+import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.png'
 
 type LevelUpRewardToastProps = {
   uid?: string | null

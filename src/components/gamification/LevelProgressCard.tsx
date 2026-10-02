@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-import type { LevelProgress } from '../../game/gamificationService'
+import type { LevelProgress } from '../../gamification/rewards/gamificationService'
 
 type LevelProgressCardProps = {
   levelProgress: LevelProgress

@@ -1,7 +1,7 @@
 import type {
   DailyMission,
   DailyRewardLog,
-} from '../../../game/gamificationService'
+} from '../../../gamification/rewards/gamificationService'
 
 import { Badge } from '@/components/ui/badge'
 import {

@@ -3,12 +3,12 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore/lite'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBsjdniJqqErmZ7hwB8YCeiUW3_YpPiq8c',
-  authDomain: 'after-gamification.firebaseapp.com',
-  projectId: 'after-gamification',
-  storageBucket: 'after-gamification.firebasestorage.app',
-  messagingSenderId: '363834436195',
-  appId: '1:363834436195:web:f1ab7f912650e5ad1ea656',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
 export const app = getApps().some((app) => app.name === '[DEFAULT]')

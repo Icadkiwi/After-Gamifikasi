@@ -5,7 +5,7 @@ import {
   ACHIEVEMENT_UNLOCKED_EVENT,
   type Achievement,
   type AchievementUnlockedPayload,
-} from '../../game/achievementService'
+} from '../../gamification/achievements/achievementService'
 
 type AchievementToastProps = {
   uid?: string | null

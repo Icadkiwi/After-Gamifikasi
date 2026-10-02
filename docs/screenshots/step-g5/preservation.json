@@ -1,0 +1,16 @@
+﻿{
+    "baselineFileCount":  355,
+    "changedExistingFiles":  [
+                                 "src/components/city/CityHallModal.tsx",
+                                 "src/components/GameCanvas.tsx",
+                                 "src/components/gamification/DailyMissionPanel.tsx",
+                                 "src/game/VehicleMovementSystem.ts",
+                                 "src/gamification/streak/useStreakGamification.ts",
+                                 "tests/browser-learning-smoke.mjs",
+                                 "tests/browser-local-access-smoke.mjs",
+                                 "tests/run-step-g5.mjs",
+                                 "tests/step-g5-browser-verify.mjs"
+                             ],
+    "unchangedExistingFileCount":  346,
+    "stagedPatchUnchanged":  true
+}

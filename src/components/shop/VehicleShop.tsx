@@ -4,6 +4,7 @@ import { getVehicleUnlockState } from '../../game/vehicleUnlockLogic'
 import { VehicleCard } from './VehicleCard'
 
 type VehicleShopProps = {
+  userId: string
   items: ShopItem[]
   currency?: CurrencyState | null
   purchasedItemKeys: string[]
@@ -13,6 +14,7 @@ type VehicleShopProps = {
 }
 
 export function VehicleShop({
+  userId,
   items,
   currency,
   purchasedItemKeys,
@@ -41,6 +43,7 @@ export function VehicleShop({
             item={item}
             currency={currency}
             unlockState={getVehicleUnlockState(
+              userId,
               item,
               purchasedItemKeys,
               soldItemKeys,

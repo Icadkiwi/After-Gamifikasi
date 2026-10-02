@@ -78,7 +78,7 @@ export const vehicleDefinitions: VehicleDefinition[] = [
       type: 'none',
       label: 'Tersedia sejak awal',
     },
-    bonusDescription: 'Menghidupkan kota dan membuka akses misi NPC.',
+    bonusDescription: 'Menghidupkan lalu lintas kota hasil perkembangan belajarmu.',
   },
   {
     key: 'vehicle-ambulance',

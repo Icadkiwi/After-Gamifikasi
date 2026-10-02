@@ -5,9 +5,8 @@ import {
   forceUnlockAllAchievements,
   resetAchievementProgress,
   resetSingleAchievement,
-} from '../../game/achievementService'
-import { useAchievements } from '../../game/useAchievements'
-import { resetUserFinanceData } from '../../lib/firestore-finance'
+} from '../../gamification/achievements/achievementService'
+import { useAchievements } from '../../gamification/achievements/useAchievements'
 
 type AdminToolsModalProps = {
   uid: string
@@ -36,7 +35,6 @@ export function AdminToolsModal({
 }: AdminToolsModalProps) {
   const { achievements, unlockedCount, totalCount } = useAchievements(uid)
   const [statusMessage, setStatusMessage] = useState('')
-  const [isResettingFinance, setIsResettingFinance] = useState(false)
 
   function handleResetAchievements() {
     if (!window.confirm('Reset semua pencapaian akun ini?')) {
@@ -95,32 +93,6 @@ export function AdminToolsModal({
   function handleUpgradePlayerLevel() {
     onUpgradePlayerLevel()
     setStatusMessage('Level pemain dinaikkan 1 tingkat.')
-  }
-
-  async function handleResetFinanceData() {
-    if (
-      !window.confirm(
-        'Reset semua data keuangan akun ini? Semua transaksi dan kategori akan dihapus.',
-      )
-    ) {
-      return
-    }
-
-    setIsResettingFinance(true)
-    setStatusMessage('')
-
-    try {
-      await resetUserFinanceData(uid)
-      setStatusMessage('Data keuangan berhasil di-reset.')
-    } catch (error) {
-      setStatusMessage(
-        error instanceof Error
-          ? error.message
-          : 'Data keuangan gagal di-reset.',
-      )
-    } finally {
-      setIsResettingFinance(false)
-    }
   }
 
   return (
@@ -235,16 +207,6 @@ export function AdminToolsModal({
                 label="Reset Pencapaian"
                 tone="warning"
                 onClick={handleResetAchievements}
-              />
-              <AdminActionButton
-                label={
-                  isResettingFinance
-                    ? 'Mereset Keuangan...'
-                    : 'Reset Data Keuangan'
-                }
-                tone="danger"
-                disabled={isResettingFinance}
-                onClick={handleResetFinanceData}
               />
             </div>
           </section>

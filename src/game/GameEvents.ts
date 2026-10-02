@@ -65,7 +65,8 @@ type GameEventMap = {
   OPEN_BUILDING_MODAL: BuildingModalPayload
   OPEN_VEHICLE_MODAL: VehicleModalPayload
   OPEN_SHOP: Record<string, never>
-  OPEN_NPC_PANEL: Record<string, never>
+  OPEN_CITY_HALL: Record<string, never>
+  OPEN_LEARNING_ENTRY: Record<string, never>
   SHOP_ERROR: string
   SHOP_PLACEMENT_STARTED: {
     item: ShopItem

@@ -3,12 +3,12 @@ import { useMemo, useState } from 'react'
 import {
   achievementCategories,
   type AchievementCategory,
-} from '../../game/achievementConfig'
-import { useAchievements } from '../../game/useAchievements'
+} from '../../gamification/achievements/achievementConfig'
+import { useAchievements } from '../../gamification/achievements/useAchievements'
 import type {
   Achievement,
   AchievementProgressItem,
-} from '../../game/achievementService'
+} from '../../gamification/achievements/achievementService'
 
 type AchievementModalProps = {
   uid: string
@@ -18,7 +18,7 @@ type AchievementModalProps = {
 export function AchievementModal({ uid, onClose }: AchievementModalProps) {
   const { achievements, unlockedCount, totalCount } = useAchievements(uid)
   const [activeCategory, setActiveCategory] =
-    useState<AchievementCategory>('finance')
+    useState<AchievementCategory>('learning')
   const activeCategoryInfo = achievementCategories.find(
     (category) => category.id === activeCategory,
   )

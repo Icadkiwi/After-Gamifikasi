@@ -1,0 +1,2331 @@
+[
+  {
+    "file": "src/agents/assessment/ruleBasedAssessmentAgent.ts",
+    "imports": [
+      "../shared/contracts.ts",
+      "../../learning/competencies/competencies.ts",
+      "../../learning/assessment/types.ts"
+    ],
+    "resolved": [
+      "src/agents/shared/contracts.ts",
+      "src/learning/competencies/competencies.ts",
+      "src/learning/assessment/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/agents/practice/ruleBasedPracticeAgent.ts",
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/agents/mentor/ruleBasedMentorAgent.ts",
+    "imports": [
+      "../shared/contracts.ts"
+    ],
+    "resolved": [
+      "src/agents/shared/contracts.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/agents/practice/ruleBasedPracticeAgent.ts",
+    "imports": [
+      "../shared/contracts.ts",
+      "../assessment/ruleBasedAssessmentAgent.ts"
+    ],
+    "resolved": [
+      "src/agents/shared/contracts.ts",
+      "src/agents/assessment/ruleBasedAssessmentAgent.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/agents/shared/contracts.ts",
+    "imports": [
+      "../../learning/assessment/types.ts",
+      "../../learning/challenges/types.ts",
+      "../../learning/modules/types.ts",
+      "../../learning/progress/types.ts"
+    ],
+    "resolved": [
+      "src/learning/assessment/types.ts",
+      "src/learning/challenges/types.ts",
+      "src/learning/modules/types.ts",
+      "src/learning/progress/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/agents/assessment/ruleBasedAssessmentAgent.ts",
+      "src/agents/mentor/ruleBasedMentorAgent.ts",
+      "src/agents/practice/ruleBasedPracticeAgent.ts",
+      "src/services/learning/learningService.ts"
+    ]
+  },
+  {
+    "file": "src/App.tsx",
+    "imports": [
+      "react-router-dom",
+      "./contexts/ThemeContext",
+      "./contexts/AuthContext",
+      "./routes/router",
+      "./components/ui/tooltip"
+    ],
+    "resolved": [
+      "react-router-dom",
+      "src/contexts/ThemeContext",
+      "src/contexts/AuthContext",
+      "src/routes/router",
+      "src/components/ui/tooltip"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/main.tsx"
+    ]
+  },
+  {
+    "file": "src/components/achievements/AchievementModal.tsx",
+    "imports": [
+      "react",
+      "../../gamification/achievements/achievementConfig",
+      "../../gamification/achievements/useAchievements",
+      "../../gamification/achievements/achievementService"
+    ],
+    "resolved": [
+      "react",
+      "src/gamification/achievements/achievementConfig",
+      "src/gamification/achievements/useAchievements",
+      "src/gamification/achievements/achievementService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/achievements/AchievementToast.tsx",
+    "imports": [
+      "react",
+      "sonner",
+      "../../gamification/achievements/achievementService"
+    ],
+    "resolved": [
+      "react",
+      "sonner",
+      "src/gamification/achievements/achievementService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/admin/AdminToolsModal.tsx",
+    "imports": [
+      "react",
+      "../../gamification/achievements/achievementService",
+      "../../gamification/achievements/useAchievements"
+    ],
+    "resolved": [
+      "react",
+      "src/gamification/achievements/achievementService",
+      "src/gamification/achievements/useAchievements"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/AuthGate.tsx",
+    "imports": [
+      "react",
+      "react-router-dom",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "react-router-dom",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/components/BuildingModal.tsx",
+    "imports": [
+      "react",
+      "../game/GameEvents",
+      "../game/bankConfig",
+      "../game/buildingUpgradeConfig",
+      "../game/passiveIncomeConfig",
+      "../game/shopItems",
+      "../../MBS_Toony_021523u/png/Buildings/bank.png",
+      "../../MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "src/game/GameEvents",
+      "src/game/bankConfig",
+      "src/game/buildingUpgradeConfig",
+      "src/game/passiveIncomeConfig",
+      "src/game/shopItems",
+      "MBS_Toony_021523u/png/Buildings/bank.png",
+      "MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/GameCanvas.tsx",
+    "imports": [
+      "react",
+      "../game/Game",
+      "../game/GameScene",
+      "../game/GameEvents"
+    ],
+    "resolved": [
+      "react",
+      "src/game/Game",
+      "src/game/GameScene",
+      "src/game/GameEvents"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/ClaimRewardButton.tsx",
+    "imports": [
+      "@/components/ui/button"
+    ],
+    "resolved": [
+      "src/components/ui/button"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/DailyMissionFloatingButton.tsx",
+    "imports": [
+      "lucide-react",
+      "@/components/ui/button"
+    ],
+    "resolved": [
+      "lucide-react",
+      "src/components/ui/button"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/mission-utils.ts",
+    "imports": [
+      "../../../gamification/rewards/gamificationService"
+    ],
+    "resolved": [
+      "src/gamification/rewards/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/MissionCard.tsx",
+    "imports": [
+      "../../../gamification/rewards/gamificationService",
+      "@/components/ui/badge",
+      "@/components/ui/card",
+      "@/components/ui/progress",
+      "./ClaimRewardButton",
+      "./mission-utils"
+    ],
+    "resolved": [
+      "src/gamification/rewards/gamificationService",
+      "src/components/ui/badge",
+      "src/components/ui/card",
+      "src/components/ui/progress",
+      "src/components/gamification/daily-mission/ClaimRewardButton",
+      "src/components/gamification/daily-mission/mission-utils"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/DailyMissionPanel.tsx",
+    "imports": [
+      "../../gamification/rewards/gamificationService",
+      "../../../MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "@/components/ui/badge",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/components/ui/separator",
+      "./daily-mission/DailyMissionFloatingButton",
+      "./daily-mission/MissionCard",
+      "./daily-mission/mission-utils"
+    ],
+    "resolved": [
+      "src/gamification/rewards/gamificationService",
+      "MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "src/components/ui/badge",
+      "src/components/ui/button",
+      "src/components/ui/card",
+      "src/components/ui/separator",
+      "src/components/gamification/daily-mission/DailyMissionFloatingButton",
+      "src/components/gamification/daily-mission/MissionCard",
+      "src/components/gamification/daily-mission/mission-utils"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/DailyRewardLimitCard.tsx",
+    "imports": [
+      "lucide-react",
+      "@/components/ui/progress",
+      "@/components/ui/card",
+      "@/components/ui/tooltip",
+      "../../gamification/rewards/gamificationService"
+    ],
+    "resolved": [
+      "lucide-react",
+      "src/components/ui/progress",
+      "src/components/ui/card",
+      "src/components/ui/tooltip",
+      "src/gamification/rewards/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/GamificationHud.tsx",
+    "imports": [
+      "../../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../../MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "lucide-react",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/components/ui/progress",
+      "../../gamification/rewards/gamificationService",
+      "./LevelProgressCard"
+    ],
+    "resolved": [
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "lucide-react",
+      "src/components/ui/button",
+      "src/components/ui/card",
+      "src/components/ui/progress",
+      "src/gamification/rewards/gamificationService",
+      "src/components/gamification/LevelProgressCard"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/LevelProgressCard.tsx",
+    "imports": [
+      "@/components/ui/progress",
+      "@/components/ui/card",
+      "../../gamification/rewards/gamificationService"
+    ],
+    "resolved": [
+      "src/components/ui/progress",
+      "src/components/ui/card",
+      "src/gamification/rewards/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/GamificationHud.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/LevelUpRewardToast.tsx",
+    "imports": [
+      "react",
+      "sonner",
+      "../../gamification/rewards/gamificationService",
+      "../../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "sonner",
+      "src/gamification/rewards/gamificationService",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/TutorialOnboardingModal.tsx",
+    "imports": [
+      "react"
+    ],
+    "resolved": [
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/learning/AssessmentForm.tsx",
+    "imports": [
+      "react",
+      "../../learning/assessment/types",
+      "../ui/button"
+    ],
+    "resolved": [
+      "react",
+      "src/learning/assessment/types",
+      "src/components/ui/button"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/learning/LearningDashboard.tsx",
+    "imports": [
+      "react",
+      "../../learning/competencies/competencies",
+      "../../learning/modules/catalog",
+      "../../learning/progress/profile",
+      "../../learning/progress/useLearningProgress",
+      "../../services/learning/defaultLearningService",
+      "../../gamification/rewards/useGamification",
+      "../../gamification/achievements/useAchievements",
+      "../../game/useCityProgress",
+      "../../game/city/learningUnlocks",
+      "../gamification/DailyRewardLimitCard",
+      "../ui/dialog",
+      "../ui/button",
+      "./AssessmentForm"
+    ],
+    "resolved": [
+      "react",
+      "src/learning/competencies/competencies",
+      "src/learning/modules/catalog",
+      "src/learning/progress/profile",
+      "src/learning/progress/useLearningProgress",
+      "src/services/learning/defaultLearningService",
+      "src/gamification/rewards/useGamification",
+      "src/gamification/achievements/useAchievements",
+      "src/game/useCityProgress",
+      "src/game/city/learningUnlocks",
+      "src/components/gamification/DailyRewardLimitCard",
+      "src/components/ui/dialog",
+      "src/components/ui/button",
+      "src/components/learning/AssessmentForm"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/PageContainer.tsx",
+    "imports": [
+      "react"
+    ],
+    "resolved": [
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/ForgotPasswordPage.tsx",
+      "src/pages/LocalAccessPage.tsx",
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx",
+      "src/pages/VerifyEmailPage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/PasswordInput.tsx",
+    "imports": [
+      "react"
+    ],
+    "resolved": [
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/shop/VehicleCard.tsx",
+    "imports": [
+      "../../game/GameEvents",
+      "../../game/shopItems",
+      "../../game/vehicleUnlockLogic",
+      "../../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "src/game/GameEvents",
+      "src/game/shopItems",
+      "src/game/vehicleUnlockLogic",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/shop/VehicleShop.tsx"
+    ]
+  },
+  {
+    "file": "src/components/shop/VehicleShop.tsx",
+    "imports": [
+      "../../game/GameEvents",
+      "../../game/shopItems",
+      "../../game/vehicleUnlockLogic",
+      "./VehicleCard"
+    ],
+    "resolved": [
+      "src/game/GameEvents",
+      "src/game/shopItems",
+      "src/game/vehicleUnlockLogic",
+      "src/components/shop/VehicleCard"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/ShopModal.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ShopModal.tsx",
+    "imports": [
+      "react",
+      "../game/GameEvents",
+      "../game/buildingInfo",
+      "../game/shopItems",
+      "../game/vehiclePurchaseSystem",
+      "./shop/VehicleShop",
+      "../learning/progress/useLearningProgress",
+      "../game/city/learningUnlocks",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "src/game/GameEvents",
+      "src/game/buildingInfo",
+      "src/game/shopItems",
+      "src/game/vehiclePurchaseSystem",
+      "src/components/shop/VehicleShop",
+      "src/learning/progress/useLearningProgress",
+      "src/game/city/learningUnlocks",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/alert-dialog.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui",
+      "@/components/ui/button"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui",
+      "src/components/ui/button"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/alert.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/avatar.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/badge.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/button.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/ClaimRewardButton.tsx",
+      "src/components/gamification/daily-mission/DailyMissionFloatingButton.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/learning/AssessmentForm.tsx",
+      "src/components/learning/LearningDashboard.tsx",
+      "src/components/ui/alert-dialog.tsx",
+      "src/components/ui/dialog.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/card.tsx",
+    "imports": [
+      "react",
+      "cn"
+    ],
+    "resolved": [
+      "react",
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx",
+      "src/components/gamification/DailyRewardLimitCard.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/gamification/LevelProgressCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/dialog.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui",
+      "@/components/ui/button",
+      "lucide-react"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui",
+      "src/components/ui/button",
+      "lucide-react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/dropdown-menu.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui",
+      "lucide-react"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui",
+      "lucide-react"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/progress.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyRewardLimitCard.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/gamification/LevelProgressCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/scroll-area.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/separator.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/skeleton.tsx",
+    "imports": [
+      "cn"
+    ],
+    "resolved": [
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/sonner.tsx",
+    "imports": [
+      "next-themes",
+      "sonner",
+      "lucide-react"
+    ],
+    "resolved": [
+      "next-themes",
+      "sonner",
+      "lucide-react"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/table.tsx",
+    "imports": [
+      "react",
+      "cn"
+    ],
+    "resolved": [
+      "react",
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/tabs.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/tooltip.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/App.tsx",
+      "src/components/gamification/DailyRewardLimitCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/VehicleModal.tsx",
+    "imports": [
+      "react",
+      "../game/GameEvents",
+      "../game/shopItems",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "src/game/GameEvents",
+      "src/game/shopItems",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/contexts/AuthContext.tsx",
+    "imports": [
+      "react",
+      "firebase/app",
+      "firebase/auth",
+      "../lib/firebase",
+      "../services/userProfile",
+      "../lib/forgotPassword",
+      "../lib/localAccess",
+      "../utils/admin"
+    ],
+    "resolved": [
+      "react",
+      "firebase/app",
+      "firebase/auth",
+      "src/lib/firebase",
+      "src/services/userProfile",
+      "src/lib/forgotPassword",
+      "src/lib/localAccess",
+      "src/utils/admin"
+    ],
+    "storage": [
+      "sessionStorage.setItem(LOCAL_SESSION_KEY, role)",
+      "sessionStorage.removeItem(LOCAL_SESSION_KEY)",
+      "storedUntil = Number(sessionStorage.getItem(`verification-cooldown-${uid}`)) || 0",
+      "sessionStorage.setItem(`verification-cooldown-${uid}`, String(until))"
+    ],
+    "importedBy": [
+      "src/App.tsx",
+      "src/components/AuthGate.tsx",
+      "src/layouts/RootLayout.tsx",
+      "src/pages/GamePage.tsx",
+      "src/pages/LocalAccessPage.tsx",
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx",
+      "src/pages/VerifyEmailPage.tsx"
+    ]
+  },
+  {
+    "file": "src/contexts/ThemeContext.tsx",
+    "imports": [
+      "next-themes",
+      "react"
+    ],
+    "resolved": [
+      "next-themes",
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/App.tsx"
+    ]
+  },
+  {
+    "file": "src/game/bankConfig.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/game/GameScene.ts",
+      "src/gamification/rewards/gamificationService.ts"
+    ]
+  },
+  {
+    "file": "src/game/buildingInfo.ts",
+    "imports": [
+      "./passiveIncomeConfig"
+    ],
+    "resolved": [
+      "src/game/passiveIncomeConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/ShopModal.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/buildingUpgradeConfig.ts",
+    "imports": [
+      "./GameEvents"
+    ],
+    "resolved": [
+      "src/game/GameEvents"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/CameraController.ts",
+    "imports": [
+      "phaser"
+    ],
+    "resolved": [
+      "phaser"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/city/learningUnlocks.ts",
+    "imports": [
+      "../../learning/progress/types.ts"
+    ],
+    "resolved": [
+      "src/learning/progress/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx",
+      "src/components/ShopModal.tsx",
+      "src/services/gameProgressionService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/game/city/storage.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [
+      "export function cityStorageKey(baseKey: string, userId: string) {"
+    ],
+    "importedBy": [
+      "src/game/cityProgress.ts",
+      "src/game/GameScene.ts",
+      "src/game/vehicleUnlockLogic.ts",
+      "src/gamification/rewards/gamificationService.ts",
+      "src/pages/GamePage.tsx",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/game/cityProgress.ts",
+    "imports": [
+      "./city/storage",
+      "./GameEvents",
+      "./passiveIncomeConfig"
+    ],
+    "resolved": [
+      "src/game/city/storage",
+      "src/game/GameEvents",
+      "src/game/passiveIncomeConfig"
+    ],
+    "storage": [
+      "import { cityStorageKey } from './city/storage'",
+      "const shopPlaceableStorageKey = 'after-gamifikasi-shop-placeables'",
+      "const economyStorageKey = 'after-gamifikasi-economy-state'",
+      "const placeables = readJson<StoredPlaceable[]>(cityStorageKey(shopPlaceableStorageKey, userId)) ?? []",
+      "const economy = readJson<StoredEconomy>(cityStorageKey(economyStorageKey, userId))",
+      "event.key === cityStorageKey(shopPlaceableStorageKey, userId) ||",
+      "event.key === cityStorageKey(economyStorageKey, userId)",
+      "const rawValue = localStorage.getItem(key)"
+    ],
+    "importedBy": [
+      "src/game/useCityProgress.ts",
+      "src/services/learning/defaultLearningService.ts"
+    ]
+  },
+  {
+    "file": "src/game/Game.ts",
+    "imports": [
+      "phaser",
+      "./GameScene"
+    ],
+    "resolved": [
+      "phaser",
+      "src/game/GameScene"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/GameCanvas.tsx"
+    ]
+  },
+  {
+    "file": "src/game/GameEvents.ts",
+    "imports": [
+      "./shopItems"
+    ],
+    "resolved": [
+      "src/game/shopItems"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/components/GameCanvas.tsx",
+      "src/components/shop/VehicleCard.tsx",
+      "src/components/shop/VehicleShop.tsx",
+      "src/components/ShopModal.tsx",
+      "src/components/VehicleModal.tsx",
+      "src/game/buildingUpgradeConfig.ts",
+      "src/game/cityProgress.ts",
+      "src/game/GameScene.ts",
+      "src/game/useCityProgress.ts",
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/game/GameScene.ts",
+    "imports": [
+      "./city/storage",
+      "phaser",
+      "../../MBS_Toony_021523u/png/Props/cloud_01.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_02.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_03.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_04.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_05.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_06.png",
+      "../../MBS_Toony_021523u/png/Buildings/bank.png",
+      "../../MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "../../MBS_Toony_021523u/png/Props/fence_wire.png",
+      "../../MBS_Toony_021523u/png/Props/ground_street_01.png",
+      "../../MBS_Toony_021523u/png/Props/ground_street_02.png",
+      "./GameEvents",
+      "./CameraController",
+      "./bankConfig",
+      "./buildingInfo",
+      "./buildingUpgradeConfig",
+      "./shopItems",
+      "./passiveIncomeConfig",
+      "./VehicleMovementSystem",
+      "./vehicleConfig",
+      "./vehicleUnlockLogic",
+      "./vehiclePurchaseSystem"
+    ],
+    "resolved": [
+      "src/game/city/storage",
+      "phaser",
+      "MBS_Toony_021523u/png/Props/cloud_01.png",
+      "MBS_Toony_021523u/png/Props/cloud_02.png",
+      "MBS_Toony_021523u/png/Props/cloud_03.png",
+      "MBS_Toony_021523u/png/Props/cloud_04.png",
+      "MBS_Toony_021523u/png/Props/cloud_05.png",
+      "MBS_Toony_021523u/png/Props/cloud_06.png",
+      "MBS_Toony_021523u/png/Buildings/bank.png",
+      "MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "MBS_Toony_021523u/png/Props/fence_wire.png",
+      "MBS_Toony_021523u/png/Props/ground_street_01.png",
+      "MBS_Toony_021523u/png/Props/ground_street_02.png",
+      "src/game/GameEvents",
+      "src/game/CameraController",
+      "src/game/bankConfig",
+      "src/game/buildingInfo",
+      "src/game/buildingUpgradeConfig",
+      "src/game/shopItems",
+      "src/game/passiveIncomeConfig",
+      "src/game/VehicleMovementSystem",
+      "src/game/vehicleConfig",
+      "src/game/vehicleUnlockLogic",
+      "src/game/vehiclePurchaseSystem"
+    ],
+    "storage": [
+      "import { cityStorageKey } from './city/storage'",
+      "private get placeableStorageKey() { return cityStorageKey('after-gamifikasi-placeable-positions', this.userId) }",
+      "private get shopPlaceableStorageKey() { return cityStorageKey('after-gamifikasi-shop-placeables', this.userId) }",
+      "private get groundStorageKey() { return cityStorageKey('after-gamifikasi-ground-tiles', this.userId) }",
+      "private get economyStorageKey() { return cityStorageKey('after-gamifikasi-economy-state', this.userId) }",
+      "localStorage.setItem(",
+      "this.placeableStorageKey,",
+      "localStorage.setItem(",
+      "this.placeableStorageKey,",
+      "localStorage.setItem(",
+      "this.placeableStorageKey,",
+      "const rawPositions = localStorage.getItem(this.placeableStorageKey)",
+      "localStorage.setItem(",
+      "this.shopPlaceableStorageKey,",
+      "const rawItems = localStorage.getItem(this.shopPlaceableStorageKey)",
+      "localStorage.setItem(",
+      "this.groundStorageKey,",
+      "const rawTiles = localStorage.getItem(this.groundStorageKey)",
+      "localStorage.setItem(",
+      "this.economyStorageKey,",
+      "const rawState = localStorage.getItem(this.economyStorageKey)"
+    ],
+    "importedBy": [
+      "src/components/GameCanvas.tsx",
+      "src/game/Game.ts"
+    ]
+  },
+  {
+    "file": "src/game/passiveIncomeConfig.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/game/buildingInfo.ts",
+      "src/game/cityProgress.ts",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/shopItems.ts",
+    "imports": [
+      "../gamification/rewards/shopEconomy",
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "src/gamification/rewards/shopEconomy",
+      "src/game/vehicleConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/components/shop/VehicleCard.tsx",
+      "src/components/shop/VehicleShop.tsx",
+      "src/components/ShopModal.tsx",
+      "src/components/VehicleModal.tsx",
+      "src/game/GameEvents.ts",
+      "src/game/GameScene.ts",
+      "src/game/vehiclePurchaseSystem.ts",
+      "src/game/vehicleUnlockLogic.ts",
+      "src/gamification/achievements/achievementService.ts",
+      "src/gamification/rewards/gamificationService.ts",
+      "src/pages/GamePage.tsx",
+      "src/services/gameProgressionService.ts"
+    ]
+  },
+  {
+    "file": "src/game/useCityProgress.ts",
+    "imports": [
+      "react",
+      "./cityProgress",
+      "./GameEvents"
+    ],
+    "resolved": [
+      "react",
+      "src/game/cityProgress",
+      "src/game/GameEvents"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/game/vehicleConfig.ts",
+    "imports": [
+      "../../MBS_Toony_021523u/png/Vehicles/ambulance.png",
+      "../../MBS_Toony_021523u/png/Vehicles/car_blue.png",
+      "../../MBS_Toony_021523u/png/Vehicles/car_red.png",
+      "../../MBS_Toony_021523u/png/Vehicles/police_car.png",
+      "../../MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "../../MBS_Toony_021523u/png/Vehicles/van_black.png",
+      "../../MBS_Toony_021523u/png/Vehicles/van_white.png"
+    ],
+    "resolved": [
+      "MBS_Toony_021523u/png/Vehicles/ambulance.png",
+      "MBS_Toony_021523u/png/Vehicles/car_blue.png",
+      "MBS_Toony_021523u/png/Vehicles/car_red.png",
+      "MBS_Toony_021523u/png/Vehicles/police_car.png",
+      "MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "MBS_Toony_021523u/png/Vehicles/van_black.png",
+      "MBS_Toony_021523u/png/Vehicles/van_white.png"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/game/GameScene.ts",
+      "src/game/shopItems.ts",
+      "src/game/VehicleMovementSystem.ts",
+      "src/game/vehiclePurchaseSystem.ts",
+      "src/game/vehicleUnlockLogic.ts"
+    ]
+  },
+  {
+    "file": "src/game/VehicleMovementSystem.ts",
+    "imports": [
+      "phaser",
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "phaser",
+      "src/game/vehicleConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/vehiclePurchaseSystem.ts",
+    "imports": [
+      "./shopItems",
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "src/game/shopItems",
+      "src/game/vehicleConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/ShopModal.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/vehicleUnlockLogic.ts",
+    "imports": [
+      "./city/storage",
+      "./shopItems",
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "src/game/city/storage",
+      "src/game/shopItems",
+      "src/game/vehicleConfig"
+    ],
+    "storage": [
+      "import { cityStorageKey } from './city/storage'",
+      "const shopPlaceableStorageKey = 'after-gamifikasi-shop-placeables'",
+      "const economyStorageKey = 'after-gamifikasi-economy-state'",
+      "const economy = readJson<StoredEconomy>(cityStorageKey(economyStorageKey, userId))",
+      "const placeables = readJson<StoredPlaceable[]>(cityStorageKey(shopPlaceableStorageKey, userId)) ?? []",
+      "const placeables = readJson<StoredPlaceable[]>(cityStorageKey(shopPlaceableStorageKey, userId)) ?? []",
+      "const rawValue = localStorage.getItem(key)"
+    ],
+    "importedBy": [
+      "src/components/shop/VehicleCard.tsx",
+      "src/components/shop/VehicleShop.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/gamification/achievements/achievementConfig.ts",
+    "imports": [
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/1.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/5.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/10.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/11.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/15.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/20.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/21.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/25.png",
+      "../../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/30.png"
+    ],
+    "resolved": [
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/1.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/5.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/10.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/11.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/15.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/20.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/21.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/25.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/30.png"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/achievements/AchievementModal.tsx",
+      "src/gamification/achievements/achievementService.ts",
+      "src/services/admin/contentContracts.ts"
+    ]
+  },
+  {
+    "file": "src/gamification/achievements/achievementService.ts",
+    "imports": [
+      "./achievementConfig",
+      "../rewards/gamificationService",
+      "../../game/shopItems",
+      "../../learning/progress/types",
+      "../../utils/date"
+    ],
+    "resolved": [
+      "src/gamification/achievements/achievementConfig",
+      "src/gamification/rewards/gamificationService",
+      "src/game/shopItems",
+      "src/learning/progress/types",
+      "src/utils/date"
+    ],
+    "storage": [
+      "const achievementStoragePrefix = 'learning_achievement_progress_v1_'",
+      "function getAchievementStorageKey(uid: string) {",
+      "return `${achievementStoragePrefix}${uid}`",
+      "if (typeof localStorage === 'undefined') {",
+      "const rawValue = localStorage.getItem(key)",
+      "readJson<Partial<AchievementProgressData>>(getAchievementStorageKey(uid)),",
+      "if (!uid || typeof localStorage === 'undefined') {",
+      "localStorage.setItem(",
+      "getAchievementStorageKey(uid),",
+      "if (!uid || typeof localStorage === 'undefined') {",
+      "localStorage.removeItem(getAchievementStorageKey(uid))",
+      "if (event.key === getAchievementStorageKey(uid)) {"
+    ],
+    "importedBy": [
+      "src/components/achievements/AchievementModal.tsx",
+      "src/components/achievements/AchievementToast.tsx",
+      "src/components/admin/AdminToolsModal.tsx",
+      "src/gamification/achievements/useAchievements.ts",
+      "src/gamification/rewards/gamificationService.ts",
+      "src/pages/GamePage.tsx",
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/gamification/achievements/useAchievements.ts",
+    "imports": [
+      "react",
+      "./achievementService"
+    ],
+    "resolved": [
+      "react",
+      "src/gamification/achievements/achievementService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/achievements/AchievementModal.tsx",
+      "src/components/admin/AdminToolsModal.tsx",
+      "src/components/learning/LearningDashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/gamification/missions/missionConfig.ts",
+    "imports": [
+      "../rewards/types.ts"
+    ],
+    "resolved": [
+      "src/gamification/rewards/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/gamification/rewards/gamificationService.ts",
+      "src/services/admin/contentContracts.ts",
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/gamification/octalysis/mechanics.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/gamification/rewards/gamificationService.ts",
+    "imports": [
+      "../../game/shopItems",
+      "./shopEconomy",
+      "../missions/missionConfig",
+      "../achievements/achievementService",
+      "../../utils/date",
+      "../../game/bankConfig",
+      "../../game/city/storage"
+    ],
+    "resolved": [
+      "src/game/shopItems",
+      "src/gamification/rewards/shopEconomy",
+      "src/gamification/missions/missionConfig",
+      "src/gamification/achievements/achievementService",
+      "src/utils/date",
+      "src/game/bankConfig",
+      "src/game/city/storage"
+    ],
+    "storage": [
+      "import { cityStorageKey } from '../../game/city/storage'",
+      "function getUserStatsStorageKey(userId: string) {",
+      "function getDailyRewardLogStorageKey(userId: string, date: string) {",
+      "const rawValue = localStorage.getItem(key)",
+      "localStorage.setItem(key, JSON.stringify(value))",
+      "writeJson(getUserStatsStorageKey(stats.userId), normalizedStats)",
+      "getDailyRewardLogStorageKey(normalizedLog.userId, normalizedLog.date),",
+      "readJson<Partial<UserStats>>(getUserStatsStorageKey(userId)),",
+      "getDailyRewardLogStorageKey(userId, date),",
+      "const city = readJson<{ bankLevel?: number }>(cityStorageKey('after-gamifikasi-economy-state', userId))",
+      "try { localStorage.setItem(getUserStatsStorageKey(userId), JSON.stringify(next)) }",
+      "event.key === getUserStatsStorageKey(userId) ||"
+    ],
+    "importedBy": [
+      "src/components/gamification/daily-mission/mission-utils.ts",
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx",
+      "src/components/gamification/DailyRewardLimitCard.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/gamification/LevelProgressCard.tsx",
+      "src/components/gamification/LevelUpRewardToast.tsx",
+      "src/gamification/achievements/achievementService.ts",
+      "src/gamification/rewards/useGamification.ts",
+      "src/pages/GamePage.tsx",
+      "src/services/gameProgressionService.ts",
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/gamification/rewards/learningRewards.ts",
+    "imports": [
+      "./types.ts"
+    ],
+    "resolved": [
+      "src/gamification/rewards/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/services/learning/defaultLearningService.ts"
+    ]
+  },
+  {
+    "file": "src/gamification/rewards/shopEconomy.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/game/shopItems.ts",
+      "src/gamification/rewards/gamificationService.ts"
+    ]
+  },
+  {
+    "file": "src/gamification/rewards/types.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/gamification/missions/missionConfig.ts",
+      "src/gamification/rewards/learningRewards.ts",
+      "src/services/admin/contentContracts.ts"
+    ]
+  },
+  {
+    "file": "src/gamification/rewards/useGamification.ts",
+    "imports": [
+      "react",
+      "./gamificationService"
+    ],
+    "resolved": [
+      "react",
+      "src/gamification/rewards/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx",
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/layouts/RootLayout.tsx",
+    "imports": [
+      "react-router-dom",
+      "../contexts/AuthContext",
+      "../lib/localAccess"
+    ],
+    "resolved": [
+      "react-router-dom",
+      "src/contexts/AuthContext",
+      "src/lib/localAccess"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/learning/assessment/types.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/agents/assessment/ruleBasedAssessmentAgent.ts",
+      "src/agents/shared/contracts.ts",
+      "src/components/learning/AssessmentForm.tsx",
+      "src/learning/challenges/types.ts",
+      "src/learning/modules/catalog.ts",
+      "src/learning/progress/types.ts",
+      "src/services/admin/contentContracts.ts",
+      "src/services/learning/learningService.ts"
+    ]
+  },
+  {
+    "file": "src/learning/challenges/types.ts",
+    "imports": [
+      "../assessment/types.ts"
+    ],
+    "resolved": [
+      "src/learning/assessment/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/agents/shared/contracts.ts",
+      "src/learning/modules/catalog.ts",
+      "src/learning/progress/types.ts",
+      "src/services/admin/contentContracts.ts",
+      "src/services/learning/learningService.ts"
+    ]
+  },
+  {
+    "file": "src/learning/competencies/competencies.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/agents/assessment/ruleBasedAssessmentAgent.ts",
+      "src/components/learning/LearningDashboard.tsx",
+      "src/learning/progress/profile.ts",
+      "src/learning/progress/types.ts",
+      "src/services/admin/contentContracts.ts"
+    ]
+  },
+  {
+    "file": "src/learning/modules/catalog.ts",
+    "imports": [
+      "../assessment/types.ts",
+      "../challenges/types.ts",
+      "./types.ts"
+    ],
+    "resolved": [
+      "src/learning/assessment/types.ts",
+      "src/learning/challenges/types.ts",
+      "src/learning/modules/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx",
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/learning/modules/types.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/agents/shared/contracts.ts",
+      "src/learning/modules/catalog.ts",
+      "src/services/admin/contentContracts.ts",
+      "src/services/learning/learningService.ts"
+    ]
+  },
+  {
+    "file": "src/learning/progress/profile.ts",
+    "imports": [
+      "../competencies/competencies.ts",
+      "./types.ts"
+    ],
+    "resolved": [
+      "src/learning/competencies/competencies.ts",
+      "src/learning/progress/types.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx",
+      "src/services/persistence/learningRepository.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/learning/progress/types.ts",
+    "imports": [
+      "../assessment/types.ts",
+      "../challenges/types.ts",
+      "../competencies/competencies.ts"
+    ],
+    "resolved": [
+      "src/learning/assessment/types.ts",
+      "src/learning/challenges/types.ts",
+      "src/learning/competencies/competencies.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/agents/shared/contracts.ts",
+      "src/game/city/learningUnlocks.ts",
+      "src/gamification/achievements/achievementService.ts",
+      "src/learning/progress/profile.ts",
+      "src/learning/progress/useLearningProgress.ts",
+      "src/services/learning/defaultLearningService.ts",
+      "src/services/learning/learningService.ts",
+      "src/services/persistence/learningRepository.ts"
+    ]
+  },
+  {
+    "file": "src/learning/progress/useLearningProgress.ts",
+    "imports": [
+      "react",
+      "../../services/learning/defaultLearningService",
+      "../../services/persistence/learningRepository",
+      "./types"
+    ],
+    "resolved": [
+      "react",
+      "src/services/learning/defaultLearningService",
+      "src/services/persistence/learningRepository",
+      "src/learning/progress/types"
+    ],
+    "storage": [
+      "import { LEARNING_UPDATED_EVENT, learningStorageKey } from '../../services/persistence/learningRepository'",
+      "const onStorage = (event: StorageEvent) => { if (event.key === learningStorageKey(userId)) refresh() }"
+    ],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx",
+      "src/components/ShopModal.tsx"
+    ]
+  },
+  {
+    "file": "src/lib/firebase.ts",
+    "imports": [
+      "firebase/app",
+      "firebase/auth",
+      "firebase/firestore/lite"
+    ],
+    "resolved": [
+      "firebase/app",
+      "firebase/auth",
+      "firebase/firestore/lite"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/contexts/AuthContext.tsx",
+      "src/pages/ForgotPasswordPage.tsx",
+      "src/services/userProfile.ts"
+    ]
+  },
+  {
+    "file": "src/lib/forgotPassword.ts",
+    "imports": [
+      "firebase/app",
+      "firebase/auth"
+    ],
+    "resolved": [
+      "firebase/app",
+      "firebase/auth"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/AuthGate.tsx",
+      "src/contexts/AuthContext.tsx",
+      "src/pages/ForgotPasswordPage.tsx",
+      "src/pages/LocalAccessPage.tsx",
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx",
+      "src/pages/VerifyEmailPage.tsx",
+      "tests/forgotPassword.test.mjs"
+    ]
+  },
+  {
+    "file": "src/lib/localAccess.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [
+      "const role = sessionStorage.getItem(LOCAL_SESSION_KEY)"
+    ],
+    "importedBy": [
+      "src/contexts/AuthContext.tsx",
+      "src/layouts/RootLayout.tsx",
+      "src/pages/LocalAccessPage.tsx",
+      "src/routes/router.tsx",
+      "tests/localAccess.test.mjs"
+    ]
+  },
+  {
+    "file": "src/lib/utils.ts",
+    "imports": [
+      "cn"
+    ],
+    "resolved": [
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/main.tsx",
+    "imports": [
+      "react",
+      "react-dom/client",
+      "./App",
+      "./styles/globals.css"
+    ],
+    "resolved": [
+      "react",
+      "react-dom/client",
+      "src/App",
+      "src/styles/globals.css"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/pages/ForgotPasswordPage.tsx",
+    "imports": [
+      "react",
+      "firebase/auth",
+      "react-router-dom",
+      "../components/PageContainer",
+      "../lib/forgotPassword",
+      "../lib/firebase"
+    ],
+    "resolved": [
+      "react",
+      "firebase/auth",
+      "react-router-dom",
+      "src/components/PageContainer",
+      "src/lib/forgotPassword",
+      "src/lib/firebase"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/GamePage.tsx",
+    "imports": [
+      "../services/gameProgressionService",
+      "../game/city/storage",
+      "react",
+      "../components/admin/AdminToolsModal",
+      "../components/achievements/AchievementModal",
+      "../components/achievements/AchievementToast",
+      "../components/BuildingModal",
+      "../components/learning/LearningDashboard",
+      "../components/gamification/DailyMissionPanel",
+      "../components/gamification/GamificationHud",
+      "../components/gamification/LevelUpRewardToast",
+      "../components/gamification/TutorialOnboardingModal",
+      "../components/GameCanvas",
+      "../components/ShopModal",
+      "../components/VehicleModal",
+      "../contexts/AuthContext",
+      "../game/GameEvents",
+      "../gamification/achievements/achievementService",
+      "../gamification/rewards/gamificationService",
+      "../game/shopItems",
+      "../gamification/rewards/useGamification"
+    ],
+    "resolved": [
+      "src/services/gameProgressionService",
+      "src/game/city/storage",
+      "react",
+      "src/components/admin/AdminToolsModal",
+      "src/components/achievements/AchievementModal",
+      "src/components/achievements/AchievementToast",
+      "src/components/BuildingModal",
+      "src/components/learning/LearningDashboard",
+      "src/components/gamification/DailyMissionPanel",
+      "src/components/gamification/GamificationHud",
+      "src/components/gamification/LevelUpRewardToast",
+      "src/components/gamification/TutorialOnboardingModal",
+      "src/components/GameCanvas",
+      "src/components/ShopModal",
+      "src/components/VehicleModal",
+      "src/contexts/AuthContext",
+      "src/game/GameEvents",
+      "src/gamification/achievements/achievementService",
+      "src/gamification/rewards/gamificationService",
+      "src/game/shopItems",
+      "src/gamification/rewards/useGamification"
+    ],
+    "storage": [
+      "import { cityStorageKey } from '../game/city/storage'",
+      "const value = localStorage.getItem(cityStorageKey(DAILY_MISSION_MINIMIZED_STORAGE_KEY, userId))",
+      "localStorage.setItem(",
+      "cityStorageKey(DAILY_MISSION_MINIMIZED_STORAGE_KEY, userId),"
+    ],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/LocalAccessPage.tsx",
+    "imports": [
+      "react",
+      "react-router-dom",
+      "lucide-react",
+      "../components/PageContainer",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword",
+      "../lib/localAccess"
+    ],
+    "resolved": [
+      "react",
+      "react-router-dom",
+      "lucide-react",
+      "src/components/PageContainer",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword",
+      "src/lib/localAccess"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/LoginPage.tsx",
+    "imports": [
+      "react",
+      "react-router-dom",
+      "../components/PageContainer",
+      "../components/PasswordInput",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "react-router-dom",
+      "src/components/PageContainer",
+      "src/components/PasswordInput",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/RegisterPage.tsx",
+    "imports": [
+      "react",
+      "react-router-dom",
+      "../components/PageContainer",
+      "../components/PasswordInput",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "react-router-dom",
+      "src/components/PageContainer",
+      "src/components/PasswordInput",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/VerifyEmailPage.tsx",
+    "imports": [
+      "react",
+      "../components/PageContainer",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "src/components/PageContainer",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/routes/router.tsx",
+    "imports": [
+      "react-router-dom",
+      "../components/AuthGate",
+      "../layouts/RootLayout",
+      "../pages/ForgotPasswordPage",
+      "../pages/GamePage",
+      "../pages/LoginPage",
+      "../pages/RegisterPage",
+      "../pages/VerifyEmailPage",
+      "../pages/LocalAccessPage",
+      "../lib/localAccess"
+    ],
+    "resolved": [
+      "react-router-dom",
+      "src/components/AuthGate",
+      "src/layouts/RootLayout",
+      "src/pages/ForgotPasswordPage",
+      "src/pages/GamePage",
+      "src/pages/LoginPage",
+      "src/pages/RegisterPage",
+      "src/pages/VerifyEmailPage",
+      "src/pages/LocalAccessPage",
+      "src/lib/localAccess"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/App.tsx"
+    ]
+  },
+  {
+    "file": "src/services/admin/contentContracts.ts",
+    "imports": [
+      "../../learning/assessment/types.ts",
+      "../../learning/competencies/competencies.ts",
+      "../../learning/modules/types.ts",
+      "../../learning/challenges/types.ts",
+      "../../gamification/missions/missionConfig.ts",
+      "../../gamification/achievements/achievementConfig",
+      "../../gamification/rewards/types.ts",
+      "../knowledge/KnowledgeRepository.ts"
+    ],
+    "resolved": [
+      "src/learning/assessment/types.ts",
+      "src/learning/competencies/competencies.ts",
+      "src/learning/modules/types.ts",
+      "src/learning/challenges/types.ts",
+      "src/gamification/missions/missionConfig.ts",
+      "src/gamification/achievements/achievementConfig",
+      "src/gamification/rewards/types.ts",
+      "src/services/knowledge/KnowledgeRepository.ts"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/services/gameProgressionService.ts",
+    "imports": [
+      "../game/city/learningUnlocks",
+      "../game/shopItems",
+      "../gamification/rewards/gamificationService",
+      "./persistence/learningRepository"
+    ],
+    "resolved": [
+      "src/game/city/learningUnlocks",
+      "src/game/shopItems",
+      "src/gamification/rewards/gamificationService",
+      "src/services/persistence/learningRepository"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/services/knowledge/KnowledgeRepository.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/services/admin/contentContracts.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/services/learning/defaultLearningService.ts",
+    "imports": [
+      "../../agents/assessment/ruleBasedAssessmentAgent.ts",
+      "../../agents/mentor/ruleBasedMentorAgent.ts",
+      "../../agents/practice/ruleBasedPracticeAgent.ts",
+      "../../gamification/achievements/achievementService",
+      "../../gamification/rewards/gamificationService",
+      "../../gamification/rewards/learningRewards.ts",
+      "../../gamification/missions/missionConfig.ts",
+      "../../game/cityProgress",
+      "../../learning/modules/catalog.ts",
+      "../../learning/progress/types.ts",
+      "../persistence/learningRepository.ts",
+      "./learningService.ts"
+    ],
+    "resolved": [
+      "src/agents/assessment/ruleBasedAssessmentAgent.ts",
+      "src/agents/mentor/ruleBasedMentorAgent.ts",
+      "src/agents/practice/ruleBasedPracticeAgent.ts",
+      "src/gamification/achievements/achievementService",
+      "src/gamification/rewards/gamificationService",
+      "src/gamification/rewards/learningRewards.ts",
+      "src/gamification/missions/missionConfig.ts",
+      "src/game/cityProgress",
+      "src/learning/modules/catalog.ts",
+      "src/learning/progress/types.ts",
+      "src/services/persistence/learningRepository.ts",
+      "src/services/learning/learningService.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/learning/LearningDashboard.tsx",
+      "src/learning/progress/useLearningProgress.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/services/learning/learningService.ts",
+    "imports": [
+      "../../agents/shared/contracts.ts",
+      "../../learning/assessment/types.ts",
+      "../../learning/challenges/types.ts",
+      "../../learning/modules/types.ts",
+      "../../learning/progress/types.ts",
+      "../persistence/learningRepository.ts"
+    ],
+    "resolved": [
+      "src/agents/shared/contracts.ts",
+      "src/learning/assessment/types.ts",
+      "src/learning/challenges/types.ts",
+      "src/learning/modules/types.ts",
+      "src/learning/progress/types.ts",
+      "src/services/persistence/learningRepository.ts"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/services/learning/defaultLearningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/services/persistence/learningRepository.ts",
+    "imports": [
+      "../../learning/progress/profile.ts",
+      "../../learning/progress/types.ts"
+    ],
+    "resolved": [
+      "src/learning/progress/profile.ts",
+      "src/learning/progress/types.ts"
+    ],
+    "storage": [
+      "export function learningStorageKey(userId: string) {",
+      "const raw = localStorage.getItem(learningStorageKey(userId))",
+      "try { localStorage.setItem(learningStorageKey(profile.userId), JSON.stringify(profile)) }"
+    ],
+    "importedBy": [
+      "src/learning/progress/useLearningProgress.ts",
+      "src/services/gameProgressionService.ts",
+      "src/services/learning/defaultLearningService.ts",
+      "src/services/learning/learningService.ts",
+      "tests/learning.test.mjs"
+    ]
+  },
+  {
+    "file": "src/services/userProfile.ts",
+    "imports": [
+      "firebase/firestore/lite",
+      "../lib/firebase"
+    ],
+    "resolved": [
+      "firebase/firestore/lite",
+      "src/lib/firebase"
+    ],
+    "storage": [
+      "const userRef = doc(db, 'users', uid)"
+    ],
+    "importedBy": [
+      "src/contexts/AuthContext.tsx"
+    ]
+  },
+  {
+    "file": "src/styles/globals.css",
+    "imports": [
+      "tailwindcss",
+      "tw-animate-css",
+      "shadcn/tailwind.css",
+      "@fontsource-variable/geist"
+    ],
+    "resolved": [
+      "tailwindcss",
+      "tw-animate-css",
+      "shadcn/tailwind.css",
+      "@fontsource-variable/geist"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/main.tsx"
+    ]
+  },
+  {
+    "file": "src/utils/admin.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/contexts/AuthContext.tsx",
+      "tests/localAccess.test.mjs"
+    ]
+  },
+  {
+    "file": "src/utils/date.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/gamification/achievements/achievementService.ts",
+      "src/gamification/rewards/gamificationService.ts"
+    ]
+  },
+  {
+    "file": "src/utils/numeric-input.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/vite-env.d.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "tests/browser-learning-smoke.mjs",
+    "imports": [
+      "playwright-core",
+      "node:assert/strict",
+      "node:fs"
+    ],
+    "resolved": [
+      "playwright-core",
+      "node:assert/strict",
+      "node:fs"
+    ],
+    "storage": [
+      "const state = await page.evaluate(() => ({ profile: JSON.parse(localStorage.getItem('after-gamifikasi-learning-v1:smoke-learner')), stats: JSON.parse(localStorage.getItem('after-gamifikasi-user-stats-smoke-learner')) }))",
+      "const bank = JSON.parse(localStorage.getItem('after-gamifikasi-shop-placeables:user:smoke-learner')).find((item) => item.key === 'bank')",
+      "await page.waitForFunction(() => JSON.parse(localStorage.getItem('after-gamifikasi-economy-state:user:smoke-learner'))?.bankLevel === 2)",
+      "assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('after-gamifikasi-learning-v1:smoke-learner')).completedChallenges.length), 2)",
+      "await page.waitForFunction(() => JSON.parse(localStorage.getItem('after-gamifikasi-user-stats-smoke-learner'))?.purchasedShopItems.includes('vehicle-taxi'))",
+      "const beforeReload = await page.evaluate(() => JSON.parse(localStorage.getItem('after-gamifikasi-user-stats-smoke-learner')).coin)",
+      "await page.waitForFunction(() => JSON.parse(localStorage.getItem('after-gamifikasi-economy-state:user:smoke-learner'))?.bankLevel === 2)",
+      "assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('after-gamifikasi-user-stats-smoke-learner')).coin), beforeReload)"
+    ],
+    "importedBy": []
+  },
+  {
+    "file": "tests/browser-local-access-smoke.mjs",
+    "imports": [
+      "playwright-core",
+      "node:assert/strict",
+      "node:fs"
+    ],
+    "resolved": [
+      "playwright-core",
+      "node:assert/strict",
+      "node:fs"
+    ],
+    "storage": [
+      "await page.waitForFunction(() => JSON.parse(localStorage.getItem('after-gamifikasi-economy-state:user:local-preview-admin-v1'))?.bankLevel === 1)",
+      "await page.waitForFunction(() => JSON.parse(localStorage.getItem('after-gamifikasi-user-stats-local-preview-admin-v1'))?.coin === 500)",
+      "assert.equal(await page.evaluate(() => sessionStorage.getItem('after-gamifikasi-local-session-v1')), 'admin')",
+      "assert.equal(await page.evaluate(() => sessionStorage.getItem('after-gamifikasi-local-session-v1')), null)",
+      "admin: JSON.parse(localStorage.getItem('after-gamifikasi-user-stats-local-preview-admin-v1')),",
+      "user: JSON.parse(localStorage.getItem('after-gamifikasi-user-stats-local-preview-user-v1')),",
+      "await production.addInitScript(() => sessionStorage.setItem('after-gamifikasi-local-session-v1', 'admin'))"
+    ],
+    "importedBy": []
+  },
+  {
+    "file": "tests/e2e-auth-flow.mjs",
+    "imports": [
+      "playwright-core",
+      "node:timers/promises"
+    ],
+    "resolved": [
+      "playwright-core",
+      "node:timers/promises"
+    ],
+    "storage": [
+      "// sessionStorage), jadi tunggu hitung mundur selesai maksimal 90 detik."
+    ],
+    "importedBy": []
+  },
+  {
+    "file": "tests/forgotPassword.test.mjs",
+    "imports": [
+      "node:assert/strict",
+      "node:test",
+      "firebase/app",
+      "../src/lib/forgotPassword.ts"
+    ],
+    "resolved": [
+      "node:assert/strict",
+      "node:test",
+      "firebase/app",
+      "src/lib/forgotPassword.ts"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "tests/learning.test.mjs",
+    "imports": [
+      "node:test",
+      "node:assert/strict",
+      "../src/agents/assessment/ruleBasedAssessmentAgent.ts",
+      "../src/agents/mentor/ruleBasedMentorAgent.ts",
+      "../src/agents/practice/ruleBasedPracticeAgent.ts",
+      "../src/learning/progress/profile.ts",
+      "../src/learning/modules/catalog.ts",
+      "../src/services/learning/learningService.ts",
+      "../src/services/persistence/learningRepository.ts",
+      "../src/services/knowledge/KnowledgeRepository.ts",
+      "../src/game/city/storage.ts",
+      "../src/game/city/learningUnlocks.ts",
+      "../src/services/learning/defaultLearningService.ts",
+      "../src/gamification/rewards/gamificationService.ts",
+      "../src/gamification/achievements/achievementService.ts",
+      "../src/services/gameProgressionService.ts",
+      "../src/gamification/missions/missionConfig.ts"
+    ],
+    "resolved": [
+      "node:test",
+      "node:assert/strict",
+      "src/agents/assessment/ruleBasedAssessmentAgent.ts",
+      "src/agents/mentor/ruleBasedMentorAgent.ts",
+      "src/agents/practice/ruleBasedPracticeAgent.ts",
+      "src/learning/progress/profile.ts",
+      "src/learning/modules/catalog.ts",
+      "src/services/learning/learningService.ts",
+      "src/services/persistence/learningRepository.ts",
+      "src/services/knowledge/KnowledgeRepository.ts",
+      "src/game/city/storage.ts",
+      "src/game/city/learningUnlocks.ts",
+      "src/services/learning/defaultLearningService.ts",
+      "src/gamification/rewards/gamificationService.ts",
+      "src/gamification/achievements/achievementService.ts",
+      "src/services/gameProgressionService.ts",
+      "src/gamification/missions/missionConfig.ts"
+    ],
+    "storage": [
+      "import { LocalLearningRepository, learningStorageKey } from '../src/services/persistence/learningRepository.ts'",
+      "import { cityStorageKey } from '../src/game/city/storage.ts'",
+      "globalThis.localStorage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, String(value)), removeItem: (key) => values.delete(key), clear: () => values.clear() }",
+      "localStorage.setItem(cityStorageKey('after-gamifikasi-economy-state', 'alice'), JSON.stringify({ bankLevel: 2, barberLevel: 1 }))",
+      "assert.notEqual(cityStorageKey('city', 'alice'), cityStorageKey('city', 'bob'))",
+      "assert.throws(() => cityStorageKey('city', ''))",
+      "localStorage.setItem(learningStorageKey('alice'), 'invalid-json')",
+      "localStorage.setItem('after-gamifikasi-economy-state', JSON.stringify({ coins: 9999, diamonds: 999 }))",
+      "localStorage.setItem('after-gamifikasi-finance-alice', JSON.stringify({ transactions: Array(15).fill({}) }))",
+      "localStorage.setItem('achievement_progress_alice', JSON.stringify({ achievements: { 'finance-gold': { unlocked: true } } }))",
+      "localStorage.setItem(learningStorageKey('alice'), '{broken')",
+      "assert.equal(localStorage.getItem(learningStorageKey('alice')), '{broken')",
+      "localStorage.setItem(learningStorageKey('alice'), JSON.stringify(createLearningProfile('bob')))",
+      "localStorage.setItem = () => { throw new Error('quota') }",
+      "localStorage.setItem = () => { throw new Error('quota') }"
+    ],
+    "importedBy": []
+  },
+  {
+    "file": "tests/localAccess.test.mjs",
+    "imports": [
+      "node:test",
+      "node:assert/strict",
+      "../src/lib/localAccess.ts",
+      "../src/utils/admin.ts"
+    ],
+    "resolved": [
+      "node:test",
+      "node:assert/strict",
+      "src/lib/localAccess.ts",
+      "src/utils/admin.ts"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "tests/register-test-loader.mjs",
+    "imports": [
+      "node:module",
+      "node:fs",
+      "node:url"
+    ],
+    "resolved": [
+      "node:module",
+      "node:fs",
+      "node:url"
+    ],
+    "storage": [],
+    "importedBy": []
+  }
+]

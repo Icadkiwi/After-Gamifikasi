@@ -1,5 +1,5 @@
-import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+import coinUrl from '../../../MBS_Toony_021523u/png/Props/Coin.png'
+import diamondUrl from '../../../MBS_Toony_021523u/png/Props/Diamond.png'
 
 import { ShieldCheck } from 'lucide-react'
 
@@ -16,15 +16,21 @@ import { Progress } from '@/components/ui/progress'
 import type {
   LevelProgress,
   UserStats,
-} from '../../game/gamificationService'
+} from '../../gamification/rewards/gamificationService'
 
 import { LevelProgressCard } from './LevelProgressCard'
+import { StreakCard } from './streak/StreakCard'
+
+import type { StreakGiftDefinition, StreakState } from '../../gamification/streak/streakService'
 
 type GamificationHudProps = {
   stats: UserStats
   levelProgress: LevelProgress
   coinCapacity: number
   canResetCurrency: boolean
+  streak: StreakState | null
+  upcomingGift: StreakGiftDefinition | undefined
+  onUseStreakProtection: () => void
   onOpenAchievements: () => void
   onOpenAdminTools: () => void
 }
@@ -34,6 +40,9 @@ export function GamificationHud({
   levelProgress,
   coinCapacity,
   canResetCurrency,
+  streak,
+  upcomingGift,
+  onUseStreakProtection,
   onOpenAchievements,
   onOpenAdminTools,
 }: GamificationHudProps) {
@@ -56,6 +65,14 @@ export function GamificationHud({
           target={1000}
           progressClassName="[&_[data-slot=progress-indicator]]:bg-sky-400"
         />
+        {streak && (
+          <StreakCard
+            streak={streak}
+            upcomingGift={upcomingGift}
+            protectionAvailable={streak.currentStreak > 0 && streak.protectionUsedDate === null}
+            onUseProtection={onUseStreakProtection}
+          />
+        )}
       </div>
 
       <div className="grid gap-2">

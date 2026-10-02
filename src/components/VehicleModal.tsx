@@ -3,8 +3,8 @@ import { useState, type SyntheticEvent } from 'react'
 import type { VehicleModalPayload } from '../game/GameEvents'
 import type { ShopItem } from '../game/shopItems'
 
-import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.png'
+import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.png'
 
 type VehicleModalProps = {
   vehicle: VehicleModalPayload

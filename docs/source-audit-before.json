@@ -1,0 +1,1989 @@
+[
+  {
+    "file": "src/App.tsx",
+    "imports": [
+      "react-router-dom",
+      "./contexts/ThemeContext",
+      "./contexts/AuthContext",
+      "./routes/router"
+    ],
+    "resolved": [
+      "react-router-dom",
+      "src/contexts/ThemeContext",
+      "src/contexts/AuthContext",
+      "src/routes/router"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/main.tsx"
+    ]
+  },
+  {
+    "file": "src/components/achievements/AchievementModal.tsx",
+    "imports": [
+      "react",
+      "../../game/achievementConfig",
+      "../../game/useAchievements",
+      "../../game/achievementService"
+    ],
+    "resolved": [
+      "react",
+      "src/game/achievementConfig",
+      "src/game/useAchievements",
+      "src/game/achievementService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/achievements/AchievementToast.tsx",
+    "imports": [
+      "react",
+      "sonner",
+      "../../game/achievementService"
+    ],
+    "resolved": [
+      "react",
+      "sonner",
+      "src/game/achievementService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/admin/AdminToolsModal.tsx",
+    "imports": [
+      "react",
+      "../../game/achievementService",
+      "../../game/useAchievements",
+      "../../lib/firestore-finance"
+    ],
+    "resolved": [
+      "react",
+      "src/game/achievementService",
+      "src/game/useAchievements",
+      "src/lib/firestore-finance"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/AuthGate.tsx",
+    "imports": [
+      "react",
+      "react-router-dom",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "react-router-dom",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/components/BuildingModal.tsx",
+    "imports": [
+      "react",
+      "../game/GameEvents",
+      "../game/bankConfig",
+      "../game/buildingUpgradeConfig",
+      "../game/passiveIncomeConfig",
+      "../game/shopItems",
+      "../../MBS_Toony_021523u/png/Buildings/bank.png",
+      "../../MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "src/game/GameEvents",
+      "src/game/bankConfig",
+      "src/game/buildingUpgradeConfig",
+      "src/game/passiveIncomeConfig",
+      "src/game/shopItems",
+      "MBS_Toony_021523u/png/Buildings/bank.png",
+      "MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/category-modal.tsx",
+    "imports": [
+      "react",
+      "../../types/finance"
+    ],
+    "resolved": [
+      "react",
+      "src/types/finance"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-categories.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/dashboard/CitySummary.tsx",
+    "imports": [
+      "../../../game/GameEvents"
+    ],
+    "resolved": [
+      "src/game/GameEvents"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-dashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/dashboard/dashboard-utils.ts",
+    "imports": [
+      "../../../types/finance",
+      "../../../utils/finance"
+    ],
+    "resolved": [
+      "src/types/finance",
+      "src/utils/finance"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/dashboard/DashboardChart.tsx",
+      "src/components/finance/dashboard/ExpenseCategoryPreview.tsx",
+      "src/components/finance/dashboard/FinancialOverview.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/dashboard/DashboardChart.tsx",
+    "imports": [
+      "../../../types/finance",
+      "../IncomeExpenseDonutChart",
+      "./dashboard-utils"
+    ],
+    "resolved": [
+      "src/types/finance",
+      "src/components/finance/IncomeExpenseDonutChart",
+      "src/components/finance/dashboard/dashboard-utils"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-dashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/dashboard/ExpenseCategoryPreview.tsx",
+    "imports": [
+      "../../../types/finance",
+      "../../../utils/finance",
+      "./dashboard-utils"
+    ],
+    "resolved": [
+      "src/types/finance",
+      "src/utils/finance",
+      "src/components/finance/dashboard/dashboard-utils"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-dashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/dashboard/FinancialOverview.tsx",
+    "imports": [
+      "../../../types/finance",
+      "../../../utils/finance",
+      "./dashboard-utils"
+    ],
+    "resolved": [
+      "src/types/finance",
+      "src/utils/finance",
+      "src/components/finance/dashboard/dashboard-utils"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-dashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/dashboard/GamificationSummary.tsx",
+    "imports": [
+      "../../../game/gamificationService",
+      "../../gamification/DailyRewardLimitCard",
+      "../../gamification/LevelProgressCard",
+      "../../gamification/daily-mission/mission-utils"
+    ],
+    "resolved": [
+      "src/game/gamificationService",
+      "src/components/gamification/DailyRewardLimitCard",
+      "src/components/gamification/LevelProgressCard",
+      "src/components/gamification/daily-mission/mission-utils"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/finance/finance-categories.tsx",
+    "imports": [
+      "react",
+      "../../contexts/finance-context",
+      "../../types/finance",
+      "../../utils/finance",
+      "./category-modal"
+    ],
+    "resolved": [
+      "react",
+      "src/contexts/finance-context",
+      "src/types/finance",
+      "src/utils/finance",
+      "src/components/finance/category-modal"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-management-modal.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/finance-dashboard.tsx",
+    "imports": [
+      "../../contexts/finance-context",
+      "../../game/useCityProgress",
+      "../../utils/finance",
+      "./dashboard/CitySummary",
+      "./dashboard/DashboardChart",
+      "./dashboard/ExpenseCategoryPreview",
+      "./dashboard/FinancialOverview"
+    ],
+    "resolved": [
+      "src/contexts/finance-context",
+      "src/game/useCityProgress",
+      "src/utils/finance",
+      "src/components/finance/dashboard/CitySummary",
+      "src/components/finance/dashboard/DashboardChart",
+      "src/components/finance/dashboard/ExpenseCategoryPreview",
+      "src/components/finance/dashboard/FinancialOverview"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-management-modal.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/finance-management-modal.tsx",
+    "imports": [
+      "react",
+      "../../contexts/finance-context",
+      "../../types/finance",
+      "./finance-categories",
+      "./finance-dashboard",
+      "./finance-reports",
+      "./finance-transactions"
+    ],
+    "resolved": [
+      "react",
+      "src/contexts/finance-context",
+      "src/types/finance",
+      "src/components/finance/finance-categories",
+      "src/components/finance/finance-dashboard",
+      "src/components/finance/finance-reports",
+      "src/components/finance/finance-transactions"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/finance-reports.tsx",
+    "imports": [
+      "react",
+      "../../contexts/finance-context",
+      "../../types/finance",
+      "../../utils/date",
+      "../../utils/finance"
+    ],
+    "resolved": [
+      "react",
+      "src/contexts/finance-context",
+      "src/types/finance",
+      "src/utils/date",
+      "src/utils/finance"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-management-modal.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/finance-transactions.tsx",
+    "imports": [
+      "react",
+      "../../contexts/finance-context",
+      "../../types/finance",
+      "../../utils/finance",
+      "./transaction-modal"
+    ],
+    "resolved": [
+      "react",
+      "src/contexts/finance-context",
+      "src/types/finance",
+      "src/utils/finance",
+      "src/components/finance/transaction-modal"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-management-modal.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/IncomeExpenseDonutChart.tsx",
+    "imports": [
+      "../../utils/finance"
+    ],
+    "resolved": [
+      "src/utils/finance"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/dashboard/DashboardChart.tsx"
+    ]
+  },
+  {
+    "file": "src/components/finance/transaction-modal.tsx",
+    "imports": [
+      "react",
+      "../../types/finance",
+      "../../utils/finance",
+      "../../utils/numeric-input"
+    ],
+    "resolved": [
+      "react",
+      "src/types/finance",
+      "src/utils/finance",
+      "src/utils/numeric-input"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-transactions.tsx"
+    ]
+  },
+  {
+    "file": "src/components/GameCanvas.tsx",
+    "imports": [
+      "react",
+      "../game/Game"
+    ],
+    "resolved": [
+      "react",
+      "src/game/Game"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx",
+      "src/pages/HomePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/ClaimRewardButton.tsx",
+    "imports": [
+      "@/components/ui/button"
+    ],
+    "resolved": [
+      "src/components/ui/button"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/DailyMissionFloatingButton.tsx",
+    "imports": [
+      "lucide-react",
+      "@/components/ui/button"
+    ],
+    "resolved": [
+      "lucide-react",
+      "src/components/ui/button"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/mission-utils.ts",
+    "imports": [
+      "../../../game/gamificationService"
+    ],
+    "resolved": [
+      "src/game/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/dashboard/GamificationSummary.tsx",
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/daily-mission/MissionCard.tsx",
+    "imports": [
+      "../../../game/gamificationService",
+      "@/components/ui/badge",
+      "@/components/ui/card",
+      "@/components/ui/progress",
+      "./ClaimRewardButton",
+      "./mission-utils"
+    ],
+    "resolved": [
+      "src/game/gamificationService",
+      "src/components/ui/badge",
+      "src/components/ui/card",
+      "src/components/ui/progress",
+      "src/components/gamification/daily-mission/ClaimRewardButton",
+      "src/components/gamification/daily-mission/mission-utils"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/DailyMissionPanel.tsx",
+    "imports": [
+      "../../game/gamificationService",
+      "../../../MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "@/components/ui/badge",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/components/ui/separator",
+      "./daily-mission/DailyMissionFloatingButton",
+      "./daily-mission/MissionCard",
+      "./daily-mission/mission-utils"
+    ],
+    "resolved": [
+      "src/game/gamificationService",
+      "MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "src/components/ui/badge",
+      "src/components/ui/button",
+      "src/components/ui/card",
+      "src/components/ui/separator",
+      "src/components/gamification/daily-mission/DailyMissionFloatingButton",
+      "src/components/gamification/daily-mission/MissionCard",
+      "src/components/gamification/daily-mission/mission-utils"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/DailyRewardLimitCard.tsx",
+    "imports": [
+      "lucide-react",
+      "@/components/ui/progress",
+      "@/components/ui/card",
+      "@/components/ui/tooltip",
+      "../../game/gamificationService"
+    ],
+    "resolved": [
+      "lucide-react",
+      "src/components/ui/progress",
+      "src/components/ui/card",
+      "src/components/ui/tooltip",
+      "src/game/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/dashboard/GamificationSummary.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/GamificationHud.tsx",
+    "imports": [
+      "../../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../../MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "lucide-react",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/components/ui/progress",
+      "../../game/gamificationService",
+      "./LevelProgressCard"
+    ],
+    "resolved": [
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "lucide-react",
+      "src/components/ui/button",
+      "src/components/ui/card",
+      "src/components/ui/progress",
+      "src/game/gamificationService",
+      "src/components/gamification/LevelProgressCard"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/LevelProgressCard.tsx",
+    "imports": [
+      "@/components/ui/progress",
+      "@/components/ui/card",
+      "../../game/gamificationService"
+    ],
+    "resolved": [
+      "src/components/ui/progress",
+      "src/components/ui/card",
+      "src/game/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/dashboard/GamificationSummary.tsx",
+      "src/components/gamification/GamificationHud.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/LevelUpRewardToast.tsx",
+    "imports": [
+      "react",
+      "sonner",
+      "../../game/gamificationService",
+      "../../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "sonner",
+      "src/game/gamificationService",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/gamification/TutorialOnboardingModal.tsx",
+    "imports": [
+      "react"
+    ],
+    "resolved": [
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/PageContainer.tsx",
+    "imports": [
+      "react"
+    ],
+    "resolved": [
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/ForgotPasswordPage.tsx",
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx",
+      "src/pages/VerifyEmailPage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/PasswordInput.tsx",
+    "imports": [
+      "react"
+    ],
+    "resolved": [
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/shop/VehicleCard.tsx",
+    "imports": [
+      "../../game/GameEvents",
+      "../../game/shopItems",
+      "../../game/vehicleUnlockLogic",
+      "../../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "src/game/GameEvents",
+      "src/game/shopItems",
+      "src/game/vehicleUnlockLogic",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/shop/VehicleShop.tsx"
+    ]
+  },
+  {
+    "file": "src/components/shop/VehicleShop.tsx",
+    "imports": [
+      "../../game/GameEvents",
+      "../../game/shopItems",
+      "../../game/vehicleUnlockLogic",
+      "./VehicleCard"
+    ],
+    "resolved": [
+      "src/game/GameEvents",
+      "src/game/shopItems",
+      "src/game/vehicleUnlockLogic",
+      "src/components/shop/VehicleCard"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/ShopModal.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ShopModal.tsx",
+    "imports": [
+      "react",
+      "../game/GameEvents",
+      "../game/buildingInfo",
+      "../game/shopItems",
+      "../game/vehiclePurchaseSystem",
+      "./shop/VehicleShop",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "src/game/GameEvents",
+      "src/game/buildingInfo",
+      "src/game/shopItems",
+      "src/game/vehiclePurchaseSystem",
+      "src/components/shop/VehicleShop",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ThemeToggle.tsx",
+    "imports": [
+      "lucide-react",
+      "next-themes",
+      "@/components/ui/button",
+      "@/components/ui/dropdown-menu"
+    ],
+    "resolved": [
+      "lucide-react",
+      "next-themes",
+      "src/components/ui/button",
+      "src/components/ui/dropdown-menu"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/alert-dialog.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui",
+      "@/components/ui/button"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui",
+      "src/components/ui/button"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/alert.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/avatar.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/badge.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/button.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/ClaimRewardButton.tsx",
+      "src/components/gamification/daily-mission/DailyMissionFloatingButton.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/ThemeToggle.tsx",
+      "src/components/ui/alert-dialog.tsx",
+      "src/components/ui/dialog.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/card.tsx",
+    "imports": [
+      "react",
+      "cn"
+    ],
+    "resolved": [
+      "react",
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx",
+      "src/components/gamification/DailyRewardLimitCard.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/gamification/LevelProgressCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/dialog.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui",
+      "@/components/ui/button",
+      "lucide-react"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui",
+      "src/components/ui/button",
+      "lucide-react"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/dropdown-menu.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui",
+      "lucide-react"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui",
+      "lucide-react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/ThemeToggle.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/progress.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyRewardLimitCard.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/gamification/LevelProgressCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/scroll-area.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/separator.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/DailyMissionPanel.tsx"
+    ]
+  },
+  {
+    "file": "src/components/ui/skeleton.tsx",
+    "imports": [
+      "cn"
+    ],
+    "resolved": [
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/sonner.tsx",
+    "imports": [
+      "next-themes",
+      "sonner",
+      "lucide-react"
+    ],
+    "resolved": [
+      "next-themes",
+      "sonner",
+      "lucide-react"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/table.tsx",
+    "imports": [
+      "react",
+      "cn"
+    ],
+    "resolved": [
+      "react",
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/tabs.tsx",
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "class-variance-authority",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/components/ui/tooltip.tsx",
+    "imports": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "resolved": [
+      "react",
+      "cn",
+      "radix-ui"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/gamification/DailyRewardLimitCard.tsx"
+    ]
+  },
+  {
+    "file": "src/components/VehicleModal.tsx",
+    "imports": [
+      "react",
+      "../game/GameEvents",
+      "../game/shopItems",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "resolved": [
+      "react",
+      "src/game/GameEvents",
+      "src/game/shopItems",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/contexts/AuthContext.tsx",
+    "imports": [
+      "react",
+      "firebase/app",
+      "firebase/auth",
+      "../lib/firebase",
+      "../lib/firestore-finance",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "firebase/app",
+      "firebase/auth",
+      "src/lib/firebase",
+      "src/lib/firestore-finance",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [
+      "storedUntil = Number(sessionStorage.getItem(`verification-cooldown-${uid}`)) || 0",
+      "sessionStorage.setItem(`verification-cooldown-${uid}`, String(until))"
+    ],
+    "importedBy": [
+      "src/App.tsx",
+      "src/components/AuthGate.tsx",
+      "src/contexts/finance-context.tsx",
+      "src/layouts/RootLayout.tsx",
+      "src/pages/GamePage.tsx",
+      "src/pages/HomePage.tsx",
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx",
+      "src/pages/VerifyEmailPage.tsx"
+    ]
+  },
+  {
+    "file": "src/contexts/finance-context.tsx",
+    "imports": [
+      "react",
+      "./AuthContext",
+      "../lib/firestore-finance",
+      "../game/achievementService",
+      "../game/gamificationService",
+      "../types/finance"
+    ],
+    "resolved": [
+      "react",
+      "src/contexts/AuthContext",
+      "src/lib/firestore-finance",
+      "src/game/achievementService",
+      "src/game/gamificationService",
+      "src/types/finance"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-categories.tsx",
+      "src/components/finance/finance-dashboard.tsx",
+      "src/components/finance/finance-management-modal.tsx",
+      "src/components/finance/finance-reports.tsx",
+      "src/components/finance/finance-transactions.tsx"
+    ]
+  },
+  {
+    "file": "src/contexts/ThemeContext.tsx",
+    "imports": [
+      "next-themes",
+      "react"
+    ],
+    "resolved": [
+      "next-themes",
+      "react"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/App.tsx"
+    ]
+  },
+  {
+    "file": "src/game/achievementConfig.ts",
+    "imports": [
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/1.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/5.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/10.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/11.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/15.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/20.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/21.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/25.png",
+      "../../Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/30.png"
+    ],
+    "resolved": [
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/1.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/5.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/10.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/11.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/15.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/20.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/21.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/25.png",
+      "Free-Game-Achievement-Vector-RPG-Icons (1)/PNG/30.png"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/achievements/AchievementModal.tsx",
+      "src/game/achievementService.ts"
+    ]
+  },
+  {
+    "file": "src/game/achievementService.ts",
+    "imports": [
+      "./achievementConfig",
+      "./gamificationService",
+      "./shopItems",
+      "../types/finance",
+      "../utils/date"
+    ],
+    "resolved": [
+      "src/game/achievementConfig",
+      "src/game/gamificationService",
+      "src/game/shopItems",
+      "src/types/finance",
+      "src/utils/date"
+    ],
+    "storage": [
+      "const achievementStoragePrefix = 'achievement_progress_'",
+      "function getAchievementStorageKey(uid: string) {",
+      "return `${achievementStoragePrefix}${uid}`",
+      "if (typeof localStorage === 'undefined') {",
+      "const rawValue = localStorage.getItem(key)",
+      "readJson<Partial<AchievementProgressData>>(getAchievementStorageKey(uid)),",
+      "if (!uid || typeof localStorage === 'undefined') {",
+      "localStorage.setItem(",
+      "getAchievementStorageKey(uid),",
+      "if (!uid || typeof localStorage === 'undefined') {",
+      "localStorage.removeItem(getAchievementStorageKey(uid))",
+      "if (event.key === getAchievementStorageKey(uid)) {"
+    ],
+    "importedBy": [
+      "src/components/achievements/AchievementModal.tsx",
+      "src/components/achievements/AchievementToast.tsx",
+      "src/components/admin/AdminToolsModal.tsx",
+      "src/contexts/finance-context.tsx",
+      "src/game/gamificationService.ts",
+      "src/game/useAchievements.ts",
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/game/bankConfig.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/buildingInfo.ts",
+    "imports": [
+      "./passiveIncomeConfig"
+    ],
+    "resolved": [
+      "src/game/passiveIncomeConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/ShopModal.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/buildingUpgradeConfig.ts",
+    "imports": [
+      "./GameEvents"
+    ],
+    "resolved": [
+      "src/game/GameEvents"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/CameraController.ts",
+    "imports": [
+      "phaser"
+    ],
+    "resolved": [
+      "phaser"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/cityProgress.ts",
+    "imports": [
+      "./GameEvents",
+      "./passiveIncomeConfig"
+    ],
+    "resolved": [
+      "src/game/GameEvents",
+      "src/game/passiveIncomeConfig"
+    ],
+    "storage": [
+      "const shopPlaceableStorageKey = 'after-gamifikasi-shop-placeables'",
+      "const economyStorageKey = 'after-gamifikasi-economy-state'",
+      "const placeables = readJson<StoredPlaceable[]>(shopPlaceableStorageKey) ?? []",
+      "const economy = readJson<StoredEconomy>(economyStorageKey)",
+      "event.key === shopPlaceableStorageKey ||",
+      "event.key === economyStorageKey",
+      "const rawValue = localStorage.getItem(key)"
+    ],
+    "importedBy": [
+      "src/game/useCityProgress.ts"
+    ]
+  },
+  {
+    "file": "src/game/Game.ts",
+    "imports": [
+      "phaser",
+      "./GameScene"
+    ],
+    "resolved": [
+      "phaser",
+      "src/game/GameScene"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/GameCanvas.tsx"
+    ]
+  },
+  {
+    "file": "src/game/GameEvents.ts",
+    "imports": [
+      "./shopItems"
+    ],
+    "resolved": [
+      "src/game/shopItems"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/components/finance/dashboard/CitySummary.tsx",
+      "src/components/shop/VehicleCard.tsx",
+      "src/components/shop/VehicleShop.tsx",
+      "src/components/ShopModal.tsx",
+      "src/components/VehicleModal.tsx",
+      "src/game/buildingUpgradeConfig.ts",
+      "src/game/cityProgress.ts",
+      "src/game/GameScene.ts",
+      "src/game/useCityProgress.ts",
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/game/GameScene.ts",
+    "imports": [
+      "phaser",
+      "../../MBS_Toony_021523u/png/Props/cloud_01.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_02.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_03.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_04.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_05.png",
+      "../../MBS_Toony_021523u/png/Props/cloud_06.png",
+      "../../MBS_Toony_021523u/png/Buildings/bank.png",
+      "../../MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "../../MBS_Toony_021523u/png/Props/Coin.jpg",
+      "../../MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "../../MBS_Toony_021523u/png/Props/fence_wire.png",
+      "../../MBS_Toony_021523u/png/Props/ground_street_01.png",
+      "../../MBS_Toony_021523u/png/Props/ground_street_02.png",
+      "./GameEvents",
+      "./CameraController",
+      "./bankConfig",
+      "./buildingInfo",
+      "./buildingUpgradeConfig",
+      "./shopItems",
+      "./passiveIncomeConfig",
+      "./VehicleMovementSystem",
+      "./vehicleConfig",
+      "./vehicleUnlockLogic",
+      "./vehiclePurchaseSystem"
+    ],
+    "resolved": [
+      "phaser",
+      "MBS_Toony_021523u/png/Props/cloud_01.png",
+      "MBS_Toony_021523u/png/Props/cloud_02.png",
+      "MBS_Toony_021523u/png/Props/cloud_03.png",
+      "MBS_Toony_021523u/png/Props/cloud_04.png",
+      "MBS_Toony_021523u/png/Props/cloud_05.png",
+      "MBS_Toony_021523u/png/Props/cloud_06.png",
+      "MBS_Toony_021523u/png/Buildings/bank.png",
+      "MBS_Toony_021523u/png/Buildings/barber_shop.png",
+      "MBS_Toony_021523u/png/Props/Coin.jpg",
+      "MBS_Toony_021523u/png/Props/Diamond.jpg",
+      "MBS_Toony_021523u/png/Props/fence_wire.png",
+      "MBS_Toony_021523u/png/Props/ground_street_01.png",
+      "MBS_Toony_021523u/png/Props/ground_street_02.png",
+      "src/game/GameEvents",
+      "src/game/CameraController",
+      "src/game/bankConfig",
+      "src/game/buildingInfo",
+      "src/game/buildingUpgradeConfig",
+      "src/game/shopItems",
+      "src/game/passiveIncomeConfig",
+      "src/game/VehicleMovementSystem",
+      "src/game/vehicleConfig",
+      "src/game/vehicleUnlockLogic",
+      "src/game/vehiclePurchaseSystem"
+    ],
+    "storage": [
+      "private readonly placeableStorageKey = 'after-gamifikasi-placeable-positions'",
+      "private readonly shopPlaceableStorageKey = 'after-gamifikasi-shop-placeables'",
+      "private readonly groundStorageKey = 'after-gamifikasi-ground-tiles'",
+      "private readonly economyStorageKey = 'after-gamifikasi-economy-state'",
+      "localStorage.setItem(",
+      "this.placeableStorageKey,",
+      "localStorage.setItem(",
+      "this.placeableStorageKey,",
+      "localStorage.setItem(",
+      "this.placeableStorageKey,",
+      "const rawPositions = localStorage.getItem(this.placeableStorageKey)",
+      "localStorage.setItem(",
+      "this.shopPlaceableStorageKey,",
+      "const rawItems = localStorage.getItem(this.shopPlaceableStorageKey)",
+      "localStorage.setItem(",
+      "this.groundStorageKey,",
+      "const rawTiles = localStorage.getItem(this.groundStorageKey)",
+      "localStorage.setItem(",
+      "this.economyStorageKey,",
+      "const rawState = localStorage.getItem(this.economyStorageKey)"
+    ],
+    "importedBy": [
+      "src/game/Game.ts"
+    ]
+  },
+  {
+    "file": "src/game/gamificationService.ts",
+    "imports": [
+      "./shopItems",
+      "./achievementService",
+      "../utils/date"
+    ],
+    "resolved": [
+      "src/game/shopItems",
+      "src/game/achievementService",
+      "src/utils/date"
+    ],
+    "storage": [
+      "function getUserStatsStorageKey(userId: string) {",
+      "function getDailyRewardLogStorageKey(userId: string, date: string) {",
+      "const rawValue = localStorage.getItem(key)",
+      "localStorage.setItem(key, JSON.stringify(value))",
+      "writeJson(getUserStatsStorageKey(stats.userId), normalizedStats)",
+      "getDailyRewardLogStorageKey(normalizedLog.userId, normalizedLog.date),",
+      "readJson<Partial<UserStats>>(getUserStatsStorageKey(userId)),",
+      "getDailyRewardLogStorageKey(userId, date),",
+      "event.key === getUserStatsStorageKey(userId) ||"
+    ],
+    "importedBy": [
+      "src/components/finance/dashboard/GamificationSummary.tsx",
+      "src/components/gamification/daily-mission/mission-utils.ts",
+      "src/components/gamification/daily-mission/MissionCard.tsx",
+      "src/components/gamification/DailyMissionPanel.tsx",
+      "src/components/gamification/DailyRewardLimitCard.tsx",
+      "src/components/gamification/GamificationHud.tsx",
+      "src/components/gamification/LevelProgressCard.tsx",
+      "src/components/gamification/LevelUpRewardToast.tsx",
+      "src/contexts/finance-context.tsx",
+      "src/game/achievementService.ts",
+      "src/game/useGamification.ts",
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/game/passiveIncomeConfig.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/game/buildingInfo.ts",
+      "src/game/cityProgress.ts",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/shopItems.ts",
+    "imports": [
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "src/game/vehicleConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/BuildingModal.tsx",
+      "src/components/shop/VehicleCard.tsx",
+      "src/components/shop/VehicleShop.tsx",
+      "src/components/ShopModal.tsx",
+      "src/components/VehicleModal.tsx",
+      "src/game/achievementService.ts",
+      "src/game/GameEvents.ts",
+      "src/game/GameScene.ts",
+      "src/game/gamificationService.ts",
+      "src/game/vehiclePurchaseSystem.ts",
+      "src/game/vehicleUnlockLogic.ts",
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/game/useAchievements.ts",
+    "imports": [
+      "react",
+      "./achievementService"
+    ],
+    "resolved": [
+      "react",
+      "src/game/achievementService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/achievements/AchievementModal.tsx",
+      "src/components/admin/AdminToolsModal.tsx"
+    ]
+  },
+  {
+    "file": "src/game/useCityProgress.ts",
+    "imports": [
+      "react",
+      "./cityProgress",
+      "./GameEvents"
+    ],
+    "resolved": [
+      "react",
+      "src/game/cityProgress",
+      "src/game/GameEvents"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-dashboard.tsx"
+    ]
+  },
+  {
+    "file": "src/game/useGamification.ts",
+    "imports": [
+      "react",
+      "./gamificationService"
+    ],
+    "resolved": [
+      "react",
+      "src/game/gamificationService"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/game/vehicleConfig.ts",
+    "imports": [
+      "../../MBS_Toony_021523u/png/Vehicles/ambulance.png",
+      "../../MBS_Toony_021523u/png/Vehicles/car_blue.png",
+      "../../MBS_Toony_021523u/png/Vehicles/car_red.png",
+      "../../MBS_Toony_021523u/png/Vehicles/police_car.png",
+      "../../MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "../../MBS_Toony_021523u/png/Vehicles/van_black.png",
+      "../../MBS_Toony_021523u/png/Vehicles/van_white.png"
+    ],
+    "resolved": [
+      "MBS_Toony_021523u/png/Vehicles/ambulance.png",
+      "MBS_Toony_021523u/png/Vehicles/car_blue.png",
+      "MBS_Toony_021523u/png/Vehicles/car_red.png",
+      "MBS_Toony_021523u/png/Vehicles/police_car.png",
+      "MBS_Toony_021523u/png/Vehicles/taxi.png",
+      "MBS_Toony_021523u/png/Vehicles/van_black.png",
+      "MBS_Toony_021523u/png/Vehicles/van_white.png"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/game/GameScene.ts",
+      "src/game/shopItems.ts",
+      "src/game/VehicleMovementSystem.ts",
+      "src/game/vehiclePurchaseSystem.ts",
+      "src/game/vehicleUnlockLogic.ts"
+    ]
+  },
+  {
+    "file": "src/game/VehicleMovementSystem.ts",
+    "imports": [
+      "phaser",
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "phaser",
+      "src/game/vehicleConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/vehiclePurchaseSystem.ts",
+    "imports": [
+      "./shopItems",
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "src/game/shopItems",
+      "src/game/vehicleConfig"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/ShopModal.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/game/vehicleUnlockLogic.ts",
+    "imports": [
+      "./shopItems",
+      "./vehicleConfig"
+    ],
+    "resolved": [
+      "src/game/shopItems",
+      "src/game/vehicleConfig"
+    ],
+    "storage": [
+      "const shopPlaceableStorageKey = 'after-gamifikasi-shop-placeables'",
+      "const economyStorageKey = 'after-gamifikasi-economy-state'",
+      "const economy = readJson<StoredEconomy>(economyStorageKey)",
+      "const placeables = readJson<StoredPlaceable[]>(shopPlaceableStorageKey) ?? []",
+      "const placeables = readJson<StoredPlaceable[]>(shopPlaceableStorageKey) ?? []",
+      "const rawValue = localStorage.getItem(key)"
+    ],
+    "importedBy": [
+      "src/components/shop/VehicleCard.tsx",
+      "src/components/shop/VehicleShop.tsx",
+      "src/game/GameScene.ts"
+    ]
+  },
+  {
+    "file": "src/layouts/RootLayout.tsx",
+    "imports": [
+      "react-router-dom",
+      "../contexts/AuthContext"
+    ],
+    "resolved": [
+      "react-router-dom",
+      "src/contexts/AuthContext"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/lib/firebase.ts",
+    "imports": [
+      "firebase/app",
+      "firebase/auth",
+      "firebase/firestore/lite"
+    ],
+    "resolved": [
+      "firebase/app",
+      "firebase/auth",
+      "firebase/firestore/lite"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/contexts/AuthContext.tsx",
+      "src/lib/firestore-finance.ts",
+      "src/pages/ForgotPasswordPage.tsx"
+    ]
+  },
+  {
+    "file": "src/lib/firestore-finance.ts",
+    "imports": [
+      "firebase/firestore/lite",
+      "../types/finance",
+      "../utils/finance",
+      "./firebase",
+      "./forgotPassword"
+    ],
+    "resolved": [
+      "firebase/firestore/lite",
+      "src/types/finance",
+      "src/utils/finance",
+      "src/lib/firebase",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [
+      "const userRef = doc(db, 'users', uid)",
+      "const localFinanceStoragePrefix = 'after-gamifikasi-finance'",
+      "return collection(db, 'users', uid, collectionName)",
+      "function getLocalFinanceStorageKey(uid: string) {",
+      "return `${localFinanceStoragePrefix}-${uid}`",
+      "return typeof window !== 'undefined' && typeof localStorage !== 'undefined'",
+      "const rawValue = localStorage.getItem(getLocalFinanceStorageKey(uid))",
+      "localStorage.setItem(getLocalFinanceStorageKey(uid), JSON.stringify(data))",
+      "if (event.key === getLocalFinanceStorageKey(uid)) {",
+      "doc(db, 'users', uid, 'transactions', transaction.id),",
+      "doc(db, 'users', uid, 'categories', category.id),",
+      "await updateDoc(doc(db, 'users', uid, 'transactions', transactionId), {",
+      "await deleteDoc(doc(db, 'users', uid, 'transactions', transactionId))",
+      "await updateDoc(doc(db, 'users', uid, 'categories', categoryId), {",
+      "await deleteDoc(doc(db, 'users', uid, 'categories', categoryId))"
+    ],
+    "importedBy": [
+      "src/components/admin/AdminToolsModal.tsx",
+      "src/contexts/AuthContext.tsx",
+      "src/contexts/finance-context.tsx"
+    ]
+  },
+  {
+    "file": "src/lib/forgotPassword.ts",
+    "imports": [
+      "firebase/app",
+      "firebase/auth"
+    ],
+    "resolved": [
+      "firebase/app",
+      "firebase/auth"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/AuthGate.tsx",
+      "src/contexts/AuthContext.tsx",
+      "src/lib/firestore-finance.ts",
+      "src/pages/ForgotPasswordPage.tsx",
+      "src/pages/LoginPage.tsx",
+      "src/pages/RegisterPage.tsx",
+      "src/pages/VerifyEmailPage.tsx",
+      "tests/forgotPassword.test.mjs"
+    ]
+  },
+  {
+    "file": "src/lib/utils.ts",
+    "imports": [
+      "cn"
+    ],
+    "resolved": [
+      "cn"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/main.tsx",
+    "imports": [
+      "react",
+      "react-dom/client",
+      "./App",
+      "./styles/globals.css"
+    ],
+    "resolved": [
+      "react",
+      "react-dom/client",
+      "src/App",
+      "src/styles/globals.css"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/pages/ForgotPasswordPage.tsx",
+    "imports": [
+      "react",
+      "firebase/auth",
+      "react-router-dom",
+      "../components/PageContainer",
+      "../lib/forgotPassword",
+      "../lib/firebase"
+    ],
+    "resolved": [
+      "react",
+      "firebase/auth",
+      "react-router-dom",
+      "src/components/PageContainer",
+      "src/lib/forgotPassword",
+      "src/lib/firebase"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/GamePage.tsx",
+    "imports": [
+      "react",
+      "../components/admin/AdminToolsModal",
+      "../components/achievements/AchievementModal",
+      "../components/achievements/AchievementToast",
+      "../components/BuildingModal",
+      "../components/finance/finance-management-modal",
+      "../components/gamification/DailyMissionPanel",
+      "../components/gamification/GamificationHud",
+      "../components/gamification/LevelUpRewardToast",
+      "../components/gamification/TutorialOnboardingModal",
+      "../components/GameCanvas",
+      "../components/ShopModal",
+      "../components/VehicleModal",
+      "../contexts/AuthContext",
+      "../game/GameEvents",
+      "../game/achievementService",
+      "../game/gamificationService",
+      "../game/shopItems",
+      "../game/useGamification",
+      "../utils/admin"
+    ],
+    "resolved": [
+      "react",
+      "src/components/admin/AdminToolsModal",
+      "src/components/achievements/AchievementModal",
+      "src/components/achievements/AchievementToast",
+      "src/components/BuildingModal",
+      "src/components/finance/finance-management-modal",
+      "src/components/gamification/DailyMissionPanel",
+      "src/components/gamification/GamificationHud",
+      "src/components/gamification/LevelUpRewardToast",
+      "src/components/gamification/TutorialOnboardingModal",
+      "src/components/GameCanvas",
+      "src/components/ShopModal",
+      "src/components/VehicleModal",
+      "src/contexts/AuthContext",
+      "src/game/GameEvents",
+      "src/game/achievementService",
+      "src/game/gamificationService",
+      "src/game/shopItems",
+      "src/game/useGamification",
+      "src/utils/admin"
+    ],
+    "storage": [
+      "const value = localStorage.getItem(DAILY_MISSION_MINIMIZED_STORAGE_KEY)",
+      "localStorage.setItem("
+    ],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/HomePage.tsx",
+    "imports": [
+      "../components/GameCanvas",
+      "../contexts/AuthContext"
+    ],
+    "resolved": [
+      "src/components/GameCanvas",
+      "src/contexts/AuthContext"
+    ],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "src/pages/LoginPage.tsx",
+    "imports": [
+      "react",
+      "react-router-dom",
+      "../components/PageContainer",
+      "../components/PasswordInput",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "react-router-dom",
+      "src/components/PageContainer",
+      "src/components/PasswordInput",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/RegisterPage.tsx",
+    "imports": [
+      "react",
+      "react-router-dom",
+      "../components/PageContainer",
+      "../components/PasswordInput",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "react-router-dom",
+      "src/components/PageContainer",
+      "src/components/PasswordInput",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/pages/VerifyEmailPage.tsx",
+    "imports": [
+      "react",
+      "../components/PageContainer",
+      "../contexts/AuthContext",
+      "../lib/forgotPassword"
+    ],
+    "resolved": [
+      "react",
+      "src/components/PageContainer",
+      "src/contexts/AuthContext",
+      "src/lib/forgotPassword"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/routes/router.tsx"
+    ]
+  },
+  {
+    "file": "src/routes/router.tsx",
+    "imports": [
+      "react-router-dom",
+      "../components/AuthGate",
+      "../layouts/RootLayout",
+      "../pages/ForgotPasswordPage",
+      "../pages/GamePage",
+      "../pages/LoginPage",
+      "../pages/RegisterPage",
+      "../pages/VerifyEmailPage"
+    ],
+    "resolved": [
+      "react-router-dom",
+      "src/components/AuthGate",
+      "src/layouts/RootLayout",
+      "src/pages/ForgotPasswordPage",
+      "src/pages/GamePage",
+      "src/pages/LoginPage",
+      "src/pages/RegisterPage",
+      "src/pages/VerifyEmailPage"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/App.tsx"
+    ]
+  },
+  {
+    "file": "src/styles/globals.css",
+    "imports": [
+      "tailwindcss",
+      "tw-animate-css",
+      "shadcn/tailwind.css",
+      "@fontsource-variable/geist"
+    ],
+    "resolved": [
+      "tailwindcss",
+      "tw-animate-css",
+      "shadcn/tailwind.css",
+      "@fontsource-variable/geist"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/main.tsx"
+    ]
+  },
+  {
+    "file": "src/types/finance.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/category-modal.tsx",
+      "src/components/finance/dashboard/dashboard-utils.ts",
+      "src/components/finance/dashboard/DashboardChart.tsx",
+      "src/components/finance/dashboard/ExpenseCategoryPreview.tsx",
+      "src/components/finance/dashboard/FinancialOverview.tsx",
+      "src/components/finance/finance-categories.tsx",
+      "src/components/finance/finance-management-modal.tsx",
+      "src/components/finance/finance-reports.tsx",
+      "src/components/finance/finance-transactions.tsx",
+      "src/components/finance/transaction-modal.tsx",
+      "src/contexts/finance-context.tsx",
+      "src/game/achievementService.ts",
+      "src/lib/firestore-finance.ts",
+      "src/utils/finance.ts"
+    ]
+  },
+  {
+    "file": "src/utils/admin.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/pages/GamePage.tsx"
+    ]
+  },
+  {
+    "file": "src/utils/date.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/finance-reports.tsx",
+      "src/game/achievementService.ts",
+      "src/game/gamificationService.ts",
+      "src/utils/finance.ts"
+    ]
+  },
+  {
+    "file": "src/utils/finance.ts",
+    "imports": [
+      "../types/finance",
+      "./date"
+    ],
+    "resolved": [
+      "src/types/finance",
+      "src/utils/date"
+    ],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/dashboard/dashboard-utils.ts",
+      "src/components/finance/dashboard/ExpenseCategoryPreview.tsx",
+      "src/components/finance/dashboard/FinancialOverview.tsx",
+      "src/components/finance/finance-categories.tsx",
+      "src/components/finance/finance-dashboard.tsx",
+      "src/components/finance/finance-reports.tsx",
+      "src/components/finance/finance-transactions.tsx",
+      "src/components/finance/IncomeExpenseDonutChart.tsx",
+      "src/components/finance/transaction-modal.tsx",
+      "src/lib/firestore-finance.ts"
+    ]
+  },
+  {
+    "file": "src/utils/numeric-input.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": [
+      "src/components/finance/transaction-modal.tsx"
+    ]
+  },
+  {
+    "file": "src/vite-env.d.ts",
+    "imports": [],
+    "resolved": [],
+    "storage": [],
+    "importedBy": []
+  },
+  {
+    "file": "tests/e2e-auth-flow.mjs",
+    "imports": [
+      "playwright-core",
+      "node:timers/promises"
+    ],
+    "resolved": [
+      "playwright-core",
+      "node:timers/promises"
+    ],
+    "storage": [
+      "// sessionStorage), jadi tunggu hitung mundur selesai maksimal 90 detik."
+    ],
+    "importedBy": []
+  },
+  {
+    "file": "tests/forgotPassword.test.mjs",
+    "imports": [
+      "node:assert/strict",
+      "node:test",
+      "firebase/app",
+      "../src/lib/forgotPassword.ts"
+    ],
+    "resolved": [
+      "node:assert/strict",
+      "node:test",
+      "firebase/app",
+      "src/lib/forgotPassword.ts"
+    ],
+    "storage": [],
+    "importedBy": []
+  }
+]

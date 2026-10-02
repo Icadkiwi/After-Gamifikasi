@@ -109,7 +109,7 @@ export class VehicleMovementSystem {
 
         activePointerId = null
 
-        if (didCameraDrag || pressDuration > 260 || moveDistance > 12) {
+        if (pointer.event.target !== this.scene.game.canvas || didCameraDrag || pressDuration > 260 || moveDistance > 12) {
           return
         }
 
@@ -128,6 +128,8 @@ export class VehicleMovementSystem {
           _localY: number,
           event: Phaser.Types.Input.EventData,
         ) => {
+          // Phaser also receives window mouse events over React overlays.
+          if (pointer.event.target !== this.scene.game.canvas) return
           pointerDownAt = this.scene.time.now
           pointerStartX = pointer.x
           pointerStartY = pointer.y

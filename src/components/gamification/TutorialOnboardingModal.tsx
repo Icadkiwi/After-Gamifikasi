@@ -6,34 +6,13 @@ type TutorialOnboardingModalProps = {
 }
 
 const tutorialSteps = [
-  {
-    title: 'Kelola Keuangan',
-    body: 'Mulai dengan mencatat pemasukan dan pengeluaranmu.',
-  },
-  {
-    title: 'Jaga Saldo',
-    body: 'Atur pengeluaran dengan bijak.',
-  },
-  {
-    title: 'Kerjakan Misi',
-    body: 'Selesaikan misi harian.',
-  },
-  {
-    title: 'Dapatkan Hadiah',
-    body: 'Kumpulkan EXP, Koin, dan Berlian.',
-  },
-  {
-    title: 'Naikkan Level',
-    body: 'Perkembangan finansial menaikkan level kota.',
-  },
-  {
-    title: 'Belanja di Toko',
-    body: 'Beli bangunan dan dekorasi.',
-  },
-  {
-    title: 'Bangun Kota',
-    body: 'Ciptakan kota impianmu.',
-  },
+  { title: 'Kenali Kemampuanmu', body: 'Mulai dengan asesmen awal literasi keuangan.' },
+  { title: 'Ikuti Jalur Belajar', body: 'Pelajari materi yang direkomendasikan dari hasil asesmen.' },
+  { title: 'Latihan Skenario', body: 'Coba keputusan keuangan pada tokoh dan dana simulasi.' },
+  { title: 'Ukur Kembali', body: 'Pelajari umpan balik dan lulus asesmen ulang untuk menyelesaikan tantangan.' },
+  { title: 'Dapatkan Hadiah', body: 'Kemajuan belajar menghasilkan EXP, Koin, Berlian, dan pencapaian.' },
+  { title: 'Bangun Kota', body: 'Gunakan hadiah untuk membeli dan meningkatkan bangunan.' },
+  { title: 'Terus Berkembang', body: 'Penguasaan materi membuka fitur kota dan tantangan berikutnya.' },
 ]
 
 export function TutorialOnboardingModal({

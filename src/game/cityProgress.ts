@@ -1,3 +1,4 @@
+import { cityStorageKey } from './city/storage'
 import {
   subscribeGameEvent,
   type CityProgressState,
@@ -20,9 +21,9 @@ type StoredEconomy = {
   barberLevel?: number
 }
 
-export function getStoredCityProgress(): CityProgressState {
-  const placeables = readJson<StoredPlaceable[]>(shopPlaceableStorageKey) ?? []
-  const economy = readJson<StoredEconomy>(economyStorageKey)
+export function getStoredCityProgress(userId: string): CityProgressState {
+  const placeables = readJson<StoredPlaceable[]>(cityStorageKey(shopPlaceableStorageKey, userId)) ?? []
+  const economy = readJson<StoredEconomy>(cityStorageKey(economyStorageKey, userId))
   const buildingCount = placeables.filter(
     (placeable) => placeable.type === 'building' || Boolean(placeable.buildingType),
   ).length
@@ -53,6 +54,7 @@ export function getStoredCityProgress(): CityProgressState {
 }
 
 export function subscribeCityProgress(
+  userId: string,
   handler: (cityProgress: CityProgressState) => void,
 ) {
   const unsubscribeGameEvent = subscribeGameEvent(
@@ -61,10 +63,10 @@ export function subscribeCityProgress(
   )
   const handleStorage = (event: StorageEvent) => {
     if (
-      event.key === shopPlaceableStorageKey ||
-      event.key === economyStorageKey
+      event.key === cityStorageKey(shopPlaceableStorageKey, userId) ||
+      event.key === cityStorageKey(economyStorageKey, userId)
     ) {
-      handler(getStoredCityProgress())
+      handler(getStoredCityProgress(userId))
     }
   }
 

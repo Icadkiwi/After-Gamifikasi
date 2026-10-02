@@ -1,0 +1,20 @@
+[
+  "src/components/finance/category-modal.tsx",
+  "src/components/finance/dashboard/CitySummary.tsx",
+  "src/components/finance/dashboard/dashboard-utils.ts",
+  "src/components/finance/dashboard/DashboardChart.tsx",
+  "src/components/finance/dashboard/ExpenseCategoryPreview.tsx",
+  "src/components/finance/dashboard/FinancialOverview.tsx",
+  "src/components/finance/dashboard/GamificationSummary.tsx",
+  "src/components/finance/finance-categories.tsx",
+  "src/components/finance/finance-dashboard.tsx",
+  "src/components/finance/finance-management-modal.tsx",
+  "src/components/finance/finance-reports.tsx",
+  "src/components/finance/finance-transactions.tsx",
+  "src/components/finance/IncomeExpenseDonutChart.tsx",
+  "src/components/finance/transaction-modal.tsx",
+  "src/contexts/finance-context.tsx",
+  "src/lib/firestore-finance.ts",
+  "src/types/finance.ts",
+  "src/utils/finance.ts"
+]

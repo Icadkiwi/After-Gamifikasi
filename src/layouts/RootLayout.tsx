@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../contexts/AuthContext'
+import { localAccessEnabled } from '../lib/localAccess'
 
 const navItems = [
   { to: '/login', label: 'Masuk' },
@@ -8,14 +9,17 @@ const navItems = [
 ]
 
 export function RootLayout() {
-  const { user, loading, logout } = useAuth()
+  const { user, loading, logout, isLocalSession } = useAuth()
   const navigate = useNavigate()
   const isLoggedIn = Boolean(user)
   const displayName = user?.displayName?.trim() || user?.email || 'Pengguna'
 
   async function handleLogout() {
+    // Leave the protected route before clearing the local identity, so AuthGate
+    // cannot race this navigation with its redirect to /login.
+    if (localAccessEnabled) navigate('/', { replace: true, flushSync: true })
     await logout()
-    navigate('/login')
+    if (!localAccessEnabled) navigate('/login')
   }
 
   return (
@@ -23,7 +27,8 @@ export function RootLayout() {
       <header className="h-16 shrink-0 border-b border-zinc-200 bg-white">
         <nav className="flex h-full w-full items-center justify-between gap-2 px-4 sm:px-6">
           <NavLink to="/" className="shrink-0 text-base font-semibold sm:text-lg">
-            After Gamifikasi
+            <span className="block">After Gamifikasi</span>
+            {localAccessEnabled && <span className="block text-xs font-normal text-emerald-700">{isLocalSession ? 'Sesi uji lokal · Pilih akses' : 'Pilih akses lokal'}</span>}
           </NavLink>
 
           <div className="flex min-w-0 items-center justify-end gap-2">

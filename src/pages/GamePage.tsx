@@ -1,3 +1,5 @@
+import { getShopLearningRequirement, purchaseLearningShopItem } from '../services/gameProgressionService'
+import { cityStorageKey } from '../game/city/storage'
 import {
   useCallback,
   useEffect,
@@ -11,7 +13,8 @@ import { AdminToolsModal } from '../components/admin/AdminToolsModal'
 import { AchievementModal } from '../components/achievements/AchievementModal'
 import { AchievementToast } from '../components/achievements/AchievementToast'
 import { BuildingModal } from '../components/BuildingModal'
-import { FinanceManagementModal } from '../components/finance/finance-management-modal'
+import { LearningDashboard } from '../components/learning/LearningDashboard'
+import { CityHallModal } from '../components/city/CityHallModal'
 import { DailyMissionPanel } from '../components/gamification/DailyMissionPanel'
 import { GamificationHud } from '../components/gamification/GamificationHud'
 import { LevelUpRewardToast } from '../components/gamification/LevelUpRewardToast'
@@ -31,27 +34,34 @@ import {
 import {
   syncBuildingUpgradeAchievementProgress,
   syncGamificationAchievementProgress,
-} from '../game/achievementService'
+} from '../gamification/achievements/achievementService'
 import {
   claimMissionReward,
   completeTutorial,
   adminUpgradeUserLevel,
   MAX_USER_COIN,
   MAX_USER_DIAMOND,
-  purchaseShopItem,
+  getUserStats,
   resetUserLevel,
   sellShopItem,
   syncCurrencyFromGame,
-} from '../game/gamificationService'
+} from '../gamification/rewards/gamificationService'
 import { visibleShopItems, type ShopItem } from '../game/shopItems'
-import { useGamification } from '../game/useGamification'
-import { isAdminEmail } from '../utils/admin'
+import { useGamification } from '../gamification/rewards/useGamification'
+import { useCityProgress } from '../game/useCityProgress'
+import { useStreakGamification } from '../gamification/streak/useStreakGamification'
+import { StreakGiftToast } from '../components/gamification/streak/StreakGiftToast'
 
 const DAILY_MISSION_MINIMIZED_STORAGE_KEY = 'dailyMissionMinimized'
 const DAILY_MISSION_AUTO_MINIMIZE_DELAY = 6500
 
 export function GamePage() {
   const { user } = useAuth()
+  return user ? <UserGamePage key={user.uid} /> : null
+}
+
+function UserGamePage() {
+  const { user, isAdmin } = useAuth()
   const gamification = useGamification(user?.uid)
   const hasSyncedSceneCurrencyRef = useRef(false)
   const [sceneCurrency, setSceneCurrency] = useState<CurrencyState | null>(null)
@@ -60,7 +70,7 @@ export function GamePage() {
   const [activeVehicle, setActiveVehicle] =
     useState<VehicleModalPayload | null>(null)
   const [isShopOpen, setIsShopOpen] = useState(false)
-  const [isFinanceOpen, setIsFinanceOpen] = useState(false)
+  const [isLearningOpen, setIsLearningOpen] = useState(false)
   const [isAchievementOpen, setIsAchievementOpen] = useState(false)
   const [isAdminToolsOpen, setIsAdminToolsOpen] = useState(false)
   const [isDailyMissionMinimized, setIsDailyMissionMinimized] = useState(true)
@@ -74,6 +84,9 @@ export function GamePage() {
     useState<ShopItem | null>(null)
   const [pendingPlacementItem, setPendingPlacementItem] =
     useState<ShopItem | null>(null)
+  const [isCityHallOpen, setIsCityHallOpen] = useState(false)
+  const cityProgress = useCityProgress(user?.uid ?? '')
+  const streakGamification = useStreakGamification(user?.uid ?? '')
   const currency = useMemo<CurrencyState | null>(() => {
     if (!gamification) {
       return sceneCurrency
@@ -106,8 +119,13 @@ export function GamePage() {
   const updateDailyMissionMinimized = useCallback((nextMinimized: boolean) => {
     setIsDailyMissionMinimized(nextMinimized)
     setHasDailyMissionPreference(true)
-    saveDailyMissionMinimizedPreference(nextMinimized)
-  }, [])
+    saveDailyMissionMinimizedPreference(nextMinimized, user?.uid ?? '')
+  }, [user?.uid])
+
+  const handleUseStreakProtection = useCallback(() => {
+    if (!user?.uid) return
+    streakGamification.protectStreak()
+  }, [user?.uid, streakGamification])
   const gamificationCoin = gamification?.stats.coin
   const gamificationDiamond = gamification?.stats.diamond
   const tutorialCompleted = gamification?.stats.tutorialCompleted
@@ -119,7 +137,6 @@ export function GamePage() {
     () => (purchasedShopItems ?? []).slice().sort().join('|'),
     [purchasedShopItems],
   )
-  const isAdmin = isAdminEmail(user?.email)
 
   useEffect(() => {
     purchasedShopItemsRef.current = purchasedShopItems ?? []
@@ -135,6 +152,11 @@ export function GamePage() {
     const unsubscribeGameSceneReady = subscribeGameEvent(
       'GAME_SCENE_READY',
       () => {
+        if (user?.uid) {
+          const stats = getUserStats(user.uid)
+          hasSyncedSceneCurrencyRef.current = true
+          emitGameEvent('SYNC_GAME_CURRENCY', { coins: stats.coin, diamonds: stats.diamond })
+        }
         syncOwnedShopItemsToScene()
       },
     )
@@ -170,8 +192,11 @@ export function GamePage() {
       setActiveVehicle(null)
       setIsShopOpen(true)
     })
-    const unsubscribeOpenNpcPanel = subscribeGameEvent('OPEN_NPC_PANEL', () => {
-      // Jalur NPC lama tidak dipakai lagi untuk kendaraan map.
+    const unsubscribeCityHall = subscribeGameEvent('OPEN_CITY_HALL', () => {
+      setIsCityHallOpen(true)
+    })
+    const unsubscribeSchoolEntry = subscribeGameEvent('OPEN_LEARNING_ENTRY', () => {
+      setIsLearningOpen(true)
     })
     const unsubscribeShopError = subscribeGameEvent('SHOP_ERROR', (message) => {
       if (shouldShowPlacementErrorPopup(message)) {
@@ -243,7 +268,7 @@ export function GamePage() {
           return
         }
 
-        const result = purchaseShopItem(user.uid, item)
+        const result = purchaseLearningShopItem(user.uid, item)
 
         if (!result.success) {
           setShopError(result.message)
@@ -265,7 +290,8 @@ export function GamePage() {
       unsubscribeModal()
       unsubscribeVehicleModal()
       unsubscribeOpenShop()
-      unsubscribeOpenNpcPanel()
+      unsubscribeCityHall()
+      unsubscribeSchoolEntry()
       unsubscribeShopError()
       unsubscribeShopPlacementStarted()
       unsubscribeShopPlacementConfirmRequest()
@@ -282,7 +308,7 @@ export function GamePage() {
       return
     }
 
-    hasSyncedSceneCurrencyRef.current = true
+    if (!hasSyncedSceneCurrencyRef.current) return
     emitGameEvent('SYNC_GAME_CURRENCY', {
       coins: gamificationCoin,
       diamonds: gamificationDiamond,
@@ -333,7 +359,7 @@ export function GamePage() {
       return
     }
 
-    const preference = readDailyMissionMinimizedPreference()
+    const preference = readDailyMissionMinimizedPreference(gamificationUserId)
 
     queueMicrotask(() => {
       setHasDailyMissionPreference(preference !== null)
@@ -447,6 +473,13 @@ export function GamePage() {
   }
 
   function handleBuyShopItem(item: ShopItem) {
+    if (user?.uid) {
+      try {
+        const requirement = getShopLearningRequirement(user.uid, item.key)
+        if (requirement) { setShopError(requirement); return }
+      } catch (error) { setShopError(error instanceof Error ? error.message : 'Progres belajar tidak dapat dibaca.'); return }
+    }
+
     if (!user?.uid || !gamification) {
       setShopError('Pengguna belum masuk')
       return
@@ -549,7 +582,7 @@ export function GamePage() {
 
   return (
     <section className="relative h-[calc(100dvh-64px)] min-h-[calc(100svh-64px)] w-full overflow-hidden">
-      <GameCanvas className="relative h-full w-full bg-cover bg-center" />
+      <GameCanvas userId={user?.uid ?? ''} interactionEnabled={!isLearningOpen && !isShopOpen && !isAchievementOpen && !isAdminToolsOpen && !isTutorialOpen && !activeBuilding && !activeVehicle && !pendingPlacementItem && !gameErrorMessage && !isCityHallOpen} className="relative h-full w-full bg-cover bg-center" />
 
       {gamification && hudStats && (
         <GamificationHud
@@ -557,6 +590,9 @@ export function GamePage() {
           levelProgress={gamification.levelProgress}
           coinCapacity={currency?.bankCapacity ?? MAX_USER_COIN}
           canResetCurrency={isAdmin}
+          streak={streakGamification.streak}
+          upcomingGift={streakGamification.upcomingGift}
+          onUseStreakProtection={handleUseStreakProtection}
           onOpenAchievements={() => setIsAchievementOpen(true)}
           onOpenAdminTools={() => setIsAdminToolsOpen(true)}
         />
@@ -564,11 +600,15 @@ export function GamePage() {
 
       <AchievementToast uid={user?.uid} />
       <LevelUpRewardToast uid={user?.uid} />
+      {streakGamification.reveal && (
+        <StreakGiftToast reveal={streakGamification.reveal} onClose={streakGamification.dismissReveal} />
+      )}
 
       {gamification && (
         <DailyMissionPanel
           missions={gamification.dailyMissions}
           dailyRewardLog={gamification.dailyRewardLog}
+          dailyLimit={gamification.dailyLimit}
           isMinimized={isDailyMissionMinimized}
           onClaimMission={handleClaimMission}
           onOpenTutorial={() => setIsTutorialOpen(true)}
@@ -576,9 +616,16 @@ export function GamePage() {
             setShopError('')
             setIsShopOpen(true)
           }}
-          onOpenFinance={() => setIsFinanceOpen(true)}
+          onOpenLearning={() => setIsLearningOpen(true)}
           onMinimize={() => updateDailyMissionMinimized(true)}
           onExpand={() => updateDailyMissionMinimized(false)}
+        />
+      )}
+
+      {isCityHallOpen && (
+        <CityHallModal
+          cityProgress={cityProgress}
+          onClose={() => setIsCityHallOpen(false)}
         />
       )}
 
@@ -607,6 +654,7 @@ export function GamePage() {
 
       {isShopOpen && (
         <ShopModal
+          userId={user?.uid ?? ''}
           items={visibleShopItems}
           currency={currency}
           errorMessage={shopError}
@@ -621,8 +669,8 @@ export function GamePage() {
         />
       )}
 
-      {isFinanceOpen && (
-        <FinanceManagementModal onClose={() => setIsFinanceOpen(false)} />
+      {isLearningOpen && (
+        <LearningDashboard userId={user?.uid ?? ''} onClose={() => setIsLearningOpen(false)} />
       )}
 
       {activePlacementItem && !pendingPlacementItem && (
@@ -834,9 +882,9 @@ function shouldShowPlacementErrorPopup(message: string) {
   ].includes(message)
 }
 
-function readDailyMissionMinimizedPreference() {
+function readDailyMissionMinimizedPreference(userId: string) {
   try {
-    const value = localStorage.getItem(DAILY_MISSION_MINIMIZED_STORAGE_KEY)
+    const value = localStorage.getItem(cityStorageKey(DAILY_MISSION_MINIMIZED_STORAGE_KEY, userId))
 
     if (value === null) {
       return null
@@ -848,10 +896,10 @@ function readDailyMissionMinimizedPreference() {
   }
 }
 
-function saveDailyMissionMinimizedPreference(nextMinimized: boolean) {
+function saveDailyMissionMinimizedPreference(nextMinimized: boolean, userId: string) {
   try {
     localStorage.setItem(
-      DAILY_MISSION_MINIMIZED_STORAGE_KEY,
+      cityStorageKey(DAILY_MISSION_MINIMIZED_STORAGE_KEY, userId),
       String(nextMinimized),
     )
   } catch {

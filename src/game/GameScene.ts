@@ -1,3 +1,4 @@
+import { cityStorageKey } from './city/storage'
 import Phaser from 'phaser'
 
 import cloud01Url from '../../MBS_Toony_021523u/png/Props/cloud_01.png'
@@ -6,10 +7,11 @@ import cloud03Url from '../../MBS_Toony_021523u/png/Props/cloud_03.png'
 import cloud04Url from '../../MBS_Toony_021523u/png/Props/cloud_04.png'
 import cloud05Url from '../../MBS_Toony_021523u/png/Props/cloud_05.png'
 import cloud06Url from '../../MBS_Toony_021523u/png/Props/cloud_06.png'
+import cityHallUrl from '../../MBS_Toony_021523u/png/Buildings/Classic City Hall Icon.png'
 import bankUrl from '../../MBS_Toony_021523u/png/Buildings/bank.png'
 import barberShopUrl from '../../MBS_Toony_021523u/png/Buildings/barber_shop.png'
-import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.jpg'
-import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.jpg'
+import coinUrl from '../../MBS_Toony_021523u/png/Props/Coin.png'
+import diamondUrl from '../../MBS_Toony_021523u/png/Props/Diamond.png'
 import fenceWireUrl from '../../MBS_Toony_021523u/png/Props/fence_wire.png'
 import groundStreet01Url from '../../MBS_Toony_021523u/png/Props/ground_street_01.png'
 import groundStreet02Url from '../../MBS_Toony_021523u/png/Props/ground_street_02.png'
@@ -194,10 +196,10 @@ export class GameScene extends Phaser.Scene {
   private readonly buildingSnapSize = 32
   private readonly tapMaxDuration = 200
   private readonly tapMaxDistance = 8
-  private readonly placeableStorageKey = 'after-gamifikasi-placeable-positions'
-  private readonly shopPlaceableStorageKey = 'after-gamifikasi-shop-placeables'
-  private readonly groundStorageKey = 'after-gamifikasi-ground-tiles'
-  private readonly economyStorageKey = 'after-gamifikasi-economy-state'
+  private get placeableStorageKey() { return cityStorageKey('after-gamifikasi-placeable-positions', this.userId) }
+  private get shopPlaceableStorageKey() { return cityStorageKey('after-gamifikasi-shop-placeables', this.userId) }
+  private get groundStorageKey() { return cityStorageKey('after-gamifikasi-ground-tiles', this.userId) }
+  private get economyStorageKey() { return cityStorageKey('after-gamifikasi-economy-state', this.userId) }
   private readonly bankLevels = BANK_LEVELS
   private readonly weatherSwitchDelay = 20000
   private readonly weatherFadeDuration = 3000
@@ -233,8 +235,22 @@ export class GameScene extends Phaser.Scene {
   private cameraController?: CameraController
   private isObjectDragging = false
 
-  constructor() {
+  private readonly userId: string
+  private interactionEnabled: boolean
+
+  constructor(userId: string, interactionEnabled = true) {
     super('GameScene')
+    this.userId = userId
+    this.interactionEnabled = interactionEnabled
+  }
+
+  setInteractionEnabled(enabled: boolean) {
+    this.interactionEnabled = enabled
+    if (this.input) this.input.enabled = enabled
+    if (!enabled) {
+      this.cameraController?.cancel()
+      this.isObjectDragging = false
+    }
   }
 
   preload() {
@@ -254,6 +270,7 @@ export class GameScene extends Phaser.Scene {
     loadImage('cloud-04', cloud04Url)
     loadImage('cloud-05', cloud05Url)
     loadImage('cloud-06', cloud06Url)
+    loadImage('building-city-hall', cityHallUrl)
     loadImage('building-bank', bankUrl)
     loadImage('building-barber-shop', barberShopUrl)
     loadImage('coin', coinUrl)
@@ -280,6 +297,7 @@ export class GameScene extends Phaser.Scene {
     this.layoutGround(this.worldWidth, height)
     this.initializeEconomy()
     this.setupControls()
+    this.setInteractionEnabled(this.interactionEnabled)
     this.startWeatherSwitching()
     this.startCoinProduction()
     this.emitSceneReady()
@@ -373,7 +391,7 @@ export class GameScene extends Phaser.Scene {
     this.cameraController?.update(delta)
     this.vehicleMovementSystem?.update(delta)
 
-    if (!this.cursors || this.isEditableElementActive()) {
+    if (!this.interactionEnabled || !this.cursors || this.isEditableElementActive()) {
       return
     }
 
@@ -708,6 +726,18 @@ export class GameScene extends Phaser.Scene {
         this.openBuildingModal(buildingType)
       }
 
+      return
+    }
+
+    // CD1 presentation buildings route to their dedicated flows instead of the
+    // generic building economy modal. They have no purchase/sell/upgrade economy.
+    if (placeable.shopKey === 'Classic City Hall Icon') {
+      emitGameEvent('OPEN_CITY_HALL', {})
+      return
+    }
+
+    if (placeable.shopKey === 'Hand-Sketched Cartoon School Building') {
+      emitGameEvent('OPEN_LEARNING_ENTRY', {})
       return
     }
 
@@ -1283,7 +1313,7 @@ export class GameScene extends Phaser.Scene {
       return
     }
 
-    if (!isVehicleRequirementMet(item.vehicleType)) {
+    if (!isVehicleRequirementMet(item.vehicleType, this.userId)) {
       emitGameEvent('SHOP_ERROR', item.unlockRequirement ?? 'Kendaraan masih terkunci.')
       return
     }
@@ -1325,28 +1355,10 @@ export class GameScene extends Phaser.Scene {
       return purchaseResult
     }
 
-    if (!this.hasEnoughCurrencyForItem(item)) {
-      return {
-        success: false,
-        message: `${this.getItemCurrencyName(item)} tidak cukup`,
-        coins: this.coins,
-        diamonds: this.diamonds,
-      }
-    }
-
-    if ((item.currencyType ?? 'coin') === 'diamond') {
-      return {
-        success: true,
-        message: 'Pembelian berhasil.',
-        coins: this.coins,
-        diamonds: this.diamonds - item.price,
-      }
-    }
-
     return {
-      success: true,
-      message: 'Pembelian berhasil.',
-      coins: this.coins - item.price,
+      success: false,
+      message: 'Layanan pembelian belum siap. Coba lagi.',
+      coins: this.coins,
       diamonds: this.diamonds,
     }
   }
@@ -1707,6 +1719,23 @@ export class GameScene extends Phaser.Scene {
         canSell: false,
       },
       {
+        // City Hall (CD1): default city progress center. Cosmetic-scale, no economy,
+        // not sellable, and safe to add for existing saves.
+        id: 'starter-city-hall',
+        key: 'Classic City Hall Icon',
+        shopKey: 'Classic City Hall Icon',
+        name: 'Balai Kota',
+        assetKey: 'building-city-hall',
+        type: 'building',
+        level: 1,
+        price: 0,
+        imageUrl: cityHallUrl,
+        x: bankX + 320,
+        y: baseY,
+        isDefault: true,
+        canSell: false,
+      },
+      {
         id: 'starter-fence-wire',
         key: 'fence_wire',
         shopKey: 'fence_wire',
@@ -1771,6 +1800,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getShopItemScale(assetKey: string) {
+    if (assetKey === 'building-city-hall') {
+      // Source asset is ~1447x1087; match the on-screen height of the bank.
+      return 0.19
+    }
+
     if (assetKey === 'building-bank') {
       return 0.43
     }
@@ -1922,6 +1956,7 @@ export class GameScene extends Phaser.Scene {
     })
 
     sprite.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.event.target !== this.game.canvas) return
       const didCameraDrag =
         this.cameraController?.handlePointerUp(pointer) ??
         this.cameraController?.didDrag(pointer) ??

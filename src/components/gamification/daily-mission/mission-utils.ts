@@ -1,7 +1,7 @@
 import type {
   DailyMission,
   DailyRewardLog,
-} from '../../../game/gamificationService'
+} from '../../../gamification/rewards/gamificationService'
 
 export function getNpcDialog(missions: DailyMission[]) {
   const unclaimedMission = missions.find(
@@ -12,12 +12,12 @@ export function getNpcDialog(missions: DailyMission[]) {
     return `Misi "${unclaimedMission.title}" sudah selesai. Ambil hadiahnya sekarang.`
   }
 
-  const firstInputMission = missions.find(
-    (mission) => mission.id === 'input-1-expense',
+  const firstLearningMission = missions.find(
+    (mission) => mission.id === 'learn-lesson',
   )
 
-  if (firstInputMission && !firstInputMission.completed) {
-    return 'Halo! Catat pemasukan atau pengeluaran pertamamu hari ini untuk menyelesaikan misi, lalu klaim EXP dan Koin.'
+  if (firstLearningMission && !firstLearningMission.completed) {
+    return 'Halo! Pelajari materi dan lulus asesmen ulang tantangan hari ini untuk menyelesaikan misi, lalu klaim EXP dan Koin.'
   }
 
   const nextMission = missions.find(
@@ -52,7 +52,9 @@ export function getMissionProgress(
     }
   }
 
-  const current = dailyRewardLog.actionCounts[mission.requirement.action]
+  const current = mission.competencyId
+    ? dailyRewardLog.competencyActionCounts[mission.competencyId]?.[mission.requirement.action] ?? 0
+    : dailyRewardLog.actionCounts[mission.requirement.action]
   const target = Math.max(mission.requirement.target, 1)
 
   return {

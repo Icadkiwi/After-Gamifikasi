@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:forgot-password": "node --test --experimental-test-isolation=none tests/forgotPassword.test.mjs"
+    "test:forgot-password": "node --test --experimental-test-isolation=none tests/forgotPassword.test.mjs",
+    "test": "node --import ./tests/register-test-loader.mjs --test --experimental-test-isolation=none tests/forgotPassword.test.mjs tests/learning.test.mjs tests/localAccess.test.mjs tests/singleAgent.test.mjs tests/buildingRoles.test.mjs tests/streakMystery.test.mjs",
+    "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

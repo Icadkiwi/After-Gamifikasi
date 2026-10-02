@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 
 import { GameScene } from './GameScene'
 
-export function createGame(parent: HTMLElement) {
+export function createGame(parent: HTMLElement, userId: string, interactionEnabled = true) {
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent,
@@ -13,7 +13,7 @@ export function createGame(parent: HTMLElement) {
       width: 800,
       height: 450,
     },
-    scene: [GameScene],
+    scene: [new GameScene(userId, interactionEnabled)],
   }
 
   return new Phaser.Game(config)

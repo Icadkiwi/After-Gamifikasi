@@ -1,0 +1,172 @@
+{
+  "results": [
+    {
+      "id": "recovery.initial",
+      "status": "PASS",
+      "note": "Local Access -> Coba User Lokal -> /game; one visible canvas, Bank persisted, no mount exception"
+    },
+    {
+      "id": "recovery.reload",
+      "status": "PASS",
+      "note": "One visible canvas after reload; no uncaught error"
+    },
+    {
+      "id": "recovery.remount",
+      "status": "PASS",
+      "note": "Logout removes canvas; re-entry mounts exactly one without a null-ref error"
+    },
+    {
+      "id": "Main City",
+      "status": "PASS",
+      "note": "Visible canvas and starter buildings; actual screenshot 01, public sprite clicks below"
+    },
+    {
+      "id": "Bank",
+      "status": "PASS",
+      "note": "Bank sprite opens existing upgrade UI"
+    },
+    {
+      "id": "City Hall Modal",
+      "status": "PASS",
+      "note": "Sprite click opens protected modal; live event metrics {\"buildingCount\":2,\"vehicleNpcCount\":0,\"passiveIncomePerHour\":0,\"cityLevel\":1} match DOM"
+    },
+    {
+      "id": "City Hall truthful copy",
+      "status": "PASS",
+      "note": "Milestone copy must not claim an absent barber is operating"
+    },
+    {
+      "id": "City Hall",
+      "status": "PASS",
+      "note": "Real sprite responds at saved (384.5, 635); screenshot 01 shows scale and separation from Bank; not sellable"
+    },
+    {
+      "id": "Shop",
+      "status": "PASS",
+      "note": "56 actual shop cards checked in Semua: Hall, School and Streak excluded"
+    },
+    {
+      "id": "School",
+      "status": "PARTIAL",
+      "note": "School is not placed in the default city; no placement feature added. Existing Learn entry tested below."
+    },
+    {
+      "id": "Coin",
+      "status": "PASS",
+      "note": "/MBS_Toony_021523u/png/Props/Coin.png"
+    },
+    {
+      "id": "Diamond",
+      "status": "PASS",
+      "note": "/MBS_Toony_021523u/png/Props/Diamond.png"
+    },
+    {
+      "id": "Streak asset",
+      "status": "PASS",
+      "note": "/MBS_Toony_021523u/png/Props/Streak.png"
+    },
+    {
+      "id": "Streak next milestone",
+      "status": "PASS",
+      "note": "At 0 days the next configured gift is day 3, not all milestones completed"
+    },
+    {
+      "id": "HUD",
+      "status": "PASS",
+      "note": "Level, EXP, coin, diamond, current streak and all three real PNG assets loaded"
+    },
+    {
+      "id": "City actions do not teach",
+      "status": "PASS",
+      "note": "Real barber purchase/placement deducts coins without changing learning profile or creating a streak"
+    },
+    {
+      "id": "Passive income does not teach",
+      "status": "PASS",
+      "note": "Real timed income adds a coin; profile/mastery and streak bytes unchanged"
+    },
+    {
+      "id": "Vehicles",
+      "status": "PASS",
+      "note": "Real taxi purchase creates one NPC in public city progress; two road screenshots differ after 600ms; no learning/streak awarded"
+    },
+    {
+      "id": "Streak Protection",
+      "status": "PASS",
+      "note": "Hidden at day 0; eligible prior-day streak protects once, survives reload, changes no mastery or reward"
+    },
+    {
+      "id": "Streak next milestone after gift",
+      "status": "PASS",
+      "note": "Day 3 must announce next configured milestone day 7"
+    },
+    {
+      "id": "Mystery Gift",
+      "status": "PASS",
+      "note": "No gift at day 0/2; real assessment advances seeded prior days to 3: +20 diamonds, one receipt, one reveal; reload cannot pay again"
+    },
+    {
+      "id": "Streak",
+      "status": "PASS",
+      "note": "UI shows 3 days from validated learning; protection, purchases, passive income and gift presentation do not alter mastery"
+    },
+    {
+      "id": "Daily Mission scroll desktop",
+      "status": "PASS",
+      "note": "Scroll viewport 364px for 1097px content; must leave usable space for existing missions"
+    },
+    {
+      "id": "Mystery Mission desktop",
+      "status": "PASS",
+      "note": "Actual question and options stable after reload; answer feedback grants no mastery/EXP/diamonds/streak"
+    },
+    {
+      "id": "DailyRewardLimit desktop",
+      "status": "PASS",
+      "note": "Existing limit card with accessible limit description rendered in mission panel"
+    },
+    {
+      "id": "Daily Mission scroll mobile",
+      "status": "PASS",
+      "note": "Scroll viewport 308px for 1097px content; must leave usable space for existing missions"
+    },
+    {
+      "id": "Mystery Mission mobile",
+      "status": "PASS",
+      "note": "Actual question and options stable after reload; answer feedback grants no mastery/EXP/diamonds/streak"
+    },
+    {
+      "id": "DailyRewardLimit mobile",
+      "status": "PASS",
+      "note": "Existing limit card with accessible limit description rendered in mission panel"
+    },
+    {
+      "id": "Phaser pointer interaction",
+      "status": "PASS",
+      "note": "Desktop Bank/Hall clicks and mobile pan/Hall click work after overlays close"
+    },
+    {
+      "id": "Narrow/mobile",
+      "status": "PASS",
+      "note": "390x780: no horizontal overflow; HUD, quick actions, scrolling and City Hall close action exercised (screenshots 05/07/08)"
+    },
+    {
+      "id": "Desktop",
+      "status": "PASS",
+      "note": "1280x800: real city, HUD and overlays captured"
+    },
+    {
+      "id": "Console/runtime",
+      "status": "PASS",
+      "note": "0 uncaught/console/resource/HTTP errors; 0 warnings; 0 intentional external blocks"
+    }
+  ],
+  "runtime": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [],
+    "failedResources": [],
+    "httpErrors": [],
+    "intentionalBlocks": []
+  }
+}

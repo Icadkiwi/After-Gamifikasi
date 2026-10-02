@@ -14,7 +14,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import type { DailyLimitState } from '../../game/gamificationService'
+import type { DailyLimitState } from '../../gamification/rewards/gamificationService'
 
 type DailyRewardLimitCardProps = {
   dailyLimit: DailyLimitState
@@ -23,7 +23,7 @@ type DailyRewardLimitCardProps = {
 }
 
 const dailyRewardLimitTooltip =
-  'Hadiah harian maksimum yang bisa diperoleh hari ini dari misi, NPC, dan bonus. Ini bukan total EXP level atau total Koin pengguna.'
+  'Batas bonus misi harian. Hadiah sekali dari penyelesaian tantangan dan hadiah kenaikan level dihitung terpisah.'
 
 export function DailyRewardLimitCard({
   dailyLimit,
@@ -52,7 +52,7 @@ export function DailyRewardLimitCard({
         </CardTitle>
         {!compact && (
           <CardDescription className="text-[11px] leading-snug">
-            Batas hadiah harian dari misi dan bonus.
+            Batas bonus misi belajar harian.
           </CardDescription>
         )}
       </CardHeader>

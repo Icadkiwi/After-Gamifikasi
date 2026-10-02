@@ -19,21 +19,28 @@ import {
 } from 'firebase/auth'
 
 import { auth } from '../lib/firebase'
-import { ensureUserDocument } from '../lib/firestore-finance'
+import { ensureUserDocument } from '../services/userProfile'
 import { getFirebaseErrorCode, getFirebaseErrorMessage } from '../lib/forgotPassword'
+import { getLocalUser, localAccessEnabled, LOCAL_SESSION_KEY, readLocalRole, type LocalRole } from '../lib/localAccess'
+import { isAdminEmail } from '../utils/admin'
+
+type AppUser = Pick<User, 'uid' | 'email' | 'displayName' | 'emailVerified'>
 
 type AuthContextValue = {
-  user: User | null
+  user: AppUser | null
+  isAdmin: boolean
+  isLocalSession: boolean
+  startLocalSession: (role: LocalRole) => Promise<void>
   loading: boolean
   initializing: boolean
   authError: string
   verificationError: string
   verificationCooldownUntil: number
-  login: (email: string, password: string) => Promise<User>
-  register: (email: string, password: string) => Promise<User>
+  login: (email: string, password: string) => Promise<AppUser>
+  register: (email: string, password: string) => Promise<AppUser>
   logout: () => Promise<void>
   resendVerificationEmail: () => Promise<void>
-  refreshUser: () => Promise<User | null>
+  refreshUser: () => Promise<AppUser | null>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -53,6 +60,47 @@ type AuthProviderProps = {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const [localRole, setLocalRole] = useState(readLocalRole)
+  const localOperationPending = useRef(false)
+
+  async function startLocalSession(role: LocalRole) {
+    if (!localAccessEnabled || (role !== 'admin' && role !== 'user')) {
+      throw new Error('Akses uji hanya tersedia pada localhost dalam mode pengembangan.')
+    }
+    if (localOperationPending.current) return
+    localOperationPending.current = true
+    try {
+      // End any real session before using the separate, browser-only identity.
+      await signOut(auth)
+      sessionStorage.setItem(LOCAL_SESSION_KEY, role)
+      setLocalRole(role)
+    } finally {
+      localOperationPending.current = false
+    }
+  }
+
+  async function endLocalSession() {
+    sessionStorage.removeItem(LOCAL_SESSION_KEY)
+    setLocalRole(null)
+  }
+
+  // Keep the router mounted when switching identities so navigation is preserved.
+  return (
+    <FirebaseAuthProvider
+      localRole={localAccessEnabled ? localRole : null}
+      startLocalSession={startLocalSession}
+      endLocalSession={endLocalSession}
+    >
+      {children}
+    </FirebaseAuthProvider>
+  )
+}
+
+function FirebaseAuthProvider({ children, localRole, startLocalSession, endLocalSession }: AuthProviderProps & {
+  localRole: LocalRole | null
+  startLocalSession: AuthContextValue['startLocalSession']
+  endLocalSession: () => Promise<void>
+}) {
   const [session, setSession] = useState<{
     user: User | null
     initializing: boolean
@@ -89,7 +137,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   useEffect(() => {
+    if (localRole) return
     let active = true
+    publishedUser.current = undefined
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       // Login/registrasi memublikasikan sesi setelah seluruh tahapnya selesai.
       if (operationPending.current || auth.currentUser !== currentUser || publishedUser.current === currentUser) return
@@ -124,7 +174,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       active = false
       unsubscribe()
     }
-  }, [])
+  }, [localRole])
 
   async function runOperation<T,>(operation: () => Promise<T>): Promise<T> {
     if (operationPending.current) {
@@ -249,8 +299,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     })
   }
 
-  const value = {
+  const localUser = localRole ? getLocalUser(localRole) : null
+  const requireRealSession = async (): Promise<never> => {
+    throw new Error('Keluar dari sesi lokal untuk menggunakan autentikasi Firebase.')
+  }
+  const value: AuthContextValue = localUser ? {
+    user: localUser,
+    isAdmin: localRole === 'admin',
+    isLocalSession: true,
+    startLocalSession,
+    loading: false,
+    initializing: false,
+    authError: '',
+    verificationError: '',
+    verificationCooldownUntil: 0,
+    login: requireRealSession,
+    register: requireRealSession,
+    resendVerificationEmail: requireRealSession,
+    refreshUser: async () => localUser,
+    logout: endLocalSession,
+  } : {
     user: session.user,
+    isAdmin: isAdminEmail(session.user?.email),
+    isLocalSession: false,
+    startLocalSession,
     loading: session.initializing || busy,
     initializing: session.initializing,
     authError: session.error,

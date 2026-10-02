@@ -1,3 +1,4 @@
+import { cityStorageKey } from './city/storage'
 import type { ShopItem } from './shopItems'
 import {
   getVehicleDefinitionByKey,
@@ -32,6 +33,7 @@ export type VehicleUnlockState = {
 }
 
 export function getVehicleUnlockState(
+  userId: string,
   item: ShopItem,
   purchasedItemKeys: string[],
   soldItemKeys: string[] = [],
@@ -106,7 +108,7 @@ export function getVehicleUnlockState(
     }
   }
 
-  const requirementMet = isVehicleRequirementMet(definition.vehicleType)
+  const requirementMet = isVehicleRequirementMet(definition.vehicleType, userId)
 
   if (!requirementMet) {
     return {
@@ -130,7 +132,7 @@ export function getVehicleUnlockState(
   }
 }
 
-export function isVehicleRequirementMet(vehicleType: VehicleType) {
+export function isVehicleRequirementMet(vehicleType: VehicleType, userId: string) {
   const definition = vehicleDefinitions.find(
     (vehicle) => vehicle.vehicleType === vehicleType,
   )
@@ -150,14 +152,14 @@ export function isVehicleRequirementMet(vehicleType: VehicleType) {
   }
 
   if (requirement.type === 'buildingAvailable') {
-    return hasBuilding(requirement.buildingKey)
+    return hasBuilding(requirement.buildingKey, userId)
   }
 
-  return getBuildingLevel(requirement.buildingKey) >= requirement.level
+  return getBuildingLevel(requirement.buildingKey, userId) >= requirement.level
 }
 
-export function getBuildingLevel(buildingKey: string) {
-  const economy = readJson<StoredEconomy>(economyStorageKey)
+export function getBuildingLevel(buildingKey: string, userId: string) {
+  const economy = readJson<StoredEconomy>(cityStorageKey(economyStorageKey, userId))
 
   if (buildingKey === 'bank') {
     return clampLevel(economy?.bankLevel)
@@ -167,7 +169,7 @@ export function getBuildingLevel(buildingKey: string) {
     return clampLevel(economy?.barberLevel)
   }
 
-  const placeables = readJson<StoredPlaceable[]>(shopPlaceableStorageKey) ?? []
+  const placeables = readJson<StoredPlaceable[]>(cityStorageKey(shopPlaceableStorageKey, userId)) ?? []
   const matchingLevels = placeables
     .filter((placeable) => isMatchingBuilding(placeable, buildingKey))
     .map((placeable) => clampLevel(placeable.level))
@@ -175,12 +177,12 @@ export function getBuildingLevel(buildingKey: string) {
   return matchingLevels.length > 0 ? Math.max(...matchingLevels) : 0
 }
 
-export function hasBuilding(buildingKey: string) {
+export function hasBuilding(buildingKey: string, userId: string) {
   if (buildingKey === 'bank' || buildingKey === 'barber') {
-    return getBuildingLevel(buildingKey) > 0
+    return getBuildingLevel(buildingKey, userId) > 0
   }
 
-  const placeables = readJson<StoredPlaceable[]>(shopPlaceableStorageKey) ?? []
+  const placeables = readJson<StoredPlaceable[]>(cityStorageKey(shopPlaceableStorageKey, userId)) ?? []
 
   return placeables.some((placeable) => isMatchingBuilding(placeable, buildingKey))
 }
