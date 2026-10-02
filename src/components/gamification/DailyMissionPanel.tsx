@@ -73,7 +73,7 @@ export function DailyMissionPanel({
 
   return (
     <div className="absolute inset-x-2 bottom-2 z-20 flex max-h-[calc(100dvh-1rem)] flex-col gap-2 sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-[400px]">
-      <aside className="glass-panel flex min-h-0 max-h-[min(72dvh,34rem)] flex-col overflow-hidden rounded-xl transition-all duration-300 motion-safe:animate-[missionPanelIn_180ms_ease-out] sm:max-h-[75dvh]">
+      <aside className="glass-panel flex min-h-0 max-h-[min(72dvh,34rem)] flex-col overflow-hidden rounded-xl text-card-foreground transition-all duration-300 motion-safe:animate-[missionPanelIn_180ms_ease-out] sm:max-h-[75dvh]">
         <div className="shrink-0 p-3">
           <MissionPanelHeader
             dialog={dialog}

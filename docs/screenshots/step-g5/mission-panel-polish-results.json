@@ -1,0 +1,169 @@
+{
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 800,
+      "shot": "07",
+      "status": "PASS",
+      "contrast": {
+        "title": {
+          "text": "Mentor",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 10.07,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "summary": {
+          "text": "0/4",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 13.35,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "minimize": {
+          "text": "Kecilkan",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "rgba(0, 0, 0, 0.12) 0px 8px 24px 0px"
+        },
+        "limitTitle": {
+          "text": "Progres Hadiah Hari Ini",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "mysteryTitle": {
+          "text": "Pengirim pesan yang mengaku petugas meminta kode OTP dalam simulasi. Apa tindakanmu?",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "minimizeHover": {
+          "text": "Kecilkan",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "rgba(0, 0, 0, 0.12) 0px 8px 24px 0px"
+        },
+        "minimizeFocus": {
+          "text": "Kecilkan",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": true,
+          "boxShadow": "rgba(0, 0, 0, 0.12) 0px 8px 24px 0px"
+        },
+        "expand": {
+          "text": "Misi Harian",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 10.07,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "expandHover": {
+          "text": "Misi Harian",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 10.07,
+          "focusVisible": false,
+          "boxShadow": "none"
+        }
+      },
+      "scroll": {
+        "top": 746,
+        "height": 364,
+        "content": 1110
+      },
+      "overflow": false,
+      "focusControls": "PASS",
+      "cardsReachable": "PASS"
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 780,
+      "shot": "08",
+      "status": "PASS",
+      "contrast": {
+        "title": {
+          "text": "Mentor",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 10.07,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "summary": {
+          "text": "0/4",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 13.35,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "minimize": {
+          "text": "Kecilkan",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "rgba(0, 0, 0, 0.12) 0px 8px 24px 0px"
+        },
+        "limitTitle": {
+          "text": "Progres Hadiah Hari Ini",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "mysteryTitle": {
+          "text": "Pengirim pesan yang mengaku petugas meminta kode OTP dalam simulasi. Apa tindakanmu?",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "minimizeHover": {
+          "text": "Kecilkan",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": false,
+          "boxShadow": "rgba(0, 0, 0, 0.12) 0px 8px 24px 0px"
+        },
+        "minimizeFocus": {
+          "text": "Kecilkan",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 14.08,
+          "focusVisible": true,
+          "boxShadow": "rgba(0, 0, 0, 0.12) 0px 8px 24px 0px"
+        },
+        "expand": {
+          "text": "Misi Harian",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 10.07,
+          "focusVisible": false,
+          "boxShadow": "none"
+        },
+        "expandHover": {
+          "text": "Misi Harian",
+          "color": "rgb(241, 245, 249)",
+          "minimumRatio": 10.07,
+          "focusVisible": false,
+          "boxShadow": "none"
+        }
+      },
+      "scroll": {
+        "top": 822,
+        "height": 308,
+        "content": 1130
+      },
+      "overflow": false,
+      "focusControls": "PASS",
+      "cardsReachable": "PASS"
+    }
+  ],
+  "runtime": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "resourceFailures": []
+  }
+}

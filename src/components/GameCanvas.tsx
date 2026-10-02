@@ -16,15 +16,37 @@ export function GameCanvas({ userId, interactionEnabled = true, className = '' }
   const initialInteraction = useRef(interactionEnabled)
 
   useEffect(() => {
-    if (!containerRef.current || gameRef.current) {
+    const container = containerRef.current
+    if (!container || gameRef.current) {
       return
     }
 
-    gameRef.current = createGame(containerRef.current, userId, initialInteraction.current)
+    let cancelled = false
+    // Defer creation one frame. React StrictMode mounts → unmounts → remounts
+    // effects synchronously, and a Phaser instance destroyed before its boot
+    // still appends its canvas afterwards — leaving a second canvas stacked in
+    // the DOM (observed in dev). Cancelling the first pass avoids creating the
+    // doomed instance at all.
+    const frame = requestAnimationFrame(() => {
+      const element = containerRef.current
+      if (cancelled || !element || gameRef.current) {
+        return
+      }
+      gameRef.current = createGame(element, userId, initialInteraction.current)
+      // Verification aid (STEP G.5): expose the live instance on its container
+      // so browser tests can read scene state. Attached to the DOM node (not
+      // window) and cleared on cleanup, so it cannot leak across remounts.
+      ;(element as HTMLDivElement & { __PHASER_GAME__?: unknown }).__PHASER_GAME__ = gameRef.current
+    })
 
     return () => {
+      cancelled = true
+      cancelAnimationFrame(frame)
       gameRef.current?.destroy(true)
       gameRef.current = null
+      // Belt-and-braces: remove any canvas the destroyed instance left behind.
+      container.querySelectorAll('canvas').forEach((canvas) => canvas.remove())
+      ;(container as HTMLDivElement & { __PHASER_GAME__?: unknown }).__PHASER_GAME__ = undefined
     }
   }, [userId])
 
